@@ -2,7 +2,9 @@
 #include <stdio.h>
 void yyerror (char *s);
 int yylex();
-static int col=0;
+void count();
+void print();
+static int col=1;
 %}
 %option yylineno
 
@@ -16,7 +18,8 @@ IS			(u|U|l|L)*
 
 %%
 
-"/*"			{ comment(); }
+"/*"(.|\n)*"*/"		{/*a C comment*/}
+"//"(.)*(\n)		{/*a C comment*/}
 
 "auto"			{ count(); return(AUTO); }
 "break"			{ count(); return(BREAK); }
@@ -119,21 +122,29 @@ L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
 
 %%
 
+void count(){
 
-
-
-
-
-void yyerror(char *s){
-	printf("ERROR: %s\n",s);
-	exit(1);
+	for (int i = 0; yytext[i] != '\0'; i++){
+		if (yytext[i] == '\n')
+			col = 1;
+		else if (yytext[i] == '\t')
+			col += 4 - (col % 4);
+		else
+			col++;
+    }
 }
 
 void print(char *token, char * lexeme){
     //to print the entries of table
     //first argument is token, 2nd is the lexeme
+
+    printf("%20s %20s %10d %10d\n", token, lexeme, yylineno, col);
 }
 
+void yyerror(char *s){
+	printf("ERROR: %s\n",s);
+	exit(1);
+}
 
 int main(int argc, char *argv[]){
 	if(argc!=2){
@@ -141,9 +152,10 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
     yyin = fopen(argv[1], "r");
-    col=0;
-    // yylineno is used for printing
-    // write a for loop with repated call to yylex
-	fclose(yyin)
+    printf("%20s %20s %10s %10s\n", "Token", "Lexeme", "Line#", "Column#");
+    while(yylex() > 0){
+        //
+    }
+	fclose(yyin);
 	return 0;
 }
