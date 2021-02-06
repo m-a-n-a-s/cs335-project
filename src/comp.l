@@ -1,10 +1,13 @@
 %{
 #include <stdio.h>
+#include "y.tab.h"
 void yyerror (char *s);
 int yylex();
 void count();
 void print();
 static int col=1;
+char lexeme[1024]; 
+char token[1024];
 %}
 %option yylineno
 
@@ -21,98 +24,98 @@ IS			(u|U|l|L)*
 "/*"(.|\n)*"*/"		{/*a C comment*/}
 "//"(.)*(\n)		{/*a C comment*/}
 
-"auto"			{ count(); return(AUTO); }
-"break"			{ count(); return(BREAK); }
-"case"			{ count(); return(CASE); }
-"char"			{ count(); return(CHAR); }
-"const"			{ count(); return(CONST); }
-"continue"		{ count(); return(CONTINUE); }
-"default"		{ count(); return(DEFAULT); }
-"do"			{ count(); return(DO); }
-"double"		{ count(); return(DOUBLE); }
-"else"			{ count(); return(ELSE); }
-"enum"			{ count(); return(ENUM); }
-"extern"		{ count(); return(EXTERN); }
-"float"			{ count(); return(FLOAT); }
-"for"			{ count(); return(FOR); }
-"goto"			{ count(); return(GOTO); }
-"if"			{ count(); return(IF); }
-"int"			{ count(); return(INT); }
-"long"			{ count(); return(LONG); }
-"register"		{ count(); return(REGISTER); }
-"return"		{ count(); return(RETURN); }
-"short"			{ count(); return(SHORT); }
-"signed"		{ count(); return(SIGNED); }
-"sizeof"		{ count(); return(SIZEOF); }
-"static"		{ count(); return(STATIC); }
-"struct"		{ count(); return(STRUCT); }
-"switch"		{ count(); return(SWITCH); }
-"typedef"		{ count(); return(TYPEDEF); }
-"union"			{ count(); return(UNION); }
-"unsigned"		{ count(); return(UNSIGNED); }
-"void"			{ count(); return(VOID); }
-"volatile"		{ count(); return(VOLATILE); }
-"while"			{ count(); return(WHILE); }
+"auto"			{ count(); strcpy(lexeme,yytext); strcpy(token,"AUTO"); return AUTO; }
+"break"			{ count(); strcpy(lexeme,yytext); strcpy(token,"BREAK"); return BREAK; }
+"case"			{ count(); strcpy(lexeme,yytext); strcpy(token,"CASE"); return CASE; }
+"char"			{ count(); strcpy(lexeme,yytext); strcpy(token,"CHAR"); return CHAR; }
+"const"			{ count(); strcpy(lexeme,yytext); strcpy(token,"CONST"); return CONST; }
+"continue"		{ count(); strcpy(lexeme,yytext); strcpy(token,"CONTINUE"); return CONTINUE; }
+"default"		{ count(); strcpy(lexeme,yytext); strcpy(token,"DEFAULT"); return DEFAULT; }
+"do"			{ count(); strcpy(lexeme,yytext); strcpy(token,"DO"); return DO; }
+"double"		{ count(); strcpy(lexeme,yytext); strcpy(token,"DOUBLE"); return DOUBLE; }
+"else"			{ count(); strcpy(lexeme,yytext); strcpy(token,"ELSE"); return ELSE; }
+"enum"			{ count(); strcpy(lexeme,yytext); strcpy(token,"ENUM"); return ENUM; }
+"extern"		{ count(); strcpy(lexeme,yytext); strcpy(token,"EXTERN"); return EXTERN; }
+"float"			{ count(); strcpy(lexeme,yytext); strcpy(token,"FLOAT"); return FLOAT; }
+"for"			{ count(); strcpy(lexeme,yytext); strcpy(token,"FOR"); return FOR; }
+"goto"			{ count(); strcpy(lexeme,yytext); strcpy(token,"GOTO"); return GOTO; }
+"if"			{ count(); strcpy(lexeme,yytext); strcpy(token,"IF"); return IF; }
+"int"			{ count(); strcpy(lexeme,yytext); strcpy(token,"INT"); return INT; }
+"long"			{ count(); strcpy(lexeme,yytext); strcpy(token,"LONG"); return LONG; }
+"main"          { count(); strcpy(lexeme,yytext); strcpy(token,"MAIN"); return MAIN; }
+"register"		{ count(); strcpy(lexeme,yytext); strcpy(token,"REGISTER"); return REGISTER; }
+"return"		{ count(); strcpy(lexeme,yytext); strcpy(token,"RETURN"); return RETURN; }
+"short"			{ count(); strcpy(lexeme,yytext); strcpy(token,"SHORT"); return SHORT; }
+"signed"		{ count(); strcpy(lexeme,yytext); strcpy(token,"SIGNED"); return SIGNED; }
+"sizeof"		{ count(); strcpy(lexeme,yytext); strcpy(token,"SIZEOF"); return SIZEOF; }
+"static"		{ count(); strcpy(lexeme,yytext); strcpy(token,"STATIC"); return STATIC; }
+"struct"		{ count(); strcpy(lexeme,yytext); strcpy(token,"STRUCT"); return STRUCT; }
+"switch"		{ count(); strcpy(lexeme,yytext); strcpy(token,"SWITCH"); return SWITCH; }
+"typedef"		{ count(); strcpy(lexeme,yytext); strcpy(token,"TYPEDEF"); return TYPEDEF; }
+"union"			{ count(); strcpy(lexeme,yytext); strcpy(token,"UNION"); return UNION; }
+"unsigned"		{ count(); strcpy(lexeme,yytext); strcpy(token,"UNSIGNED"); return UNSIGNED; }
+"void"			{ count(); strcpy(lexeme,yytext); strcpy(token,"VOID"); return VOID; }
+"volatile"		{ count(); strcpy(lexeme,yytext); strcpy(token,"VOLATILE"); return VOLATILE; }
+"while"			{ count(); strcpy(lexeme,yytext); strcpy(token,"WHILE"); return WHILE; }
 
-{L}({L}|{D})*		{ count(); return(check_type()); }
 
-0[xX]{H}+{IS}?		{ count(); return(CONSTANT); }
-0{D}+{IS}?		{ count(); return(CONSTANT); }
-{D}+{IS}?		{ count(); return(CONSTANT); }
-L?'(\\.|[^\\'])+'	{ count(); return(CONSTANT); }
+0[xX]{H}+{IS}?		{ count(); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
+0{D}+{IS}?		{ count(); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
+{D}+{IS}?		{ count(); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
+L?'(\\.|[^\\'])+'	{ count(); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");return CONSTANT; }
 
-{D}+{E}{FS}?		{ count(); return(CONSTANT); }
-{D}*"."{D}+({E})?{FS}?	{ count(); return(CONSTANT); }
-{D}+"."{D}*({E})?{FS}?	{ count(); return(CONSTANT); }
+{D}+{E}{FS}?		{ count(); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
+{D}*"."{D}+({E})?{FS}?	{ count(); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
+{D}+"."{D}*({E})?{FS}?	{ count(); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
 
-L?\"(\\.|[^\\"])*\"	{ count(); return(STRING_LITERAL); }
+L?\"(\\.|[^\\"])*\"	{ count(); strcpy(lexeme,yytext); strcpy(token,"STRING_LITERAL"); return STRING_LITERAL; }
 
-"..."			{ count(); return(ELLIPSIS); }
-">>="			{ count(); return(RIGHT_ASSIGN); }
-"<<="			{ count(); return(LEFT_ASSIGN); }
-"+="			{ count(); return(ADD_ASSIGN); }
-"-="			{ count(); return(SUB_ASSIGN); }
-"*="			{ count(); return(MUL_ASSIGN); }
-"/="			{ count(); return(DIV_ASSIGN); }
-"%="			{ count(); return(MOD_ASSIGN); }
-"&="			{ count(); return(AND_ASSIGN); }
-"^="			{ count(); return(XOR_ASSIGN); }
-"|="			{ count(); return(OR_ASSIGN); }
-">>"			{ count(); return(RIGHT_OP); }
-"<<"			{ count(); return(LEFT_OP); }
-"++"			{ count(); return(INC_OP); }
-"--"			{ count(); return(DEC_OP); }
-"->"			{ count(); return(PTR_OP); }
-"&&"			{ count(); return(AND_OP); }
-"||"			{ count(); return(OR_OP); }
-"<="			{ count(); return(LE_OP); }
-">="			{ count(); return(GE_OP); }
-"=="			{ count(); return(EQ_OP); }
-"!="			{ count(); return(NE_OP); }
-";"			{ count(); return(';'); }
-("{"|"<%")		{ count(); return('{'); }
-("}"|"%>")		{ count(); return('}'); }
-","			{ count(); return(','); }
-":"			{ count(); return(':'); }
-"="			{ count(); return('='); }
-"("			{ count(); return('('); }
-")"			{ count(); return(')'); }
-("["|"<:")		{ count(); return('['); }
-("]"|":>")		{ count(); return(']'); }
-"."			{ count(); return('.'); }
-"&"			{ count(); return('&'); }
-"!"			{ count(); return('!'); }
-"~"			{ count(); return('~'); }
-"-"			{ count(); return('-'); }
-"+"			{ count(); return('+'); }
-"*"			{ count(); return('*'); }
-"/"			{ count(); return('/'); }
-"%"			{ count(); return('%'); }
-"<"			{ count(); return('<'); }
-">"			{ count(); return('>'); }
-"^"			{ count(); return('^'); }
-"|"			{ count(); return('|'); }
-"?"			{ count(); return('?'); }
+"..."			{ count(); strcpy(lexeme,yytext); strcpy(token,"ELLIPSIS"); return ELLIPSIS; }
+">>="			{ count(); strcpy(lexeme,yytext); strcpy(token,"RIGHT_ASSIGN"); return RIGHT_ASSIGN; }
+"<<="			{ count(); strcpy(lexeme,yytext); strcpy(token,"LEFT_ASSIGN"); return LEFT_ASSIGN; }
+"+="			{ count(); strcpy(lexeme,yytext); strcpy(token,"ADD_ASSIGN"); return ADD_ASSIGN; }
+"-="			{ count(); strcpy(lexeme,yytext); strcpy(token,"SUB_ASSIGN"); return SUB_ASSIGN; }
+"*="			{ count(); strcpy(lexeme,yytext); strcpy(token,"MUL_ASSIGN"); return MUL_ASSIGN; }
+"/="			{ count(); strcpy(lexeme,yytext); strcpy(token,"DIV_ASSIGN"); return DIV_ASSIGN; }
+"%="			{ count(); strcpy(lexeme,yytext); strcpy(token,"MOD_ASSIGN"); return MOD_ASSIGN; }
+"&="			{ count(); strcpy(lexeme,yytext); strcpy(token,"AND_ASSIGN"); return AND_ASSIGN; }
+"^="			{ count(); strcpy(lexeme,yytext); strcpy(token,"XOR_ASSIGN"); return XOR_ASSIGN; }
+"|="			{ count(); strcpy(lexeme,yytext); strcpy(token,"OR_ASSIGN"); return OR_ASSIGN; }
+">>"			{ count(); strcpy(lexeme,yytext); strcpy(token,"RIGHT_OP"); return RIGHT_OP; }
+"<<"			{ count(); strcpy(lexeme,yytext); strcpy(token,"LEFT_OP"); return LEFT_OP; }
+"++"			{ count(); strcpy(lexeme,yytext); strcpy(token,"INC_OP"); return INC_OP; }
+"--"			{ count(); strcpy(lexeme,yytext); strcpy(token,"DEC_OP"); return DEC_OP; }
+"->"			{ count(); strcpy(lexeme,yytext); strcpy(token,"PTR_OP"); return PTR_OP; }
+"&&"			{ count(); strcpy(lexeme,yytext); strcpy(token,"AND_OP"); return AND_OP; }
+"||"			{ count(); strcpy(lexeme,yytext); strcpy(token,"OR_OP"); return OR_OP; }
+"<="			{ count(); strcpy(lexeme,yytext); strcpy(token,"LE_OP"); return LE_OP; }
+">="			{ count(); strcpy(lexeme,yytext); strcpy(token,"GE_OP"); return GE_OP; }
+"=="			{ count(); strcpy(lexeme,yytext); strcpy(token,"EQ_OP"); return EQ_OP; }
+"!="			{ count(); strcpy(lexeme,yytext); strcpy(token,"NE_OP"); return NE_OP; }
+";"				{ count(); strcpy(lexeme,";"); strcpy(token,";"); return ';'; }
+("{"|"<%")		{ count(); strcpy(lexeme,"{"); strcpy(token,"{"); return '{'; }
+("}"|"%>")		{ count(); strcpy(lexeme,"}"); strcpy(token,"}"); return '}'; }
+","				{ count(); strcpy(lexeme,","); strcpy(token,","); return ','; }
+":"				{ count(); strcpy(lexeme,":"); strcpy(token,":"); return ':'; }
+"="				{ count(); strcpy(lexeme,"="); strcpy(token,"="); return '='; }
+"("				{ count(); strcpy(lexeme,"("); strcpy(token,"("); return '('; }
+")"				{ count(); strcpy(lexeme,")"); strcpy(token,")"); return ')'; }
+("["|"<:")		{ count(); strcpy(lexeme,"["); strcpy(token,"["); return '['; }
+("]"|":>")		{ count(); strcpy(lexeme,"]"); strcpy(token,"]"); return ']'; }
+"."				{ count(); strcpy(lexeme,"."); strcpy(token,"."); return '.'; }
+"&"				{ count(); strcpy(lexeme,"&"); strcpy(token,"&"); return '&'; }
+"!"				{ count(); strcpy(lexeme,"!"); strcpy(token,"!"); return '!'; }
+"~"				{ count(); strcpy(lexeme,"~"); strcpy(token,"~"); return '~'; }
+"-"				{ count(); strcpy(lexeme,"-"); strcpy(token,"-"); return '-'; }
+"+"				{ count(); strcpy(lexeme,"+"); strcpy(token,"+"); return '+'; }
+"*"				{ count(); strcpy(lexeme,"*"); strcpy(token,"*"); return '*'; }
+"/"				{ count(); strcpy(lexeme,"/"); strcpy(token,"/"); return '/'; }
+"%"				{ count(); strcpy(lexeme,"%"); strcpy(token,"%"); return '%'; }
+"<"				{ count(); strcpy(lexeme,"<"); strcpy(token,"<"); return '<'; }
+">"				{ count(); strcpy(lexeme,">"); strcpy(token,">"); return '>'; }
+"^"				{ count(); strcpy(lexeme,"^"); strcpy(token,"^"); return '^'; }
+"|"				{ count(); strcpy(lexeme,"|"); strcpy(token,"|"); return '|'; }
+"?"				{ count(); strcpy(lexeme,"?"); strcpy(token,"?"); return '?'; }
 
 [ \t\v\n\f]		{ count(); }
 .			{ /* ignore bad characters */ }
@@ -134,11 +137,11 @@ void count(){
     }
 }
 
-void print(char *token, char * lexeme){
+void print(char *token, char * lexeme, int column_no){
     //to print the entries of table
     //first argument is token, 2nd is the lexeme
 
-    printf("%20s %20s %10d %10d\n", token, lexeme, yylineno, col);
+    printf("%20s %20s %10d %10d\n", token, lexeme, yylineno, column_no);
 }
 
 void yyerror(char *s){
@@ -153,8 +156,9 @@ int main(int argc, char *argv[]){
 	}
     yyin = fopen(argv[1], "r");
     printf("%20s %20s %10s %10s\n", "Token", "Lexeme", "Line#", "Column#");
-    while(yylex() > 0){
-        //
+	int val = 0;
+    while( (val = yylex()) > 0){
+		print(token, lexeme, col-strlen(lexeme));
     }
 	fclose(yyin);
 	return 0;
