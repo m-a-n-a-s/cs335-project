@@ -42,7 +42,6 @@ IS			(u|U|l|L)*
 "if"			{ count(); strcpy(lexeme,yytext); strcpy(token,"IF"); return IF; }
 "int"			{ count(); strcpy(lexeme,yytext); strcpy(token,"INT"); return INT; }
 "long"			{ count(); strcpy(lexeme,yytext); strcpy(token,"LONG"); return LONG; }
-"main"          { count(); strcpy(lexeme,yytext); strcpy(token,"MAIN"); return MAIN; }
 "register"		{ count(); strcpy(lexeme,yytext); strcpy(token,"REGISTER"); return REGISTER; }
 "return"		{ count(); strcpy(lexeme,yytext); strcpy(token,"RETURN"); return RETURN; }
 "short"			{ count(); strcpy(lexeme,yytext); strcpy(token,"SHORT"); return SHORT; }
@@ -58,7 +57,7 @@ IS			(u|U|l|L)*
 "volatile"		{ count(); strcpy(lexeme,yytext); strcpy(token,"VOLATILE"); return VOLATILE; }
 "while"			{ count(); strcpy(lexeme,yytext); strcpy(token,"WHILE"); return WHILE; }
 
-
+{L}({L}|{D})*		{ count(); strcpy(lexeme,yytext); strcpy(token,"IDENTIFIER"); return IDENTIFIER; }
 0[xX]{H}+{IS}?		{ count(); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
 0{D}+{IS}?		{ count(); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
 {D}+{IS}?		{ count(); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
@@ -141,7 +140,7 @@ void print(char *token, char * lexeme, int column_no){
     //to print the entries of table
     //first argument is token, 2nd is the lexeme
 
-    printf("%20s %20s %10d %10d\n", token, lexeme, yylineno, column_no);
+    printf("%-20s %-20s %-10d %-10d\n", token, lexeme, yylineno, column_no);
 }
 
 void yyerror(char *s){
@@ -155,7 +154,7 @@ int main(int argc, char *argv[]){
 		return 1;
 	}
     yyin = fopen(argv[1], "r");
-    printf("%20s %20s %10s %10s\n", "Token", "Lexeme", "Line#", "Column#");
+    printf("%-20s %-20s %-10s %-10s\n", "Token", "Lexeme", "Line#", "Column#");
 	int val = 0;
     while( (val = yylex()) > 0){
 		print(token, lexeme, col-strlen(lexeme));

@@ -55,3 +55,4 @@
 #define EQ_OP 55+127
 #define NE_OP 56+127
 #define MAIN 57+127
+#define IDENTIFIER 58+127

@@ -1,4 +1,5 @@
 int main(){
-    int valid_name = 5;
+    /*hello*/ int valid_name = 5; //initia;izing
+    printf("//");
     return 0;
 }
