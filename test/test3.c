@@ -23,9 +23,9 @@ int isPalindrome(char str[]){
 
 int main(){
     char str[MAX_LENGTH];
-    char buf1="";
-    char buf2=" ";
-    char buf3={'a','b'};
+    char buf1[10]="";
+    char buf2[10]=" ";
+    char buf3[10]={'a','b'};
     fgets(str, MAX_LENGTH, stdin);
     str[strlen(str)-1] = '\0';
     if(isPalindrome(str)){
