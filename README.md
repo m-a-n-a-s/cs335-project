@@ -12,5 +12,5 @@ To run
 ```
 $./bin/lexer <file>
 ```
-Where <file> is the path of the code you want to run the executable on.
+Where \<file\> is the path of the code you want to run the executable on.
 Sample files have been included in test folder
