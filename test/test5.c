@@ -1,9 +1,5 @@
 /* A program to find 
 roots of a quadratic equation */
-
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
  
 // Prints roots of quadratic equation ax*2 + bx + x
 void findRoots(int a, int b, int c){
