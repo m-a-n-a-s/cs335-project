@@ -1,5 +1,5 @@
 # Group 6 CS335-project
-If bin folder already exists do
+If bin folder already exists run 
 ```
 $make clean
 ```
