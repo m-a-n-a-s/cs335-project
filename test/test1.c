@@ -1,8 +1,6 @@
 /* A program to test
 the swap functions */
 
-#include <stdio.h>
-
 // A function which swaps the values of two variables
 void swap1(long long int var1, long long int var2){
     long long int temp = var1;
