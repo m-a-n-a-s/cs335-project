@@ -117,7 +117,7 @@ L?\"(\\.|[^\\"])*\"	{ count(); strcpy(lexeme,yytext); strcpy(token,"STRING_LITER
 "?"				{ count(); strcpy(lexeme,"?"); strcpy(token,"?"); return '?'; }
 
 [ \t\v\n\f]		{ count(); }
-.			{ /* ignore bad characters */ }
+.			{ yyerror("Invalid Character Found");/* ignore bad characters */ }
 
 
 
@@ -144,7 +144,7 @@ void print(char *token, char * lexeme, int column_no){
 }
 
 void yyerror(char *s){
-	printf("ERROR: %s\n",s);
+	printf("Line:%d Col:%d ERROR: %s\n",yylineno,col,s);
 	exit(1);
 }
 
