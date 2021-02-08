@@ -1,8 +1,6 @@
 /* A program to find 
 the factorial of a number */
 
-#include <stdio.h>
-
 int factorial(int n){ 
     return (n == 1 || n == 0) ? 1 : n * factorial(n - 1); 
 } 
