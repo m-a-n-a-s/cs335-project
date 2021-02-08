@@ -1,11 +1,6 @@
 /* A program to test
 whether a string is a palindrome */
-
-#include <stdio.h>
-#include <string.h>
-
-#define MAX_LENGTH 100
-
+int MAX_LENGTH=100;
 // A function to check palindrome string
 int isPalindrome(char str[]){
     int i = 0;
