@@ -3,8 +3,14 @@ If bin folder already exists run
 ```
 $make clean
 ```
-For Running
+To build run
 ```
 $make
-$./bin/lexer test/filename
 ```
+This will make a executable named lexer in bin folder
+To run 
+```
+$./bin/lexer <file>
+```
+Where <file> is the path of the code you want to run the executable on.
+Sample files have been included in test folder
