@@ -362,8 +362,8 @@ compound_statement
 	;
 
 declaration_list
-	: declaration
-	| declaration_list declaration
+	: declaration {$$=$1;}
+	| declaration_list declaration {$$ = nonTerminal("declaration_list", NULL, $1, $3);}
 	;
 
 statement_list
@@ -390,26 +390,26 @@ iteration_statement
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';'
-	| CONTINUE ';'
-	| BREAK ';'
-	| RETURN ';'
-	| RETURN expression ';'
+	: GOTO IDENTIFIER ';' {$$ = nonTerminal("jump_statement", NULL, temp, temp1);}
+	| CONTINUE ';' {$$ = terminal("continue");}
+	| BREAK ';' {$$ = terminal("break");}
+	| RETURN ';' {$$ = terminal("return");}
+	| RETURN expression ';' {$$ = nonTerminal("jump_statement", NULL, temp, $2);}
 	;
 
 translation_unit
-	: external_declaration
-	| translation_unit external_declaration
+	: external_declaration {$$ = $1;}
+	| translation_unit external_declaration {$$ = nonTerminal("translation_unit", NULL, $1, $3);}
 	;
 
 external_declaration
-	: function_definition
-	| declaration
+	: function_definition {$$ = $1;}
+	| declaration {$$ = $1;}
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement
-	| declaration_specifiers declarator compound_statement
+	: declaration_specifiers declarator declaration_list compound_statement {$$ = nonTerminalFourChild("function_definition", $1, $2, $4, $5, NULL);}
+	| declaration_specifiers declarator compound_statement {$$ = nonTerminal2("function_definition", $1, $2, $4);}
 	| declarator declaration_list compound_statement
 	| declarator compound_statement
 	;
