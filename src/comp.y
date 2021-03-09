@@ -14,102 +14,104 @@
 %%
 
 primary_expression
-	: IDENTIFIER
-	| CONSTANT
-	| STRING_LITERAL
-	| '(' expression ')'
+	: IDENTIFIER			{$$ = terminal($1);}
+	| CONSTANT				{$$ = $1;}
+	| STRING_LITERAL		{$$ = $1;}
+	| '(' expression ')'	{$$ = $1;}
 	;
 
 postfix_expression
-	: primary_expression
-	| postfix_expression '[' expression ']'
-	| postfix_expression '(' ')'
-	| postfix_expression '(' argument_expression_list ')'
-	| postfix_expression '.' IDENTIFIER
-	| postfix_expression PTR_OP IDENTIFIER
-	| postfix_expression INC_OP
-	| postfix_expression DEC_OP
+	: primary_expression									{$$ = $1;}
+	| postfix_expression '[' expression ']'					{$$ = nonTerminal("[ ]", NULL, $1, $3);}
+	| postfix_expression '(' ')'							{$$ = $1;}
+	| postfix_expression '(' argument_expression_list ')'	{$$ = nonTerminal("Postfix Expression", NULL, $1, $3);}
+	| postfix_expression '.' IDENTIFIER						{rchild = terminal($3); 
+															$$ = nonTerminal(" . ", NULL, $1, rchild);}
+	| postfix_expression PTR_OP IDENTIFIER					{rchild = terminal($3); 
+															$$ = nonTerminal("->", NULL, $1, rchild);}
+	| postfix_expression INC_OP								{$$=  nonTerminal("++", NULL,$1, NULL);}
+	| postfix_expression DEC_OP								{$$=  nonTerminal("--", NULL,$1, NULL);}
 	;
 
 argument_expression_list
-	: assignment_expression
-	| argument_expression_list ',' assignment_expression
+	: assignment_expression									{$$ = $1;}
+	| argument_expression_list ',' assignment_expression	{$$ = nonTerminal($2,NULL, $1, $3);}
 	;
 
 unary_expression
-	: postfix_expression
-	| INC_OP unary_expression
-	| DEC_OP unary_expression
-	| unary_operator cast_expression
-	| SIZEOF unary_expression
-	| SIZEOF '(' type_name ')'
+	: postfix_expression				{$$ = $1;}
+	| INC_OP unary_expression			{$$ = nonTerminal("++", NULL, NULL, $2);}
+	| DEC_OP unary_expression			{$$ = nonTerminal("--", NULL, NULL, $2);}
+	| unary_operator cast_expression	{$$ = nonTerminal("Unary Expression", NULL, $1, $2);}
+	| SIZEOF unary_expression			{$$ = nonTerminal($1, NULL, NULL, $2);}
+	| SIZEOF '(' type_name ')'			{$$ = nonTerminal($1, NULL, NULL, $3);}
 	;
 
 unary_operator
-	: '&'
-	| '*'
-	| '+'
-	| '-'
-	| '~'
-	| '!'
+	: '&'	{$$ = terminal("&");}
+	| '*'	{$$ = terminal("*");}
+	| '+'	{$$ = terminal("+");}
+	| '-'	{$$ = terminal("-");}
+	| '~'	{$$ = terminal("~");}
+	| '!'	{$$ = terminal("!");}
 	;
 
 cast_expression
-	: unary_expression
-	| '(' type_name ')' cast_expression
+	: unary_expression					{$$ = $1;}
+	| '(' type_name ')' cast_expression	{$$ = nonTerminal("Type Cast Expression", NULL, $2, $4);}
 	;
 
 multiplicative_expression
-	: cast_expression
-	| multiplicative_expression '*' cast_expression
-	| multiplicative_expression '/' cast_expression
-	| multiplicative_expression '%' cast_expression
+	: cast_expression								{$$ = $1;}
+	| multiplicative_expression '*' cast_expression	{$$ = nonTerminal("*", NULL, $1, $3);}
+	| multiplicative_expression '/' cast_expression	{$$ = nonTerminal("/", NULL, $1, $3);}
+	| multiplicative_expression '%' cast_expression	{$$ = nonTerminal("%", NULL, $1, $3);}
 	;
 
 additive_expression
-	: multiplicative_expression
-	| additive_expression '+' multiplicative_expression
-	| additive_expression '-' multiplicative_expression
+	: multiplicative_expression							{$$ = $1;}
+	| additive_expression '+' multiplicative_expression	{$$ = nonTerminal("+", NULL, $1, $3);}
+	| additive_expression '-' multiplicative_expression	{$$ = nonTerminal("-", NULL, $1, $3);}
 	;
 
 shift_expression
-	: additive_expression
-	| shift_expression LEFT_OP additive_expression
-	| shift_expression RIGHT_OP additive_expression
+	: additive_expression							{$$ = $1;}
+	| shift_expression LEFT_OP additive_expression	{$$ = nonTerminal2($2, $1, NULL, $3);}
+	| shift_expression RIGHT_OP additive_expression	{$$ = nonTerminal2($2, $1, NULL, $3);}
 	;
 
 relational_expression
-	: shift_expression
-	| relational_expression '<' shift_expression
-	| relational_expression '>' shift_expression
-	| relational_expression LE_OP shift_expression
-	| relational_expression GE_OP shift_expression
+	: shift_expression								{$$ = $1;}
+	| relational_expression '<' shift_expression	{$$ = nonTerminal("<", NULL, $1, $3);}
+	| relational_expression '>' shift_expression	{$$ = nonTerminal(">", NULL, $1, $3);}
+	| relational_expression LE_OP shift_expression	{$$ = nonTerminal($2, NULL, $1, $3);}
+	| relational_expression GE_OP shift_expression	{$$ = nonTerminal($2, NULL, $1, $3);}
 	;
 
 equality_expression
-	: relational_expression
-	| equality_expression EQ_OP relational_expression
-	| equality_expression NE_OP relational_expression
+	: relational_expression								{$$ = $1;}
+	| equality_expression EQ_OP relational_expression	{$$ = nonTerminal2($2, $1, NULL, $3);}
+	| equality_expression NE_OP relational_expression	{$$ = nonTerminal2($2, $1, NULL, $3);}
 	;
 
 and_expression
-	: equality_expression
-	| and_expression '&' equality_expression
+	: equality_expression						{$$ = $1;}
+	| and_expression '&' equality_expression	{$$ = nonTerminal("&", NULL, $1, $3);}
 	;
 
 exclusive_or_expression
-	: and_expression
-	| exclusive_or_expression '^' and_expression
+	: and_expression								{$$ = $1;}
+	| exclusive_or_expression '^' and_expression	{$$ = nonTerminal("^", NULL, $1, $3);}
 	;
 
 inclusive_or_expression
-	: exclusive_or_expression
-	| inclusive_or_expression '|' exclusive_or_expression
+	: exclusive_or_expression								{$$ = $1;}
+	| inclusive_or_expression '|' exclusive_or_expression	{$$ = nonTerminal("|", NULL, $1, $3);}
 	;
 
 logical_and_expression
-	: inclusive_or_expression
-	| logical_and_expression AND_OP inclusive_or_expression
+	: inclusive_or_expression								{$$ = $1;}
+	| logical_and_expression AND_OP inclusive_or_expression	{$$ = nonTerminal2($2, $1, NULL, $3);}
 	;
 
 logical_or_expression
