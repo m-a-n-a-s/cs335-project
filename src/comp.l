@@ -6,8 +6,8 @@ int yylex();
 void count();
 void print();
 static int col=1;
-char lexeme[1024]; 
-char token[1024];
+char lexeme[2048]; 
+char token[2048];
 %}
 %option yylineno
 
