@@ -115,115 +115,115 @@ logical_and_expression
 	;
 
 logical_or_expression
-	: logical_and_expression
-	| logical_or_expression OR_OP logical_and_expression
+	: logical_and_expression								{$$ = $1;}
+	| logical_or_expression OR_OP logical_and_expression	{$$ = nonTerminal2($2, $1, NULL, $3);}
 	;
 
 conditional_expression
-	: logical_or_expression
-	| logical_or_expression '?' expression ':' conditional_expression
+	: logical_or_expression												{$$ = $1;}
+	| logical_or_expression '?' expression ':' conditional_expression	{$$ = nonTerminal2("? (Ternary Operator)", $1, $3, $6);}
 	;
 
 assignment_expression
-	: conditional_expression
-	| unary_expression assignment_operator assignment_expression
+	: conditional_expression										{$$ = $1;}
+	| unary_expression assignment_operator assignment_expression	{$$ = nonTerminal2($2, $1, NULL, $3);}
 	;
 
 assignment_operator
-	: '='
-	| MUL_ASSIGN
-	| DIV_ASSIGN
-	| MOD_ASSIGN
-	| ADD_ASSIGN
-	| SUB_ASSIGN
-	| LEFT_ASSIGN
-	| RIGHT_ASSIGN
-	| AND_ASSIGN
-	| XOR_ASSIGN
-	| OR_ASSIGN
+	: '='			{$$ = "=";}
+	| MUL_ASSIGN	{$$ = "*=";}
+	| DIV_ASSIGN	{$$ = "/=";}
+	| MOD_ASSIGN	{$$ = "%=";}
+	| ADD_ASSIGN	{$$ = "+=";}
+	| SUB_ASSIGN	{$$ = "-=";}
+	| LEFT_ASSIGN	{$$ = "<<=";}
+	| RIGHT_ASSIGN	{$$ = ">>=";}
+	| AND_ASSIGN	{$$ = "&=";}
+	| XOR_ASSIGN	{$$ = "^=";}
+	| OR_ASSIGN		{$$ = "|=";}
 	;
 
 expression
-	: assignment_expression
-	| expression ',' assignment_expression
+	: assignment_expression					{$$ = $1;}
+	| expression ',' assignment_expression	{$$ = nonTerminal("Expression ','", NULL, $1, $3);}
 	;
 
 constant_expression
-	: conditional_expression
+	: conditional_expression	{$$ = $1;}
 	;
 
 declaration
 	: declaration_specifiers ';'
-	| declaration_specifiers init_declarator_list ';'
+	| declaration_specifiers init_declarator_list ';'	{$$ = nonTerminal("declaration", NULL, $1, $2);}
 	;
 
 declaration_specifiers
-	: storage_class_specifier
-	| storage_class_specifier declaration_specifiers
-	| type_specifier
-	| type_specifier declaration_specifiers
-	| type_qualifier
-	| type_qualifier declaration_specifiers
+	: storage_class_specifier							{$$ = $1;}
+	| storage_class_specifier declaration_specifiers	{$$ = nonTerminal("declaration_specifiers", NULL, $1, $2);}
+	| type_specifier									{$$ = $1;}		
+	| type_specifier declaration_specifiers				{$$ = nonTerminal("declaration_specifiers", NULL, $1, $2);}
+	| type_qualifier									{$$ = $1;}
+	| type_qualifier declaration_specifiers				{$$ = nonTerminal("declaration_specifiers", NULL, $1, $2);}
 	;
 
 init_declarator_list
-	: init_declarator
-	| init_declarator_list ',' init_declarator
+	: init_declarator							{$$ = $1;}
+	| init_declarator_list ',' init_declarator	{$$ = nonTerminal("init_declaration_list", NULL, $1, $4);}
 	;
 
 init_declarator
-	: declarator
-	| declarator '=' initializer
+	: declarator					{$$ = $1;}
+	| declarator '=' initializer	{$$ = nonTerminal("=", NULL, $1, $3);}
 	;
 
 storage_class_specifier
-	: TYPEDEF
-	| EXTERN
-	| STATIC
-	| AUTO
-	| REGISTER
+	: TYPEDEF	{$$=terminal($1);}
+	| EXTERN	{$$=terminal($1);}
+	| STATIC	{$$=terminal($1);}
+	| AUTO		{$$=terminal($1);}
+	| REGISTER	{$$=terminal($1);}
 	;
 
 type_specifier
-	: VOID
-	| CHAR
-	| SHORT
-	| INT
-	| LONG
-	| FLOAT
-	| DOUBLE
-	| SIGNED
-	| UNSIGNED
-	| struct_or_union_specifier
-	| enum_specifier
-	| TYPE_NAME
+	: VOID							{$$ = terminal($1);}
+	| CHAR							{$$ = terminal($1);}
+	| SHORT							{$$ = terminal($1);}
+	| INT							{$$ = terminal($1);}
+	| LONG							{$$ = terminal($1);}
+	| FLOAT							{$$ = terminal($1);}
+	| DOUBLE						{$$ = terminal($1);}
+	| SIGNED						{$$ = terminal($1);}
+	| UNSIGNED						{$$ = terminal($1);}
+	| struct_or_union_specifier		{$$ = $1;}
+	| enum_specifier				{$$ = $1;}
+	| TYPE_NAME						{$$ = terminal($1);}
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'
-	| struct_or_union '{' struct_declaration_list '}'
-	| struct_or_union IDENTIFIER
+	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'	{$$ = nonTerminal("struct_or_union_specifier", $2, $1, $4);}
+	| struct_or_union '{' struct_declaration_list '}'				{$$ = nonTerminal("struct_or_union_specifier", NULL, $1, $3);}
+	| struct_or_union IDENTIFIER									{$$ = nonTerminal("struct_or_union_specifier", $2, $1, NULL);}
 	;
 
 struct_or_union
-	: STRUCT
-	| UNION
+	: STRUCT	{$$ = terminal($1);}
+	| UNION		{$$ = terminal($1);}
 	;
 
 struct_declaration_list
-	: struct_declaration
-	| struct_declaration_list struct_declaration
+	: struct_declaration							{$$ = $1;}
+	| struct_declaration_list struct_declaration	{$$ = nonTerminal("struct_declaration_list", NULL, $1, $2);}
 	;
 
 struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'
+	: specifier_qualifier_list struct_declarator_list ';'	{$$ = nonTerminal("struct_declaration", NULL, $1, $2);}
 	;
 
 specifier_qualifier_list
-	: type_specifier specifier_qualifier_list
-	| type_specifier
-	| type_qualifier specifier_qualifier_list
-	| type_qualifier
+	: type_specifier specifier_qualifier_list	{$$ = nonTerminal("specifier_qualifier_list", NULL, $1, $2);}
+	| type_specifier							{$$ = $1;}
+	| type_qualifier specifier_qualifier_list	{$$ = nonTerminal("specifier_qualifier_list", NULL, $1, $2);}
+	| type_qualifier							{$$ = $1;}
 	;
 
 struct_declarator_list
