@@ -1,16 +1,63 @@
-%token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
-%token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
-%token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
-%token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
-%token XOR_ASSIGN OR_ASSIGN TYPE_NAME
+%{
+int yylex(void);
+void yyerror(char *s,...);
+%}
 
-%token TYPEDEF EXTERN STATIC AUTO REGISTER
-%token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
-%token STRUCT UNION ENUM ELLIPSIS
+%union {
+  int number;     /*integer value*/
+  char *str;
+  struct node *ptr;     /*node pointer */
+};
 
-%token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
+// %token IDENTIFIER CONSTANT STRING_LITERAL SIZEOF
+// %token PTR_OP INC_OP DEC_OP LEFT_OP RIGHT_OP LE_OP GE_OP EQ_OP NE_OP
+// %token AND_OP OR_OP MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
+// %token SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
+// %token XOR_ASSIGN OR_ASSIGN TYPE_NAME
+
+// %token TYPEDEF EXTERN STATIC AUTO REGISTER
+// %token CHAR SHORT INT LONG SIGNED UNSIGNED FLOAT DOUBLE CONST VOLATILE VOID
+// %token STRUCT UNION ENUM ELLIPSIS
+
+// %token CASE DEFAULT IF ELSE SWITCH WHILE DO FOR GOTO CONTINUE BREAK RETURN
+
+// %start translation_unit
+
+%token <str> CHAR CONST CASE CONTINUE DEFAULT DO DOUBLE
+%token <str> ELSE ENUM EXTERN FLOAT FOR IF INLINE INT LONG
+%token <str> REGISTER RESTRICT RETURN SHORT SIGNED STATIC STRUCT SWITCH TYPEDEF UNION
+%token <str> UNSIGNED VOID VOLATILE WHILE ALIGNAS ALIGNOF ATOMIC BOOL COMPLEX
+%token <str> GENERIC IMAGINARY NORETURN STATIC_ASSERT THREAD_LOCAL FUNC_NAME
+%token <str> AUTO BREAK GOTO TYPEDEF_NAME IDENTIFIER CONSTANT ENUMERATION_CONSTANT
+%token <str> STRING_LITERAL
+%token <num> I_CONSTANT F_CONSTANT
+%left <str> PTR_OP
+%token <str> INC_OP DEC_OP
+%token <str> LEFT_OP RIGHT_OP
+%left <str> LE_OP GE_OP EQ_OP NE_OP
+%left <str> AND_OP OR_OP
+%right <str> MUL_ASSIGN DIV_ASSIGN MOD_ASSIGN ADD_ASSIGN
+%right <str> SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
+%right <str> XOR_ASSIGN OR_ASSIGN TYPE_NAME
+%token <str> ELLIPSIS
+%type <str> assignment_operator
 
 %start translation_unit
+
+%left <str> ',' '^' '|' ';' '{' '}' '[' ']' '(' ')' '+' '-' '%' '/' '*' '.' '>' '<' SIZEOF
+%right <str> '&' '=' '!' '~' ':' '?'
+
+%type <ptr> multiplicative_expression additive_expression cast_expression primary_expression expression assignment_expression postfix_expression unary_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_or_expression logical_and_expression conditional_expression constant_expression
+%type <ptr> type_name argument_expression_list initializer_list
+%type <ptr> unary_operator
+%type <ptr> declaration declaration_specifiers
+%type <ptr> init_declarator_list storage_class_specifier type_specifier type_qualifier
+%type <ptr> init_declarator declarator initializer struct_or_union_specifier enum_specifier struct_or_union struct_declaration_list
+%type <ptr> struct_declaration specifier_qualifier_list struct_declarator_list struct_declarator enumerator_list enumerator pointer
+%type <ptr> direct_declarator type_qualifier_list parameter_type_list identifier_list parameter_list parameter_declaration
+%type <ptr> abstract_declarator direct_abstract_declarator labeled_statement compound_statement expression_statement declaration_list
+%type <ptr> selection_statement iteration_statement jump_statement external_declaration translation_unit function_definition statement statement_list
+
 %%
 
 primary_expression
@@ -250,7 +297,7 @@ enumerator_list
 
 enumerator
 	: IDENTIFIER {$$ = $1;}
-	| IDENTIFIER '=' constant_expression {$$ = nonTerminal("=",NULL, $1,  $3);}
+	| IDENTIFIER '=' constant_expression {$$ = nonTerminal("=",NULL, $1, $3);}
 	;
 
 type_qualifier
