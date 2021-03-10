@@ -1,11 +1,13 @@
 %{
+#include "functions.h"
+
 int yylex(void);
 void yyerror(char *s,...);
 %}
 
 %union {
   int number;     /*integer value*/
-  char *str;
+  char* str;
   struct node *ptr;     /*node pointer */
 };
 
@@ -30,7 +32,7 @@ void yyerror(char *s,...);
 %token <str> GENERIC IMAGINARY NORETURN STATIC_ASSERT THREAD_LOCAL FUNC_NAME
 %token <str> AUTO BREAK GOTO TYPEDEF_NAME IDENTIFIER CONSTANT ENUMERATION_CONSTANT
 %token <str> STRING_LITERAL
-%token <num> I_CONSTANT F_CONSTANT
+//%token <num> I_CONSTANT F_CONSTANT
 %left <str> PTR_OP
 %token <str> INC_OP DEC_OP
 %token <str> LEFT_OP RIGHT_OP
@@ -61,9 +63,9 @@ void yyerror(char *s,...);
 %%
 
 primary_expression
-	: IDENTIFIER			{$$ = terminal($1);}
-	| CONSTANT				{$$ = $1;}
-	| STRING_LITERAL		{$$ = $1;}
+	: IDENTIFIER			{$$ = terminal("IDENTIFIER");}
+	| CONSTANT				{$$ = terminal("CONSTANT");}
+	| STRING_LITERAL		{$$ = terminal("STRING_LITERAL");}
 	| '(' expression ')'	{$$ = $2;}
 	;
 
@@ -72,10 +74,8 @@ postfix_expression
 	| postfix_expression '[' expression ']'					{$$ = nonTerminal("[ ]", NULL, $1, $3);}
 	| postfix_expression '(' ')'							{$$ = $1;}
 	| postfix_expression '(' argument_expression_list ')'	{$$ = nonTerminal("Postfix Expression", NULL, $1, $3);}
-	| postfix_expression '.' IDENTIFIER						{/*rchild = terminal($3);*/ 
-															$$ = nonTerminal(" . ", NULL, $1, terminal($3));}
-	| postfix_expression PTR_OP IDENTIFIER					{/*rchild = terminal($3); */
-															$$ = nonTerminal("->", NULL, $1, terminal($3));}
+	| postfix_expression '.' IDENTIFIER						{$$ = nonTerminal(" . ", NULL, $1, terminal("IDENTIFIER"));}
+	| postfix_expression PTR_OP IDENTIFIER					{$$ = nonTerminal("->", NULL, $1, terminal("IDENTIFIER"));}
 	| postfix_expression INC_OP								{$$=  nonTerminal("++", NULL,$1, NULL);}
 	| postfix_expression DEC_OP								{$$=  nonTerminal("--", NULL,$1, NULL);}
 	;
@@ -224,26 +224,26 @@ init_declarator
 	;
 
 storage_class_specifier
-	: TYPEDEF	{$$=terminal($1);}
-	| EXTERN	{$$=terminal($1);}
-	| STATIC	{$$=terminal($1);}
-	| AUTO		{$$=terminal($1);}
-	| REGISTER	{$$=terminal($1);}
+	: TYPEDEF	{$$=terminal("TYPEDEF");}
+	| EXTERN	{$$=terminal("EXTERN");}
+	| STATIC	{$$=terminal("STATIC");}
+	| AUTO		{$$=terminal("AUTO");}
+	| REGISTER	{$$=terminal("REGISTER");}
 	;
 
 type_specifier
-	: VOID							{$$ = terminal($1);}
-	| CHAR							{$$ = terminal($1);}
-	| SHORT							{$$ = terminal($1);}
-	| INT							{$$ = terminal($1);}
-	| LONG							{$$ = terminal($1);}
-	| FLOAT							{$$ = terminal($1);}
-	| DOUBLE						{$$ = terminal($1);}
-	| SIGNED						{$$ = terminal($1);}
-	| UNSIGNED						{$$ = terminal($1);}
+	: VOID							{$$ = terminal("VOID");}
+	| CHAR							{$$ = terminal("CHAR");}
+	| SHORT							{$$ = terminal("SHORT");}
+	| INT							{$$ = terminal("INT");}
+	| LONG							{$$ = terminal("LONG");}
+	| FLOAT							{$$ = terminal("FLOAT");}
+	| DOUBLE						{$$ = terminal("DOUBLE");}
+	| SIGNED						{$$ = terminal("SIGNED");}
+	| UNSIGNED						{$$ = terminal("UNSIGNED");}
 	| struct_or_union_specifier		{$$ = $1;}
 	| enum_specifier				{$$ = $1;}
-	| TYPE_NAME						{$$ = terminal($1);}
+	| TYPE_NAME						{$$ = terminal("TYPE_NAME");}
 	;
 
 struct_or_union_specifier
@@ -253,8 +253,8 @@ struct_or_union_specifier
 	;
 
 struct_or_union
-	: STRUCT	{$$ = terminal($1);}
-	| UNION		{$$ = terminal($1);}
+	: STRUCT	{$$ = terminal("STRUCT");}
+	| UNION		{$$ = terminal("UNION");}
 	;
 
 struct_declaration_list
@@ -296,13 +296,13 @@ enumerator_list
 	;
 
 enumerator
-	: IDENTIFIER {$$ = $1;}
-	| IDENTIFIER '=' constant_expression {$$ = nonTerminal("=",NULL, $1, $3);}
+	: IDENTIFIER {$$ = terminal("IDENTIFIER");}
+	| IDENTIFIER '=' constant_expression {$$ = nonTerminal("=",NULL, terminal("IDENTIFIER"), $3);}
 	;
 
 type_qualifier
-	: CONST {$$ = terminal($1);}
-	| VOLATILE {$$ = terminal($1);}
+	: CONST {$$ = terminal("CONST");}
+	| VOLATILE {$$ = terminal("VOLATILE");}
 	;
 
 declarator
@@ -311,7 +311,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER {$$=terminal($1);}
+	: IDENTIFIER {$$=terminal("IDENTIFIER");}
 	| '(' declarator ')' {$$ = $2;}
 	| direct_declarator '[' constant_expression ']' {$$ = nonTerminal("direct_declarator", NULL, $1, $3);}
 	| direct_declarator '[' ']' {$$ = nonTerminalSquareB("direct_declarator", $1);}
@@ -335,7 +335,7 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list {$$=$1;}
-	| parameter_list ',' ELLIPSIS {$$=nonTerminal("parameter_type_list",NULL,$1,terminal($3));}
+	| parameter_list ',' ELLIPSIS {$$=nonTerminal("parameter_type_list",NULL,$1,terminal("ELLIPSIS"));}
 	;
 
 parameter_list
@@ -350,8 +350,8 @@ parameter_declaration
 	;
 
 identifier_list
-	: IDENTIFIER {$$=terminal($1);}
-	| identifier_list ',' IDENTIFIER {$$=nonTerminal("identifier_list",NULL,$1,terminal($3));}
+	: IDENTIFIER {$$=terminal("IDENTIFIER");}
+	| identifier_list ',' IDENTIFIER {$$=nonTerminal("identifier_list",NULL,$1,terminal("IDENTIFIER"));}
 	;
 
 type_name
@@ -398,9 +398,9 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement {$$ = nonTerminal("labeled_statement", NULL, terminal($1), $3);}
-	| CASE constant_expression ':' statement {$$ = nonTerminal2("labeled_statement", terminal($1), $2, $3);}
-	| DEFAULT ':' statement {$$ = nonTerminal("labeled_statement", NULL, terminal($1), $3);}
+	: IDENTIFIER ':' statement {$$ = nonTerminal("labeled_statement", NULL, terminal("IDENTIFIER"), $3);}
+	| CASE constant_expression ':' statement {$$ = nonTerminal2("labeled_statement", terminal("CASE"), $2, $4);}
+	| DEFAULT ':' statement {$$ = nonTerminal("labeled_statement", NULL, terminal("DEFAULT"), $3);}
 	;
 
 compound_statement
@@ -439,7 +439,7 @@ iteration_statement
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';' {$$ = nonTerminal("jump_statement", NULL, terminal($1), terminal($2));}
+	: GOTO IDENTIFIER ';' {$$ = nonTerminal("jump_statement", NULL, terminal("GOTO"), terminal("IDENTIFIER"));}
 	| CONTINUE ';' {$$ = terminal("continue");}
 	| BREAK ';' {$$ = terminal("break");}
 	| RETURN ';' {$$ = terminal("return");}
