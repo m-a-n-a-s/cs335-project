@@ -121,7 +121,7 @@ logical_or_expression
 
 conditional_expression
 	: logical_or_expression												{$$ = $1;}
-	| logical_or_expression '?' expression ':' conditional_expression	{$$ = nonTerminal2("? (Ternary Operator)", $1, $3, $6);}
+	| logical_or_expression '?' expression ':' conditional_expression	{$$ = nonTerminal2("? (Ternary Operator)", $1, $3, $5);}
 	;
 
 assignment_expression
@@ -168,7 +168,7 @@ declaration_specifiers
 
 init_declarator_list
 	: init_declarator							{$$ = $1;}
-	| init_declarator_list ',' init_declarator	{$$ = nonTerminal("init_declaration_list", NULL, $1, $4);}
+	| init_declarator_list ',' init_declarator	{$$ = nonTerminal("init_declaration_list", NULL, $1, $3);}
 	;
 
 init_declarator
@@ -269,7 +269,7 @@ direct_declarator
 	| direct_declarator '[' constant_expression ']' {$$ = nonTerminal("direct_declarator", NULL, $1, $3);}
 	| direct_declarator '[' ']' {$$ = nonTerminalSquareB("direct_declarator", $1);}
 	| direct_declarator '(' parameter_type_list ')' {$$ = nonTerminal("direct_declarator", NULL, $1, $3);}
-	| direct_declarator '(' identifier_list ')' {$$ = nonTerminal("direct_declarator", NULL, $1, $3);
+	| direct_declarator '(' identifier_list ')' {$$ = nonTerminal("direct_declarator", NULL, $1, $3); }
 	| direct_declarator '(' ')' {$$ = nonTerminalRoundB("direct_declarator", $1);}
 	;
 
