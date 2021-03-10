@@ -72,15 +72,9 @@ postfix_expression
 	| postfix_expression '[' expression ']'					{$$ = nonTerminal("[ ]", NULL, $1, $3);}
 	| postfix_expression '(' ')'							{$$ = $1;}
 	| postfix_expression '(' argument_expression_list ')'	{$$ = nonTerminal("Postfix Expression", NULL, $1, $3);}
-<<<<<<< HEAD
 	| postfix_expression '.' IDENTIFIER						{$$ = nonTerminal(" . ", NULL, $1, terminal($3));}
 	| postfix_expression PTR_OP IDENTIFIER					{$$ = nonTerminal("->", NULL, $1, terminal($3));}
-=======
-	| postfix_expression '.' IDENTIFIER						{/*rchild = terminal($3);*/ 
-															$$ = nonTerminal(" . ", NULL, $1, terminal($3));}
-	| postfix_expression PTR_OP IDENTIFIER					{/*rchild = terminal($3); */
-															$$ = nonTerminal("->", NULL, $1, terminal($3));}
->>>>>>> 4ef81fed8dfb31df293fb78bb50143b06a05d2d5
+
 	| postfix_expression INC_OP								{$$=  nonTerminal("++", NULL,$1, NULL);}
 	| postfix_expression DEC_OP								{$$=  nonTerminal("--", NULL,$1, NULL);}
 	;
@@ -469,17 +463,3 @@ function_definition
 	;
 
 %%
-<<<<<<< HEAD
-// #include <stdio.h>
-
-// extern char yytext[];
-// extern int column;
-
-// yyerror(s)
-// char *s;
-// {
-// 	fflush(stdout);
-// 	printf("\n%*s\n%*s\n", column, "^", column, s);
-// }
-=======
->>>>>>> 4ef81fed8dfb31df293fb78bb50143b06a05d2d5

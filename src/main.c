@@ -3,15 +3,12 @@
 #include <string.h>
 
 extern FILE *yyin;
-<<<<<<< HEAD
+
 FILE *digraph;
 
 void yyerror(char *s){
 	printf("%s",s);
 }
-=======
-FILE* digraph;
->>>>>>> 4ef81fed8dfb31df293fb78bb50143b06a05d2d5
 
 int main(int argc, char * argv[]){
     if (argc < 4){
