@@ -17,7 +17,7 @@ primary_expression
 	: IDENTIFIER			{$$ = terminal($1);}
 	| CONSTANT				{$$ = $1;}
 	| STRING_LITERAL		{$$ = $1;}
-	| '(' expression ')'	{$$ = $1;}
+	| '(' expression ')'	{$$ = $2;}
 	;
 
 postfix_expression
@@ -25,10 +25,10 @@ postfix_expression
 	| postfix_expression '[' expression ']'					{$$ = nonTerminal("[ ]", NULL, $1, $3);}
 	| postfix_expression '(' ')'							{$$ = $1;}
 	| postfix_expression '(' argument_expression_list ')'	{$$ = nonTerminal("Postfix Expression", NULL, $1, $3);}
-	| postfix_expression '.' IDENTIFIER						{rchild = terminal($3); 
-															$$ = nonTerminal(" . ", NULL, $1, rchild);}
-	| postfix_expression PTR_OP IDENTIFIER					{rchild = terminal($3); 
-															$$ = nonTerminal("->", NULL, $1, rchild);}
+	| postfix_expression '.' IDENTIFIER						{?*rchild = terminal($3);*/ 
+															$$ = nonTerminal(" . ", NULL, $1, terminal($3));}
+	| postfix_expression PTR_OP IDENTIFIER					{/*rchild = terminal($3); */
+															$$ = nonTerminal("->", NULL, $1, terminal($3);}
 	| postfix_expression INC_OP								{$$=  nonTerminal("++", NULL,$1, NULL);}
 	| postfix_expression DEC_OP								{$$=  nonTerminal("--", NULL,$1, NULL);}
 	;
@@ -58,7 +58,7 @@ unary_operator
 
 cast_expression
 	: unary_expression					{$$ = $1;}
-	| '(' type_name ')' cast_expression	{$$ = nonTerminal("Type Cast Expression", NULL, $2, $4);}
+	| '(' type_name ')' cast_expression	{$$ = nonTerminal("Cast Expression", NULL, $2, $4);}
 	;
 
 multiplicative_expression
@@ -153,7 +153,7 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers ';'
+	: declaration_specifiers ';' {$$=$1}
 	| declaration_specifiers init_declarator_list ';'	{$$ = nonTerminal("declaration", NULL, $1, $2);}
 	;
 
@@ -269,7 +269,7 @@ direct_declarator
 	| direct_declarator '[' constant_expression ']' {$$ = nonTerminal("direct_declarator", NULL, $1, $3);}
 	| direct_declarator '[' ']' {$$ = nonTerminalSquareB("direct_declarator", $1);}
 	| direct_declarator '(' parameter_type_list ')' {$$ = nonTerminal("direct_declarator", NULL, $1, $3);}
-	| direct_declarator '(' identifier_list ')' {$$ = nonTerminal("direct_declarator", NULL, $1, $3); }
+	| direct_declarator '(' identifier_list ')' {$$ = nonTerminal("direct_declarator", NULL, $1, $3);}
 	| direct_declarator '(' ')' {$$ = nonTerminalRoundB("direct_declarator", $1);}
 	;
 
@@ -288,12 +288,12 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list {$$=$1;}
-	| parameter_list ',' ELLIPSIS {$$=nonTerminal("parameter_list",NULL,$1,$3);}
+	| parameter_list ',' ELLIPSIS {$$=nonTerminal("parameter_type_list",NULL,$1,terminal($3));}
 	;
 
 parameter_list
-	: parameter_declaration
-	| parameter_list ',' parameter_declaration
+	: parameter_declaration {$$=$1}
+	| parameter_list ',' parameter_declaration {$$=nonTerminal("parameter_list",NULL,$1,$3);}
 	;
 
 parameter_declaration
@@ -304,7 +304,7 @@ parameter_declaration
 
 identifier_list
 	: IDENTIFIER {$$=terminal($1);}
-	| identifier_list ',' IDENTIFIER {$$=nonTerminal("identifier_list",NULL,$1,temp);}
+	| identifier_list ',' IDENTIFIER {$$=nonTerminal("identifier_list",NULL,$1,terminal($3));}
 	;
 
 type_name
@@ -351,16 +351,16 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement {$$ = nonTerminal("labeled_statement", NULL, temp, $3);}
-	| CASE constant_expression ':' statement {$$ = nonTerminal2("labeled_statement", temp, $1, $2);}
-	| DEFAULT ':' statement {$$ = nonTerminal("labeled_statement", NULL, temp, $3);}
+	: IDENTIFIER ':' statement {$$ = nonTerminal("labeled_statement", NULL, terminal($1), $3);}
+	| CASE constant_expression ':' statement {$$ = nonTerminal2("labeled_statement", terminal($1), $2, $3);}
+	| DEFAULT ':' statement {$$ = nonTerminal("labeled_statement", NULL, terminal($1), $3);}
 	;
 
 compound_statement
 	: '{' '}' {$$ = terminal("{ }");}
 	| '{' statement_list '}' {$$ = $2;}
 	| '{' declaration_list '}' {$$ = $2;}
-	| '{' declaration_list statement_list '}'
+	| '{' declaration_list statement_list '}' {$$ = nonTerminal("compound_statement",NULL, $2,$3);}
 	;
 
 declaration_list
@@ -388,15 +388,15 @@ iteration_statement
 	: WHILE '(' expression ')' statement {$$ = nonTerminal2("WHILE (expr) stmt", NULL, $3, $5);}
 	| DO statement WHILE '(' expression ')' ';' {$$ = nonTerminal2("DO stmt WHILE (expr)", NULL, $2, $5);}
 	| FOR '(' expression_statement expression_statement ')' statement {$$ = nonTerminal2("FOR (expr stmt expr stmt) stmt", $3, $4, $6);}
-	| FOR '(' expression_statement expression_statement expression ')' statement {$$ = nonTerminalFiveChild("FOR (expr stmt expr stmt expr) stmt", NULL, $3, $4, $4, $7);}
+	| FOR '(' expression_statement expression_statement expression ')' statement {$$ = nonTerminalFiveChild("FOR (expr stmt expr stmt expr) stmt", NULL, $3, $4, $5, $7);}
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';' {$$ = nonTerminal("jump_statement", NULL, temp, temp1);}
+	: GOTO IDENTIFIER ';' {$$ = nonTerminal("jump_statement", NULL, terminal($1), terminal($2));}
 	| CONTINUE ';' {$$ = terminal("continue");}
 	| BREAK ';' {$$ = terminal("break");}
 	| RETURN ';' {$$ = terminal("return");}
-	| RETURN expression ';' {$$ = nonTerminal("jump_statement", NULL, temp, $2);}
+	| RETURN expression ';' {$$ = nonTerminal("jump_statement", NULL, terminal("return"), $2);}
 	;
 
 translation_unit
@@ -412,8 +412,8 @@ external_declaration
 function_definition
 	: declaration_specifiers declarator declaration_list compound_statement {$$ = nonTerminalFourChild("function_definition", $1, $2, $3, $4, NULL);}
 	| declaration_specifiers declarator compound_statement {$$ = nonTerminal2("function_definition", $1, $2, $3);}
-	| declarator declaration_list compound_statement
-	| declarator compound_statement
+	| declarator declaration_list compound_statement {$$ = nonTerminal2("function_definition",$1,$2,$3);}
+	| declarator compound_statement {$$ = nonTerminal2("function_definition", $1,NULL,$2);}
 	;
 
 %%
