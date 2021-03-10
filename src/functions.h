@@ -3,17 +3,17 @@
 #include<string.h>
 
 struct node{
-  char* name;
+  char* token;
   int id;
 };
 
 int find_id();
-struct node *non_term_symb(char *str,char *op, struct node *l, struct node *r);
-struct node *non_term_symb_1(char *str,char *op1, struct node *l,char *op2);
-struct node *non_term_symb_3(char *str,char *op1,char *op3, struct node *l,char *op2);
 struct node *term_symb(char *str);
-struct node *non_term_symb_2(char *str,struct node *l,struct node *m, struct node *r);
-struct node *non_term_symb_4(char *str,struct node *a1,struct node *a2, struct node *a3, struct node*a4,char* op);
-struct node *non_term_symb_5(char *str,struct node *a1,struct node *a2, struct node *a3, struct node*a4,struct node *a5);
-struct node *parentheses(char *str, struct node *a);
-struct node *square(char *str, struct node *a);
+struct node *non_term_symb(char *str,char *root, struct node *left, struct node *right);
+struct node *non_term_symb_1(char *str,char *root1, struct node *left,char *root2);
+struct node *non_term_symb_2(char *str,struct node *left,struct node *m, struct node *right);
+struct node *non_term_symb_3(char *str,char *root1,char *root3, struct node *left,char *root2);
+struct node *non_term_symb_4(char *str,struct node *node1,struct node *node2, struct node *node3, struct node*node4,char* root);
+struct node *non_term_symb_5(char *str,struct node *node1,struct node *node2, struct node *node3, struct node*node4,struct node *node5);
+struct node *parentheses(char *str, struct node *node);
+struct node *square(char *str, struct node *node);
