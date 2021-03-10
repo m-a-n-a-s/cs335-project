@@ -73,23 +73,23 @@ postfix_expression
 	: primary_expression									{$$ = $1;}
 	| postfix_expression '[' expression ']'					{$$ = non_term_symb("[ ]", NULL, $1, $3);}
 	| postfix_expression '(' ')'							{$$ = $1;}
-	| postfix_expression '(' argument_expression_list ')'	{$$ = non_term_symb("Postfix Expression", NULL, $1, $3);}
-	| postfix_expression '.' IDENTIFIER						{$$ = non_term_symb(" . ", NULL, $1, term_symb("IDENTIFIER"));}
-	| postfix_expression PTR_OP IDENTIFIER					{$$ = non_term_symb("->", NULL, $1, term_symb("IDENTIFIER"));}
+	| postfix_expression '(' argument_expression_list ')'	{$$ = non_term_symb("postfix_expression", NULL, $1, $3);}
+	| postfix_expression '.' IDENTIFIER						{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));}
+	| postfix_expression PTR_OP IDENTIFIER					{$$ = non_term_symb("->", NULL, $1, term_symb($3));}
 	| postfix_expression INC_OP								{$$=  non_term_symb("++", NULL,$1, NULL);}
 	| postfix_expression DEC_OP								{$$=  non_term_symb("--", NULL,$1, NULL);}
 	;
 
 argument_expression_list
 	: assignment_expression									{$$ = $1;}
-	| argument_expression_list ',' assignment_expression	{$$ = non_term_symb($2,NULL, $1, $3);}
+	| argument_expression_list ',' assignment_expression	{$$ = non_term_symb($2,NULL,$1, $3);}
 	;
 
 unary_expression
 	: postfix_expression				{$$ = $1;}
 	| INC_OP unary_expression			{$$ = non_term_symb("++", NULL, NULL, $2);}
 	| DEC_OP unary_expression			{$$ = non_term_symb("--", NULL, NULL, $2);}
-	| unary_operator cast_expression	{$$ = non_term_symb("Unary Expression", NULL, $1, $2);}
+	| unary_operator cast_expression	{$$ = non_term_symb("unary_expression", NULL, $1, $2);}
 	| SIZEOF unary_expression			{$$ = non_term_symb($1, NULL, NULL, $2);}
 	| SIZEOF '(' type_name ')'			{$$ = non_term_symb($1, NULL, NULL, $3);}
 	;
@@ -105,7 +105,7 @@ unary_operator
 
 cast_expression
 	: unary_expression					{$$ = $1;}
-	| '(' type_name ')' cast_expression	{$$ = non_term_symb("Cast Expression", NULL, $2, $4);}
+	| '(' type_name ')' cast_expression	{$$ = non_term_symb("cast_expression", NULL, $2, $4);}
 	;
 
 multiplicative_expression
@@ -192,7 +192,7 @@ assignment_operator
 
 expression
 	: assignment_expression					{$$ = $1;}
-	| expression ',' assignment_expression	{$$ = non_term_symb("Expression ','", NULL, $1, $3);}
+	| expression ',' assignment_expression	{$$ = non_term_symb("expression ','", NULL, $1, $3);}
 	;
 
 constant_expression
@@ -297,7 +297,7 @@ enumerator_list
 
 enumerator
 	: IDENTIFIER {$$ = term_symb($1);}
-	| IDENTIFIER '=' constant_expression {$$ = non_term_symb("=",NULL, term_symb("IDENTIFIER"), $3);}
+	| IDENTIFIER '=' constant_expression {$$ = non_term_symb("=",NULL, term_symb($1), $3);}
 	;
 
 type_qualifier
@@ -350,8 +350,8 @@ parameter_declaration
 	;
 
 identifier_list
-	: IDENTIFIER {$$=term_symb("IDENTIFIER");}
-	| identifier_list ',' IDENTIFIER {$$=non_term_symb("identifier_list",NULL,$1,term_symb("IDENTIFIER"));}
+	: IDENTIFIER {$$=term_symb($1);}
+	| identifier_list ',' IDENTIFIER {$$=non_term_symb("identifier_list",NULL,$1,term_symb($3));}
 	;
 
 type_name
@@ -398,7 +398,7 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement {$$ = non_term_symb("labeled_statement", NULL, term_symb("IDENTIFIER"), $3);}
+	: IDENTIFIER ':' statement {$$ = non_term_symb("labeled_statement", NULL, term_symb($1), $3);}
 	| CASE constant_expression ':' statement {$$ = non_term_symb_2("labeled_statement", term_symb("CASE"), $2, $4);}
 	| DEFAULT ':' statement {$$ = non_term_symb("labeled_statement", NULL, term_symb("DEFAULT"), $3);}
 	;
@@ -439,7 +439,7 @@ iteration_statement
 	;
 
 jump_statement
-	: GOTO IDENTIFIER ';' {$$ = non_term_symb("jump_statement", NULL, term_symb("GOTO"), term_symb("IDENTIFIER"));}
+	: GOTO IDENTIFIER ';' {$$ = non_term_symb("jump_statement", NULL, term_symb("GOTO"), term_symb($2));}
 	| CONTINUE ';' {$$ = term_symb("continue");}
 	| BREAK ';' {$$ = term_symb("break");}
 	| RETURN ';' {$$ = term_symb("return");}

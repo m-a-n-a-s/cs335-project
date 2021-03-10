@@ -107,6 +107,22 @@ struct node *non_term_symb_1(char *str,char *root1, struct node *left ,char *roo
   return head;
   // return NULL;
 }
+
+struct node *non_term_symb_2(char *str,struct node *left ,struct node *mid, struct node *right) {
+  struct node* head = (struct node*) malloc(sizeof(struct node));
+  int size1 = strlen(str);
+  head->token = (char*)malloc(size1 + 1);
+  strcpy(head->token, str);
+  head->id = find_id();
+  head->token[size1] = '\0';
+  fprintf(ast, "\t%lu [label=\"%s\"];\n", head->id, head->token);
+  if(left) fprintf(ast, "\t%lu -> %lu;\n", head->id, left->id);
+  if(mid) fprintf(ast, "\t%lu -> %lu;\n", head->id, mid->id);
+  if(right)fprintf(ast, "\t%lu -> %lu;\n", head->id, right->id);
+  return head;
+  // return NULL;
+}
+
 struct node *non_term_symb_3(char *str,char *root1,char *root3, struct node *left,char *root2) {
   struct node *head = (struct node*) malloc(sizeof(struct node));
   int size1 = strlen(str);
@@ -125,20 +141,6 @@ struct node *non_term_symb_3(char *str,char *root1,char *root3, struct node *lef
   if(root3) fprintf(ast, "\t%lu -> %lu;\n", head->id, root3_id);
   if(left)fprintf(ast, "\t%lu -> %lu;\n", head->id, left->id);
   if(root2) fprintf(ast, "\t%lu -> %lu;\n", head->id, root2_id);
-  return head;
-  // return NULL;
-}
-struct node *non_term_symb_2(char *str,struct node *left ,struct node *mid, struct node *right) {
-  struct node* head = (struct node*) malloc(sizeof(struct node));
-  int size1 = strlen(str);
-  head->token = (char*)malloc(size1 + 1);
-  strcpy(head->token, str);
-  head->id = find_id();
-  head->token[size1] = '\0';
-  fprintf(ast, "\t%lu [label=\"%s\"];\n", head->id, head->token);
-  if(left) fprintf(ast, "\t%lu -> %lu;\n", head->id, left->id);
-  if(mid) fprintf(ast, "\t%lu -> %lu;\n", head->id, mid->id);
-  if(right)fprintf(ast, "\t%lu -> %lu;\n", head->id, right->id);
   return head;
   // return NULL;
 }
