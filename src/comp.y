@@ -13,6 +13,8 @@ void yyerror(char *s,...);
 
 %token <str> CHAR CONST CASE CONTINUE DEFAULT DO DOUBLE
 %token <str> ELSE ENUM EXTERN FLOAT FOR IF INLINE INT LONG
+%nonassoc IFX
+%nonassoc ELSE
 %token <str> REGISTER RESTRICT RETURN SHORT SIGNED STATIC STRUCT SWITCH TYPEDEF UNION
 %token <str> UNSIGNED VOID VOLATILE WHILE ALIGNAS ALIGNOF ATOMIC BOOL COMPLEX
 %token <str> GENERIC IMAGINARY NORETURN STATIC_ASSERT THREAD_LOCAL FUNC_NAME
@@ -412,7 +414,7 @@ expression_statement
 	;
 
 selection_statement
-	: IF '(' expression ')' statement {$$ = non_term_symb_2("IF (expr) stmt", NULL, $3, $5);}
+	: IF '(' expression ')' statement %prec IFX {$$ = non_term_symb_2("IF (expr) stmt", NULL, $3, $5);}
 	| IF '(' expression ')' statement ELSE statement {$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $3, $5, $7);}
 	| SWITCH '(' expression ')' statement {$$ = non_term_symb_2("SWITCH (expr) stmt", NULL, $3, $5);}
 	;
