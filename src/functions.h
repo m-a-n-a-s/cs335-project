@@ -4,10 +4,10 @@
 
 struct node{
   char* token;
-  int id;
+  unsigned long id;
 };
 
-int find_id();
+unsigned long find_id();
 struct node *square(char *str, struct node *node);
 struct node *parentheses(char *str, struct node *node);
 struct node *term_symb(char *str);
