@@ -3,14 +3,13 @@ roots of a quadratic equation */
  
 // Prints roots of quadratic equation ax*2 + bx + x
 void findRoots(int a, int b, int c){
-
+    
+    int D = (int)pow((double)b,2.0) - 4*a*c;
+    double sqrt_val = sqrt(abs(D));
     if (a == 0) {
         printf("It is not a Quadratic Equation\n");
         return;
     }
- 
-    int D = (int)pow((double)b,2.0) - 4*a*c;
-    double sqrt_val = sqrt(abs(D));
  
     if(D > 0){
         printf("Roots are real and different \n");
