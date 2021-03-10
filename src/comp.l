@@ -136,29 +136,29 @@ void count(){
     }
 }
 
-void print(char *token, char * lexeme, int column_no){
-    //to print the entries of table
-    //first argument is token, 2nd is the lexeme
+// void print(char *token, char * lexeme, int column_no){
+//     //to print the entries of table
+//     //first argument is token, 2nd is the lexeme
 
-    printf("%-20s %-20s %-10d %-10d\n", token, lexeme, yylineno, column_no);
-}
+//     printf("%-20s %-20s %-10d %-10d\n", token, lexeme, yylineno, column_no);
+// }
 
-void yyerror(char *s){
-	printf("Line:%d Col:%d ERROR: %s\n",yylineno,col,s);
-	exit(1);
-}
+// void yyerror(char *s){
+// 	printf("Line:%d Col:%d ERROR: %s\n",yylineno,col,s);
+// 	exit(1);
+// }
 
-int main(int argc, char *argv[]){
-	if(argc!=2){
-        printf("Please specify an existing filename\n");	
-		return 1;
-	}
-    yyin = fopen(argv[1], "r");
-    printf("%-20s %-20s %-10s %-10s\n", "Token", "Lexeme", "Line#", "Column#");
-	int val = 0;
-    while( (val = yylex()) > 0){
-		print(token, lexeme, col-strlen(lexeme));
-    }
-	fclose(yyin);
-	return 0;
-}
+// int main(int argc, char *argv[]){
+// 	if(argc!=2){
+//         printf("Please specify an existing filename\n");	
+// 		return 1;
+// 	}
+//     yyin = fopen(argv[1], "r");
+//     printf("%-20s %-20s %-10s %-10s\n", "Token", "Lexeme", "Line#", "Column#");
+// 	int val = 0;
+//     while( (val = yylex()) > 0){
+// 		print(token, lexeme, col-strlen(lexeme));
+//     }
+// 	fclose(yyin);
+// 	return 0;
+// }
