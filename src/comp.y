@@ -154,7 +154,7 @@ logical_or_expression
 
 conditional_expression
 	: logical_or_expression												{$$ = $1;}
-	| logical_or_expression '?' expression ':' conditional_expression	{$$ = non_term_symb_2("? (Ternary Operator)", $1, $3, $5);}
+	| logical_or_expression '?' expression ':' conditional_expression	{$$ = non_term_symb_2("logical_expr ? expr : conditional_expr", $1, $3, $5);}
 	;
 
 assignment_expression
