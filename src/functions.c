@@ -2,19 +2,19 @@
 
 extern FILE *digraph;
 
-int getNodeId() {
+int find_id() {
   static int nodeId = 0;
   nodeId += 1;
   return nodeId;
 }
 // WORKING !!
-struct node *nonTerminal(char *str,char *op, struct node *l, struct node *r) {
+struct node *non_term_symb(char *str,char *op, struct node *l, struct node *r) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   int size1 = strlen(str);
   n->name = (char*)malloc(size1 + 1);
   strcpy(n->name, str);
-  n->id = getNodeId();
-  int op_id = getNodeId();
+  n->id = find_id();
+  int op_id = find_id();
   if(op){
     fprintf(digraph, "\t%lu [label=\"%s\"];\n", op_id, op);
   }
@@ -23,18 +23,18 @@ struct node *nonTerminal(char *str,char *op, struct node *l, struct node *r) {
   if(l) fprintf(digraph, "\t%lu -> %lu;\n", n->id, l->id);
   if(op) fprintf(digraph, "\t%lu -> %lu;\n", n->id, op_id);
   if(r)fprintf(digraph, "\t%lu -> %lu;\n", n->id, r->id);
-  //printf("nonTerminal Working\n");
+  //printf("non_term_symb Working\n");
   return n;
   // return NULL;
 }
-struct node *nonTerminal1(char *str,char *op1, struct node *l,char *op2) {
+struct node *non_term_symb_1(char *str,char *op1, struct node *l,char *op2) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   int size1 = strlen(str);
   n->name = (char*)malloc(size1 + 1);
   strcpy(n->name, str);
-  n->id = getNodeId();
-  int op1_id = getNodeId();
-  int op2_id = getNodeId();
+  n->id = find_id();
+  int op1_id = find_id();
+  int op2_id = find_id();
   if(op1){
 
     fprintf(digraph, "\t%lu [label=\"%s\"];\n", op1_id, op1);
@@ -51,15 +51,15 @@ struct node *nonTerminal1(char *str,char *op1, struct node *l,char *op2) {
   return n;
   // return NULL;
 }
-struct node *nonTerminal3(char *str,char *op1,char *op3, struct node *l,char *op2) {
+struct node *non_term_symb_3(char *str,char *op1,char *op3, struct node *l,char *op2) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   int size1 = strlen(str);
   n->name = (char*)malloc(size1 + 1);
   strcpy(n->name, str);
-  n->id = getNodeId();
-  int op1_id = getNodeId();
-  int op3_id = getNodeId();
-  int op2_id = getNodeId();
+  n->id = find_id();
+  int op1_id = find_id();
+  int op3_id = find_id();
+  int op2_id = find_id();
   if(op1){
 
     fprintf(digraph, "\t%lu [label=\"%s\"];\n", op1_id, op1);
@@ -82,12 +82,12 @@ struct node *nonTerminal3(char *str,char *op1,char *op3, struct node *l,char *op
   return n;
   // return NULL;
 }
-struct node *nonTerminal2(char *str,struct node *l,struct node *m, struct node *r) {
+struct node *non_term_symb_2(char *str,struct node *l,struct node *m, struct node *r) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   int size1 = strlen(str);
   n->name = (char*)malloc(size1 + 1);
   strcpy(n->name, str);
-  n->id = getNodeId();
+  n->id = find_id();
   n->name[size1] = '\0';
   fprintf(digraph, "\t%lu [label=\"%s\"];\n", n->id, n->name);
   if(l) fprintf(digraph, "\t%lu -> %lu;\n", n->id, l->id);
@@ -97,13 +97,13 @@ struct node *nonTerminal2(char *str,struct node *l,struct node *m, struct node *
   // return NULL;
 }
 
-struct node *nonTerminalFourChild(char *str,struct node *a1,struct node *a2, struct node *a3, struct node*a4, char* op) {
+struct node *non_term_symb_4(char *str,struct node *a1,struct node *a2, struct node *a3, struct node*a4, char* op) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   int size1 = strlen(str);
   n->name = (char*)malloc(size1 + 1);
   strcpy(n->name, str);
-  n->id = getNodeId();
-  int op_id = getNodeId();
+  n->id = find_id();
+  int op_id = find_id();
   if(op){
     fprintf(digraph,"\t%lu [label=\"%s\"];\n",op_id,op);
   }
@@ -118,12 +118,12 @@ struct node *nonTerminalFourChild(char *str,struct node *a1,struct node *a2, str
   // return NULL;
 }
 
-struct node *nonTerminalFiveChild(char *str,struct node *a1,struct node *a2, struct node *a3, struct node*a4, struct node* a5) {
+struct node *non_term_symb_5(char *str,struct node *a1,struct node *a2, struct node *a3, struct node*a4, struct node* a5) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   int size1 = strlen(str);
   n->name = (char*)malloc(size1 + 1);
   strcpy(n->name, str);
-  n->id = getNodeId();
+  n->id = find_id();
   n->name[size1] = '\0';
   fprintf(digraph, "\t%lu [label=\"%s\"];\n", n->id, n->name);
   if(a1) fprintf(digraph, "\t%lu -> %lu;\n", n->id, a1->id);
@@ -135,13 +135,13 @@ struct node *nonTerminalFiveChild(char *str,struct node *a1,struct node *a2, str
   // return NULL;
 }
 
-struct node *terminal(char *str) {
+struct node *term_symb(char *str) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   // puts(str);
   int size1 = strlen(str);
   n->name = (char*)malloc(2*size1 + 1);
   strcpy(n->name, str);
-  n->id = getNodeId();
+  n->id = find_id();
   // checking '\n' character
   // the loop run til len because the last character is ""
     char t[2*strlen(n->name)];
@@ -169,46 +169,34 @@ struct node *terminal(char *str) {
   // return NULL;
 }
 
-struct node *nonTerminalRoundB(char *str, struct node *a) {
+struct node *parentheses(char *str, struct node *a) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   int size1 = strlen(str);
   n->name = (char*)malloc(size1 + 1);
   strcpy(n->name, str);
-  n->id = getNodeId();
+  n->id = find_id();
   n->name[size1] = '\0';
   fprintf(digraph, "\t%lu [label=\"%s\"];\n", n->id,n->name );
-  int newBracketId = getNodeId();
+  int newBracketId = find_id();
   fprintf(digraph, "\t%lu [label=\"( )\"];\n", newBracketId );
   if(a) fprintf(digraph, "\t%lu -> %lu;\n", n->id, a->id);
   fprintf(digraph, "\t%lu -> %lu;\n", n->id, newBracketId);
   return n;
   return NULL;
 }
-struct node *nonTerminalSquareB(char *str, struct node *a) {
+struct node *square(char *str, struct node *a) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   int size1 = strlen(str);
   n->name = (char*)malloc(size1 + 1);
   strcpy(n->name, str);
-  n->id = getNodeId();
+  n->id = find_id();
   n->name[size1] = '\0';
   fprintf(digraph, "\t%lu [label=\"%s\"];\n", n->id,n->name );
-  int newBracketId = getNodeId();
+  int newBracketId = find_id();
   fprintf(digraph, "\t%lu [label=\"[ ]\"];\n", newBracketId );
   if(a) fprintf(digraph, "\t%lu -> %lu;\n", n->id, a->id);
   fprintf(digraph, "\t%lu -> %lu;\n", n->id, newBracketId);
   return n;
   return NULL;
 }
-
-// struct node *nonTerminalCurlyB(char *str, struct node *a) {
-//   struct node *n = (struct node*) malloc(sizeof(struct node));
-//   n->name=str;
-//   n->id = getNodeId();
-//   fprintf(digraph, "\t%lu [label=\"%s\"];\n", n->id,n->name );
-//   int newBracketId = getNodeId();
-//   fprintf(digraph, "\t%lu [label=\"{ }\"];\n", newBracketId );
-//   if(a) fprintf(digraph, "\t%lu -> %lu;\n", n->id, a->id);
-//   fprintf(digraph, "\t%lu -> %lu;\n", n->id, newBracketId);
-//   return n;
-// }
 
