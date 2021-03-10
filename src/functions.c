@@ -6,8 +6,7 @@ extern FILE *ast;
 
 ul find_id() {
   static ul id = 0;
-  id = id + 1;
-  return id;
+  return ++id;
 }
 // WORKING !!
 
