@@ -8,15 +8,6 @@ int getNodeId() {
   return nodeId;
 }
 
-void graphInitialization() {
-  fprintf(digraph, "digraph G {\n");
-  fprintf(digraph, "\tordering=out;\n");
-}
-
-void graphEnd() {
-  fprintf(digraph, "}\n");
-}
-
 struct node *nonTerminal(char *str,char *op, struct node *l, struct node *r) {
   struct node *n = (struct node*) malloc(sizeof(struct node));
   n->name = str;
