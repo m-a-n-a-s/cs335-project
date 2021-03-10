@@ -148,17 +148,17 @@ void yyerror(char *s){
 	exit(1);
 }
 
-int main(int argc, char *argv[]){
-	if(argc!=2){
-        printf("Please specify an existing filename\n");	
-		return 1;
-	}
-    yyin = fopen(argv[1], "r");
-    printf("%-20s %-20s %-10s %-10s\n", "Token", "Lexeme", "Line#", "Column#");
-	int val = 0;
-    while( (val = yylex()) > 0){
-		print(token, lexeme, col-strlen(lexeme));
-    }
-	fclose(yyin);
-	return 0;
-}
+// int main(int argc, char *argv[]){
+// 	if(argc!=2){
+//         printf("Please specify an existing filename\n");	
+// 		return 1;
+// 	}
+//     yyin = fopen(argv[1], "r");
+//     printf("%-20s %-20s %-10s %-10s\n", "Token", "Lexeme", "Line#", "Column#");
+// 	int val = 0;
+//     while( (val = yylex()) > 0){
+// 		print(token, lexeme, col-strlen(lexeme));
+//     }
+// 	fclose(yyin);
+// 	return 0;
+// }

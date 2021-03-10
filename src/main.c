@@ -10,11 +10,11 @@ int main(int argc, char * argv[]){
         return -1;
     }
     yyin = fopen(argv[1], "r");
-    FILE* graph_script = fopen(argv[3], "w");
-    fprintf(graph_script, "digraph G {\n\tordering=out;\n");
+    FILE* digraph = fopen(argv[3], "w");
+    fprintf(digraph, "digraph G {\n\tordering=out;\n");
     yyparse();
-    fprintf(graph_script, "}\n");
+    fprintf(digraph, "}\n");
     fclose(yyin);
-    fclose(graph_script);
+    fclose(digraph);
     return 0;
 }
