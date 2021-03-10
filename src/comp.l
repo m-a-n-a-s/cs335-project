@@ -135,10 +135,10 @@ void count(){
 			col++;
     }
 }
-
-// void print(char *token, char * lexeme, int column_no){
-//     //to print the entries of table
-//     //first argument is token, 2nd is the lexeme
+/*
+void print(char *token, char * lexeme, int column_no){
+    //to print the entries of table
+    //first argument is token, 2nd is the lexeme
 
 //     printf("%-20s %-20s %-10d %-10d\n", token, lexeme, yylineno, column_no);
 // }
@@ -148,7 +148,11 @@ void count(){
 // 	exit(1);
 // }
 
-
+void yyerror(char *s){
+	printf("Line:%d Col:%d ERROR: %s\n",yylineno,col,s);
+	exit(1);
+}
+*/
 // int main(int argc, char *argv[]){
 // 	if(argc!=2){
 //         printf("Please specify an existing filename\n");	
