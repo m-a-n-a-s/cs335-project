@@ -3,6 +3,7 @@
 #include <string.h>
 
 extern FILE *yyin;
+FILE* digraph;
 
 int main(int argc, char * argv[]){
     if (argc < 4){
@@ -10,7 +11,7 @@ int main(int argc, char * argv[]){
         return -1;
     }
     yyin = fopen(argv[1], "r");
-    FILE* digraph = fopen(argv[3], "w");
+    digraph = fopen(argv[3], "w");
     fprintf(digraph, "digraph G {\n\tordering=out;\n");
     yyparse();
     fprintf(digraph, "}\n");
