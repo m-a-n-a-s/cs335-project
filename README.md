@@ -7,10 +7,15 @@ To build the executable run.
 ```
 $make
 ```
-This will make a executable named lexer in bin folder.<br /> 
+This will make a executable named parser in bin folder.<br /> 
 To run 
 ```
-$./bin/lexer <file>
+$./bin/parser <file> -o myAST.dot
 ```
 Where \<file\> is the path of the code you want to run the executable on.<br /> 
 Sample files have been included in test folder
+
+To visualize the tree
+```
+$dot -Tps ast.dot -o ast.ps
+```
