@@ -4,7 +4,7 @@ all:
 	yacc -dvt src/comp.y
 	mv y.tab.c src/y.tab.c
 	mv y.tab.h src/y.tab.h
-	gcc src/y.tab.c src/lex.yy.c src/functions.c src/main.c -lfl -o parser
+	gcc src/lex.yy.c src/y.tab.c src/main.c src/functions.c -w -ll -o parser
 	mkdir bin
 	mv parser bin/parser
 	rm src/lex.yy.c src/y.tab.c src/y.tab.h y.output
