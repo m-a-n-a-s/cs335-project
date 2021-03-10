@@ -63,9 +63,9 @@ void yyerror(char *s,...);
 %%
 
 primary_expression
-	: IDENTIFIER			{$$ = term_symb("IDENTIFIER");}
-	| CONSTANT				{$$ = term_symb("CONSTANT");}
-	| STRING_LITERAL		{$$ = term_symb("STRING_LITERAL");}
+	: IDENTIFIER			{$$ = term_symb($1);}
+	| CONSTANT				{$$ = term_symb($1);}
+	| STRING_LITERAL		{$$ = term_symb($1);}
 	| '(' expression ')'	{$$ = $2;}
 	;
 
@@ -224,26 +224,26 @@ init_declarator
 	;
 
 storage_class_specifier
-	: TYPEDEF	{$$=term_symb("TYPEDEF");}
-	| EXTERN	{$$=term_symb("EXTERN");}
-	| STATIC	{$$=term_symb("STATIC");}
-	| AUTO		{$$=term_symb("AUTO");}
-	| REGISTER	{$$=term_symb("REGISTER");}
+	: TYPEDEF	{$$=term_symb($1);}
+	| EXTERN	{$$=term_symb($1);}
+	| STATIC	{$$=term_symb($1);}
+	| AUTO		{$$=term_symb($1);}
+	| REGISTER	{$$=term_symb($1);}
 	;
 
 type_specifier
-	: VOID							{$$ = term_symb("VOID");}
-	| CHAR							{$$ = term_symb("CHAR");}
-	| SHORT							{$$ = term_symb("SHORT");}
-	| INT							{$$ = term_symb("INT");}
-	| LONG							{$$ = term_symb("LONG");}
-	| FLOAT							{$$ = term_symb("FLOAT");}
-	| DOUBLE						{$$ = term_symb("DOUBLE");}
-	| SIGNED						{$$ = term_symb("SIGNED");}
-	| UNSIGNED						{$$ = term_symb("UNSIGNED");}
+	: VOID							{$$ = term_symb($1);}
+	| CHAR							{$$ = term_symb($1);}
+	| SHORT							{$$ = term_symb($1);}
+	| INT							{$$ = term_symb($1);}
+	| LONG							{$$ = term_symb($1);}
+	| FLOAT							{$$ = term_symb($1);}
+	| DOUBLE						{$$ = term_symb($1);}
+	| SIGNED						{$$ = term_symb($1);}
+	| UNSIGNED						{$$ = term_symb($1);}
 	| struct_or_union_specifier		{$$ = $1;}
 	| enum_specifier				{$$ = $1;}
-	| TYPE_NAME						{$$ = term_symb("TYPE_NAME");}
+	| TYPE_NAME						{$$ = term_symb($1);}
 	;
 
 struct_or_union_specifier
@@ -253,8 +253,8 @@ struct_or_union_specifier
 	;
 
 struct_or_union
-	: STRUCT	{$$ = term_symb("STRUCT");}
-	| UNION		{$$ = term_symb("UNION");}
+	: STRUCT	{$$ = term_symb($1);}
+	| UNION		{$$ = term_symb($1);}
 	;
 
 struct_declaration_list
@@ -296,13 +296,13 @@ enumerator_list
 	;
 
 enumerator
-	: IDENTIFIER {$$ = term_symb("IDENTIFIER");}
+	: IDENTIFIER {$$ = term_symb($1);}
 	| IDENTIFIER '=' constant_expression {$$ = non_term_symb("=",NULL, term_symb("IDENTIFIER"), $3);}
 	;
 
 type_qualifier
-	: CONST {$$ = term_symb("CONST");}
-	| VOLATILE {$$ = term_symb("VOLATILE");}
+	: CONST {$$ = term_symb($1);}
+	| VOLATILE {$$ = term_symb($1);}
 	;
 
 declarator
@@ -311,7 +311,7 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER {$$=term_symb("IDENTIFIER");}
+	: IDENTIFIER {$$=term_symb($1);}
 	| '(' declarator ')' {$$ = $2;}
 	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);}
 	| direct_declarator '[' ']' {$$ = square("direct_declarator", $1);}
@@ -464,3 +464,4 @@ function_definition
 	;
 
 %%
+

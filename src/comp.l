@@ -116,7 +116,7 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext
 "|"				{ count(); yylval.str = strdup(yytext); strcpy(lexeme,"|"); strcpy(token,"|"); return '|'; }
 "?"				{ count(); yylval.str = strdup(yytext); strcpy(lexeme,"?"); strcpy(token,"?"); return '?'; }
 
-[ \t\v\n\f]		{ count(); yylval.str = strdup(yytext); }
+[ \t\v\n\f]		{ count(); }
 .			{ yyerror("Invalid Character Found");/* ignore bad characters */ }
 
 
@@ -161,3 +161,4 @@ void yyerror(char *s){
 // 	fclose(yyin);
 // 	return 0;
 // }
+
