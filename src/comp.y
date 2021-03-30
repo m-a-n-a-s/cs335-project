@@ -1,6 +1,15 @@
 %{
 #include "functions.h"
 
+#include <iostream>
+#include <cstring>
+#include <list>
+#include <stdio.h>
+#include <stdlib.h>
+#include <fcntl.h>
+#include <stdarg.h>
+using namespace std;
+
 int yylex(void);
 void yyerror(char *s,...);
 %}
@@ -51,26 +60,172 @@ void yyerror(char *s,...);
 %%
 
 primary_expression
-	: IDENTIFIER			{$$ = term_symb($1);}
-	| CONSTANT				{$$ = term_symb($1);}
-	| STRING_LITERAL		{$$ = term_symb($1);}
+	: IDENTIFIER			{$$ = term_symb($1);
+								char *a=primaryExpr($1);
+								if(a){
+									string as(a);
+									$$->isInit=lookup($1)->is_init;
+									$$->isInit = lookup($1)->is_init;
+                                    $$->nodeType=as;
+                                    string key($1);
+                                    $$->exprType = 3;
+                                    $$->nodeKey = key;
+								}
+								else{
+									yyerror("Error : %s not declared",$1);
+									$$->nodeType=string("");
+								}
+							}
+	| CONSTANT				{$$ = term_symb($1);
+								//TO ADD SOME THING REMEBBER************************
+							} 
+	| STRING_LITERAL		{$$ = term_symb($1);
+								$$->nodeType=string("char*");
+								$$->isInit=1;
+							}
 	| '(' expression ')'	{$$ = $2;}
 	;
 
 postfix_expression
 	: primary_expression									{$$ = $1;}
-	| postfix_expression '[' expression ']'					{$$ = non_term_symb("[ ]", NULL, $1, $3);}
-	| postfix_expression '(' ')'							{$$ = $1;}
-	| postfix_expression '(' argument_expression_list ')'	{$$ = non_term_symb("postfix_expression", NULL, $1, $3);}
-	| postfix_expression '.' IDENTIFIER						{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));}
-	| postfix_expression PTR_OP IDENTIFIER					{$$ = non_term_symb("->", NULL, $1, term_symb($3));}
-	| postfix_expression INC_OP								{$$=  non_term_symb("++", NULL,$1, NULL);}
-	| postfix_expression DEC_OP								{$$=  non_term_symb("--", NULL,$1, NULL);}
+	| postfix_expression '[' expression ']'					{$$ = non_term_symb("[ ]", NULL, $1, $3);
+																if($1->isInit==1&&$3->isInit==1) $$->isInit=1;
+																char *s=postfixExpr($1->nodeType,1);
+																if(s&&isInt($3->nodeType)){
+																	string as(s);
+																	$$->nodeType=as;
+																}
+																else if(!isInt($3->nodeType)){
+																	yyerror("Error : array index not a int");
+																}
+																else{
+																	yyerror("Error : array indexed with more indeces than its dimension");
+																}
+															}
+	| postfix_expression '(' ')'							{$$ = $1;
+																$$->isInit=1;
+																char* s = postfixExpr($1->nodeType, 2);
+																if(s){
+																	string as(s);
+																	$$->nodeType =as;
+																		if($1->exprType==3){
+																			string funcArgs = funcArgList($1->nodeKey);
+																			if(!(funcArgs==string(""))) {
+																				yyerror(Error : \'%s\' function call requires arguments to be passed \n     \'%s %s\( %s \)\'",($1->nodeKey).c_str(),($$->nodeType).c_str(),($1->nodeKey).c_str(),funcArgs.c_str());
+																			}
+																		}
+																}
+																else {
+																	yyerror("Error : Invalid Function call");
+																}
+																	currArguments=string("");
+
+															}
+															}
+	| postfix_expression '(' argument_expression_list ')'	{$$ = non_term_symb("postfix_expression", NULL, $1, $3);
+																if($3->isInit==1) $$->isInit=1;
+																char* s = postfixExpr($1->nodeType, 3);
+																if(s){
+																	string as(s);
+																	$$->nodeType =as;
+																	if($1->exprType==3){
+																		string funcArgs = funcArgList($1->nodeKey);
+																		char* a =new char();
+																		string temp1 = currArguments;
+																		string temp2 = funcArgs;
+																		string typeA,typeB;
+																		string delim = string(",");
+																		unsigned f1=1;
+																		unsigned f2=1;
+																		int argNo = 0;
+																		while(f1!=-1 && f2!=-1){
+																			f1 = temp1.find_first_of(delim);
+																			f2 = temp2.find_first_of(delim);
+																			argNo++;
+																			if(f1==-1) typeA = temp1; else{ typeA = temp1.substr(0,f1); temp1 = temp1.substr(f1+1);}
+																			if(f2==-1) typeB = temp2 ; else{ typeB = temp2.substr(0,f2); temp2 = temp2.substr(f2+1); }
+																			if(typeB==string("...")) break;
+																			a = validAssign(typeA,typeB);
+																			if(a){
+																				if(!strcmp(a,"warning")) { yyerror("Warning : Passing argumnet %d of \'%s\' from incompatible pointer type.\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->nodeKey).c_str(),typeB.c_str(),typeA.c_str(),($$->nodeType).c_str(),($1->nodeKey).c_str(),funcArgs.c_str()); }
+																			}
+																			else{
+																				yyerror("Error : Incompatible type for argument %d of \'%s\' .\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->nodeKey).c_str(),typeB.c_str(),typeA.c_str(),($$->nodeType).c_str(),($1->nodeKey).c_str(),funcArgs.c_str());
+																			}
+																			if((f1!=-1)&&(f2!=-1)){
+																				continue;
+																			}else if(f2!=-1){
+																				if(!(temp2==string("..."))) yyerror("Error : Too few arguments for the function \'%s\'\n    \'%s %s\( %s \)\'",($1->nodeKey).c_str(),($$->nodeType).c_str(),($1->nodeKey).c_str(),funcArgs.c_str());
+																				break;
+																			}else if(f1!=-1){
+																				yyerror("Error : Too many arguments for the function \'%s\'\n    \'%s %s\( %s \)\'",($1->nodeKey).c_str(),($$->nodeType).c_str(),($1->nodeKey).c_str(),funcArgs.c_str());
+																				break;
+																			}else{ break; }
+																		}
+																			
+																	}
+
+																}
+																else {
+																	yyerror("Error : Invalid Function call");
+																}
+																	currArguments=string("");
+															}
+	| postfix_expression '.' IDENTIFIER						{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));
+																string as($3);
+																int k = structLookup($1->nodeType, as);
+																if(k==1) yyerror("Error : \'.\' is an invalid operator on \'%s\'", $1->nodeKey.c_str() );
+																else if(k==2) yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->nodeKey.c_str() );
+																else $$->nodeType = structMemberType($1->nodeType, as);
+																$$->nodeKey = $1->nodeKey+ string(".") + as;
+															}
+	| postfix_expression PTR_OP IDENTIFIER					{$$ = non_term_symb("->", NULL, $1, term_symb($3));
+																string as($3);
+																string as1 = ($1->nodeType).substr(0,($1->nodeType).length()-1);
+																int k = structLookup(as1, as);
+																cout<<k<<endl;
+																if(k==1){ yyerror("Error : \'%s\' is an invalid operator on \'%s\'", $2, $1->nodeKey.c_str() );
+																}
+																else if(k==2){ yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->nodeKey.c_str() );
+																}
+																else $$->nodeType = structMemberType(as1, as);
+																$$->nodeKey = $1->nodeKey+ string("->") + as;
+															}
+	| postfix_expression INC_OP								{$$=  non_term_symb("++", NULL,$1, NULL);
+																if($1->isInit==1) $$->isInit=1;
+																char* s = postfixExpr($1->nodeType, 6);
+																if(s){
+																	string as(s);
+																	$$->nodeType =as;
+																	$$->iVal = $1->iVal +1;
+																}
+																else {
+																	yyerror("Error : Increment not defined for this type");
+																}
+															}
+	| postfix_expression DEC_OP								{$$=  non_term_symb("--", NULL,$1, NULL);
+																if($1->isInit==1) $$->isInit =1;
+																char* s = postfixExpr($1->nodeType, 7);
+																if(s){
+																	string as(s);
+																	$$->nodeType =as;
+																    $$->iVal = $1->iVal -1;
+																}
+																else {
+																	yyerror("Error : Decrement not defined for this type");
+																}
+															}
 	;
 
 argument_expression_list
-	: assignment_expression									{$$ = $1;}
-	| argument_expression_list ',' assignment_expression	{$$ = non_term_symb($2,NULL,$1, $3);}
+	: assignment_expression									{$$ = $1;if($1->isInit==1)$$->isInit = 1; currArguments = $1->nodeType;}
+	| argument_expression_list ',' assignment_expression	{$$ = non_term_symb($2,NULL,$1, $3);
+																char* a =  argumentExpr($1->nodeType, $3->nodeType, 2);
+																string as(a);
+																$$->nodeType = as;
+																if($1->isInit == 1 && $3->isInit==1) $$->isInit=1;
+																currArguments = currArguments +string(",")+ $3->nodeType;
+															}
 	;
 
 unary_expression
