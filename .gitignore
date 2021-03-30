@@ -1,0 +1,11 @@
+bin/*
+build/*
+out/*
+*.ps
+lex.yy.c
+parse.tab.c
+parse.tab.h
+*.gv
+*.csv
+*.txt
+*.dot
