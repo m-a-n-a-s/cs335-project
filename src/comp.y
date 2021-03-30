@@ -230,11 +230,44 @@ argument_expression_list
 
 unary_expression
 	: postfix_expression				{$$ = $1;}
-	| INC_OP unary_expression			{$$ = non_term_symb("++", NULL, NULL, $2);}
-	| DEC_OP unary_expression			{$$ = non_term_symb("--", NULL, NULL, $2);}
-	| unary_operator cast_expression	{$$ = non_term_symb("unary_expression", NULL, $1, $2);}
-	| SIZEOF unary_expression			{$$ = non_term_symb($1, NULL, NULL, $2);}
-	| SIZEOF '(' type_name ')'			{$$ = non_term_symb($1, NULL, NULL, $3);}
+	| INC_OP unary_expression			{$$ = non_term_symb("++", NULL, NULL, $2);
+											if($2->isInit == 1 ) $$->isInit=1;
+											char* s = postfixExpr($2->nodeType, 6);
+											if(s){
+												string as(s);
+												$$->nodeType =as;
+												$$->iVal = $2->iVal +1;
+											}
+											else {
+												yyerror("Error : Increment not defined for this type");
+											}
+										}
+	| DEC_OP unary_expression			{$$ = non_term_symb("--", NULL, NULL, $2);
+											$$->iVal =$2->iVal -1;
+											if($2->isInit == 1 ) $$->isInit=1;
+											char* s = postfixExpr($2->nodeType, 7);
+											if(s){
+												string as(s);
+												$$->nodeType =as;
+											}
+											else {
+												yyerror("Error : Decrement not defined for this type");
+	  										}			
+										}
+	| unary_operator cast_expression	{$$ = non_term_symb("unary_expression", NULL, $1, $2);
+											$$->iVal = $2->iVal;
+											if( $2->isInit==1) $$->isInit=1;
+											char* a= unaryExpr($1->name, $2->nodeType, 1);
+											if(a){
+												string as(a);
+												$$->nodeType= as;
+											}
+											else{
+												yyerror("Error : Type inconsistent with operator %s", $1->name.c_str());
+											}
+										}
+	| SIZEOF unary_expression			{$$ = non_term_symb($1, NULL, NULL, $2);$$->nodeType = string("int");$$->isInit=1;}
+	| SIZEOF '(' type_name ')'			{$$ = non_term_symb($1, NULL, NULL, $3);$$->nodeType = string("int");$$->isInit=1;}
 	;
 
 unary_operator
@@ -248,14 +281,70 @@ unary_operator
 
 cast_expression
 	: unary_expression					{$$ = $1;}
-	| '(' type_name ')' cast_expression	{$$ = non_term_symb("cast_expression", NULL, $2, $4);}
+	| '(' type_name ')' cast_expression	{$$ = non_term_symb("cast_expression", NULL, $2, $4);
+												$$->nodeType = $2->nodeType;
+                        						if($4->isInit==1) $$->isInit=1;
+										}
 	;
 
 multiplicative_expression
 	: cast_expression								{$$ = $1;}
-	| multiplicative_expression '*' cast_expression	{$$ = non_term_symb("*", NULL, $1, $3);}
-	| multiplicative_expression '/' cast_expression	{$$ = non_term_symb("/", NULL, $1, $3);}
-	| multiplicative_expression '%' cast_expression	{$$ = non_term_symb("%", NULL, $1, $3);}
+	| multiplicative_expression '*' cast_expression	{$$ = non_term_symb("*", NULL, $1, $3);
+														char* a=multilplicativeExpr($1->nodeType, $3->nodeType, '*');
+														if(a){
+															int k;
+															if(strcmp(a,"int")==0){
+																//$$=nonTerminal("*int",NULL,$1,$3);
+																$$->nodeType = string("long long");
+															}
+															else if (strcmp(a, "float")==0){
+																//$$=nonTerminal("*float",NULL,$1,$3);
+																$$->nodeType = string("long double");
+																
+															}
+														}
+														else{
+															//$$=nonTerminal("*",NULL,$1,$3);
+															yyerror("Error : Incompatible type for * operator");
+														}
+														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
+														}
+													}
+	| multiplicative_expression '/' cast_expression	{$$ = non_term_symb("/", NULL, $1, $3);
+														if ($3->iVal != 0)
+														$$->iVal = $1->iVal/ $3->iVal;
+														char* a=multilplicativeExpr($1->nodeType, $3->nodeType, '/');
+														if(a){int k;
+															if(!strcmp(a,"int")){
+																//$$=nonTerminal("/int",NULL,$1,$3);
+																$$->nodeType = string("long long");
+															
+															}
+															else if (!strcmp(a,"float")){
+																//$$=nonTerminal("/float",NULL,$1,$3);
+																$$->nodeType = string("long double");
+															
+															}
+														}
+														else{
+															//$$=nonTerminal("/",NULL,$1,$3);
+															yyerror("Error : Incompatible type for / operator");
+														}
+														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
+													}
+	| multiplicative_expression '%' cast_expression	{$$ = non_term_symb("%", NULL, $1, $3);
+														if($3->iVal != 0) $$->iVal = $1->iVal % $3->iVal;
+														char* a=multilplicativeExpr($1->nodeType, $3->nodeType, '/');
+														if(!strcmp(a,"int")){
+															$$->nodeType= string("long long");
+																
+														}
+														else {
+															yyerror("Error : Incompatible type for % operator");
+														}
+														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
+														
+													}
 	;
 
 additive_expression
