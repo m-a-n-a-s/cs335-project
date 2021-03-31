@@ -349,22 +349,140 @@ multiplicative_expression
 
 additive_expression
 	: multiplicative_expression							{$$ = $1;}
-	| additive_expression '+' multiplicative_expression	{$$ = non_term_symb("+", NULL, $1, $3);}
-	| additive_expression '-' multiplicative_expression	{$$ = non_term_symb("-", NULL, $1, $3);}
+	| additive_expression '+' multiplicative_expression	{$$ = non_term_symb("+", NULL, $1, $3);
+															$$->iVal = $1->iVal + $3->iVal;
+															char *a = additiveExpr($1->nodeType,$3->nodeType,'+');
+															char *q=new char();
+															string p;
+															if(a){
+																string as(a);
+																p = string("+")+as;
+																strcpy(q,p.c_str());
+															}
+															else q = "+";
+															//$$=nonTerminal(q,NULL,$1,$3);
+															if(a){ 
+																string as(a);
+																if(!strcmp(a,"int")) $$->nodeType=string("long long");
+																else if(!strcmp(a,"real")) $$->nodeType=string("long double");
+																else $$->nodeType=as; // for imaginary and complex returns
+											
+															}
+															else {
+																yyerror("Error : Incompatible type for + operator");
+															}
+															if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
+														}
+	| additive_expression '-' multiplicative_expression	{$$ = non_term_symb("-", NULL, $1, $3);
+															$$->iVal = $1->iVal - $3->iVal;
+															char *a = additiveExpr($1->nodeType,$3->nodeType,'-');
+															char *q = new char();
+															string p;
+															if(a){ string as(a);
+																p =string("-")+as;
+																strcpy(q,p.c_str());
+															}
+															//$$=nonTerminal(q,NULL,$1,$3);
+															if(a){ 
+																string as(a);
+																if(!strcmp(a,"int")) $$->nodeType=string("long long");
+																else if(!strcmp(a,"real")) $$->nodeType=string("long double");
+																else $$->nodeType=as;   // for imaginary and complex returns
+																
+															}
+															else {
+																yyerror("Error : Incompatible type for - operator");
+															}
+															if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
+														}
 	;
 
 shift_expression
 	: additive_expression							{$$ = $1;}
-	| shift_expression LEFT_OP additive_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);}
-	| shift_expression RIGHT_OP additive_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);}
+	| shift_expression LEFT_OP additive_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
+														char* a = shiftExpr($1->nodeType,$3->nodeType);                        
+														if(a){
+                            								$$->nodeType = $1->nodeType;
+	
+														}
+														else{
+															yyerror("Error : Invalid operands to binary <<");
+														}
+														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
+																						
+
+													}
+	| shift_expression RIGHT_OP additive_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
+														$$ = nonTerminal2(">>", $1, NULL, $3);
+														char* a = shiftExpr($1->nodeType,$3->nodeType);
+														if(a){
+															$$->nodeType = $1->nodeType;
+															
+														}
+														else{
+															yyerror("Error : Invalid operands to binary >>");
+														}
+
+														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
+													}
 	;
 
 relational_expression
 	: shift_expression								{$$ = $1;}
-	| relational_expression '<' shift_expression	{$$ = non_term_symb("<", NULL, $1, $3);}
-	| relational_expression '>' shift_expression	{$$ = non_term_symb(">", NULL, $1, $3);}
-	| relational_expression LE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);}
-	| relational_expression GE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);}
+	| relational_expression '<' shift_expression	{$$ = non_term_symb("<", NULL, $1, $3);
+														char* a=relationalExpr($1->nodeType,$3->nodeType,"<");
+														if(a) { 
+															if(!strcmp(a,"bool")) $$->nodeType = string("bool");
+															else if(!strcmp(a,"Bool")){
+																$$->nodeType = string("bool");
+																yyerror("Warning : comparison between pointer and integer");
+															}
+															
+															else {
+																yyerror("Error : invalid operands to binary <");
+															}
+															if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+													}
+	| relational_expression '>' shift_expression	{$$ = non_term_symb(">", NULL, $1, $3);
+														char* a=relationalExpr($1->nodeType,$3->nodeType,">");
+														if(a){ 
+															if(!strcmp(a,"bool")) $$->nodeType = string("bool");
+															else if(!strcmp(a,"Bool")){
+																$$->nodeType = string("bool");
+																yyerror("Warning : comparison between pointer and integer");
+															}
+														}else {
+															yyerror("Error : invalid operands to binary >");
+														}
+														if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+													}
+	| relational_expression LE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);
+														char* a=relationalExpr($1->nodeType,$3->nodeType,"<=");
+														if(a){
+															if(!strcmp(a,"bool")) $$->nodeType = string("bool");
+															else if(!strcmp(a,"Bool")){
+																$$->nodeType = string("bool");
+																yyerror("Warning : comparison between pointer and integer");
+															}
+															
+														}else {
+															yyerror("Error : invalid operands to binary <=");
+														}
+														if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+													}
+	| relational_expression GE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);
+														char* a=relationalExpr($1->nodeType,$3->nodeType,">=");
+														if(a){  
+															if(!strcmp(a,"bool")) $$->nodeType = string("bool");
+															else if(!strcmp(a,"Bool")){
+																$$->nodeType = string("bool");
+																yyerror("Warning : comparison between pointer and integer");
+															}	
+														}else {
+															yyerror("Error : invalid operands to binary >=");
+														}
+														if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+													}
 	;
 
 equality_expression
