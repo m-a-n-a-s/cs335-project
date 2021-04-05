@@ -441,7 +441,7 @@ relational_expression
 															else {
 																yyerror("Error : invalid operands to binary <");
 															}
-															if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+															if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
 													}
 	| relational_expression '>' shift_expression	{$$ = non_term_symb(">", NULL, $1, $3);
 														char* a=relationalExpr($1->nodeType,$3->nodeType,">");
@@ -454,7 +454,7 @@ relational_expression
 														}else {
 															yyerror("Error : invalid operands to binary >");
 														}
-														if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
 													}
 	| relational_expression LE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);
 														char* a=relationalExpr($1->nodeType,$3->nodeType,"<=");
@@ -468,7 +468,7 @@ relational_expression
 														}else {
 															yyerror("Error : invalid operands to binary <=");
 														}
-														if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
 													}
 	| relational_expression GE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);
 														char* a=relationalExpr($1->nodeType,$3->nodeType,">=");
@@ -481,7 +481,7 @@ relational_expression
 														}else {
 															yyerror("Error : invalid operands to binary >=");
 														}
-														if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
 													}
 	;
 
