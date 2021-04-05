@@ -670,25 +670,68 @@ storage_class_specifier
 	;
 
 type_specifier
-	: VOID							{$$ = term_symb($1);}
-	| CHAR							{$$ = term_symb($1);}
-	| SHORT							{$$ = term_symb($1);}
-	| INT							{$$ = term_symb($1);}
-	| LONG							{$$ = term_symb($1);}
-	| FLOAT							{$$ = term_symb($1);}
-	| DOUBLE						{$$ = term_symb($1);}
-	| SIGNED						{$$ = term_symb($1);}
-	| UNSIGNED						{$$ = term_symb($1);}
-	| struct_or_union_specifier		{$$ = $1;}
-	| enum_specifier				{$$ = $1;}
-	| TYPE_NAME						{$$ = term_symb($1);}
+	: VOID							{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
+	| CHAR							{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
+	| SHORT							{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
+	| INT							{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
+	| LONG							{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
+	| FLOAT							{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
+	| DOUBLE						{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
+	| SIGNED						{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
+	| UNSIGNED						{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
+	| struct_or_union_specifier		{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = $1;}
+	| enum_specifier				{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = $1;}
+	| TYPE_NAME						{if(typeName==string(""))typeName = string($1);
+                   					else typeName = typeName+string(" ")+string($1);
+									$$ = term_symb($1);}
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER '{' struct_declaration_list '}'	{$$ = non_term_symb("struct_or_union_specifier", $2, $1, $4);}
-	| struct_or_union '{' struct_declaration_list '}'				{$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $3);}
-	| struct_or_union IDENTIFIER									{$$ = non_term_symb("struct_or_union_specifier", $2, $1, NULL);}
+	: struct_or_union IDENTIFIER E5 '{' struct_declaration_list '}'	{string as($2);
+																	$$ = non_term_symb("struct_or_union_specifier", $2, $1, $5);
+																	if(endStructTable(as)){
+																	$$->nodeType = string("STRUCT_")+as; }
+																	else yyerror("Error: struct \'%s\' is already defined\n", $2);
+																		}
+	| struct_or_union E5 '{' struct_declaration_list '}'				{$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $4);
+																	structCounter++;
+																	string as = to_string(structCounter);
+																	if(endStructTable(as)){
+																	$$->nodeType = string("STRUCT_")+as; }
+																	else yyerror("Error: struct \'%s\' is already defined\n", $2);}
+	| struct_or_union IDENTIFIER									{$$ = non_term_symb("struct_or_union_specifier", $2, $1, NULL);
+																	string as($2);
+																	as = "STRUCT_" + as;
+																	if(isStruct(as)) $$->nodeType = as;
+																	else yyerror("Error: No struct \'%s\' is defined",$2);}
 	;
+
+E5
+  : %empty{
+           makeStructTable();
+  };
 
 struct_or_union
 	: STRUCT	{$$ = term_symb($1);}
@@ -701,7 +744,7 @@ struct_declaration_list
 	;
 
 struct_declaration
-	: specifier_qualifier_list struct_declarator_list ';'	{$$ = non_term_symb("struct_declaration", NULL, $1, $2);}
+	: specifier_qualifier_list struct_declarator_list ';'	{$$ = non_term_symb("struct_declaration", NULL, $1, $2);typeName = string("");}
 	;
 
 specifier_qualifier_list
@@ -717,9 +760,11 @@ struct_declarator_list
 	;
 
 struct_declarator
-	: declarator {$$ = $1;}
+	: declarator {$$ = $1;
+				if(!insertStructSymbol($1->nodeKey, $1->nodeType, $1->size, 0, 0)) yyerror("Error: \'%s\' is already declared in the same struct", $1->nodeKey.c_str());}
 	| ':' constant_expression {$$ = $2;}
-	| declarator ':' constant_expression {$$ = non_term_symb("struct_declarator", NULL, $1, $3);}
+	| declarator ':' constant_expression {$$ = non_term_symb("struct_declarator", NULL, $1, $3);
+										if(!insertStructSymbol($1->nodeKey, $1->nodeType, $1->size, 0, 1)) yyerror("Error: \'%s\' is already declared in the same struct", $1->nodeKey.c_str());}
 	;
 
 enum_specifier
@@ -744,25 +789,73 @@ type_qualifier
 	;
 
 declarator
-	: pointer direct_declarator {$$ = non_term_symb("declarator", NULL, $1, $2);}
-	| direct_declarator {$$ = $1;}
+	: pointer direct_declarator {$$ = non_term_symb("declarator", NULL, $1, $2);
+								if($2->exprType==1){$$->nodeType=$2->nodeType+$1->nodeType;
+									$$->nodeKey = $2->nodeKey;
+									$$->exprType=1;}
+								if($2->exprType==2){ funcName = $2->nodeKey; funcType = $2->nodeType; }
+								char* a = new char();
+								strcpy(a,($$->nodeType).c_str());$$->size = getSize(a);}
+	| direct_declarator {$$ = $1;
+						if($1->exprType==2){ funcName=$1->nodeKey; funcType = $1->nodeType;}}
 	;
 
 direct_declarator
-	: IDENTIFIER {$$=term_symb($1);}
-	| '(' declarator ')' {$$ = $2;}
-	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);}
-	| direct_declarator '[' ']' {$$ = square("direct_declarator", $1);}
-	| direct_declarator '(' parameter_type_list ')' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);}
-	| direct_declarator '(' identifier_list ')' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);}
-	| direct_declarator '(' ')' {$$ = parentheses("direct_declarator", $1);}
+	: IDENTIFIER {$$=term_symb($1);
+				$$->exprType=1;$$->nodeKey=string($1);
+				$$->nodeType=typeName;
+				char* a =new char();
+                strcpy(a,typeName.c_str());
+				$$->size = getSize(a);}
+	| '(' declarator ')' {$$ = $2;
+						if($2->exprType==1){ $$->exprType=1;
+                                          $$->nodeKey=$2->nodeKey;
+                                          $$->nodeType=$2->nodeType;}
+						}
+	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);
+										// DOUBTFUL}
+	| direct_declarator '[' ']' {$$ = square("direct_declarator", $1);
+								if($1->exprType==1){ $$->exprType=1;
+                                          $$->nodeKey=$1->nodeKey;
+                                          $$->nodeType=$1->nodeType+string("*");}
+								char* a = new char();
+								strcpy(a,($$->nodeType).c_str());
+								$$->size = getSize(a);
+								strcpy(a,($1->nodeType).c_str());
+								$$->exprType=15;
+								$$->iVal=getSize(a);}
+	| direct_declarator '(' parameter_type_list ')' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);
+													if($1->exprType==1){ $$->nodeKey=$1->nodeKey;
+													$$->exprType=2;
+													$$->nodeType=$1->nodeType;
+													insertFuncArguments($1->nodeKey,funcArguments);
+													funcArguments=string("");
+													char* a = new char();
+													strcpy(a,($$->nodeType).c_str());
+													$$->size = getSize(a);
+													}}
+	| direct_declarator '(' identifier_list ')' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);
+												char* a = new char();
+												strcpy(a,($$->nodeType).c_str());
+												$$->size = getSize(a);}
+	| direct_declarator '(' ')' {$$ = parentheses("direct_declarator", $1);
+								if($1->exprType==1){
+									$$->nodeKey=$1->nodeKey;
+									insertFuncArguments($1->nodeKey,string(""));
+									$$->exprType=2;
+									funcArguments = string("");
+								}
+								$$->nodeType=$1->nodeType;
+								char* a = new char();
+								strcpy(a,($$->nodeType).c_str());
+								$$->size = getSize(a);}
 	;
 
 pointer
-	: '*' {$$=term_symb("*");}
-	| '*' type_qualifier_list {$$=non_term_symb("*",NULL,$2,NULL);}
-	| '*' pointer {$$=non_term_symb("*",NULL,$2,NULL);}
-	| '*' type_qualifier_list pointer {$$=non_term_symb("*",NULL,$2,$3);}
+	: '*' {$$=term_symb("*");$$->nodeType=string("*");}
+	| '*' type_qualifier_list {$$=non_term_symb("*",NULL,$2,NULL);$$->nodeType=string("*");}
+	| '*' pointer {$$=non_term_symb("*",NULL,$2,NULL);$$->nodeType=string("*")+$2->nodeType;}
+	| '*' type_qualifier_list pointer {$$=non_term_symb("*",NULL,$2,$3);$$->nodeType=string("*")+$3->nodeType;}
 	;
 
 type_qualifier_list
@@ -773,16 +866,29 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list {$$=$1;}
-	| parameter_list ',' ELLIPSIS {$$=non_term_symb("parameter_type_list",NULL,$1,term_symb("ELLIPSIS"));}
+	| parameter_list ',' ELLIPSIS {	funcArguments = funcArguments+string(",...");
+									$$=non_term_symb("parameter_type_list",NULL,$1,term_symb("ELLIPSIS"));}
 	;
 
 parameter_list
 	: parameter_declaration {$$=$1;}
-	| parameter_list ',' parameter_declaration {$$=non_term_symb("parameter_list",NULL,$1,$3);}
+	| parameter_list ',' M parameter_declaration {$$=non_term_symb("parameter_list",NULL,$1,$4);}
 	;
 
 parameter_declaration
-	: declaration_specifiers declarator {$$=non_term_symb("parameter_declaration",NULL,$1,$2);}
+	: declaration_specifiers declarator {
+
+          //paramTable();
+         if($2->exprType==1){ char *t=new char();
+                     strcpy(t,($2->nodeType).c_str());
+                     char *key =new char();
+                     strcpy(key,($2->nodeKey).c_str());
+                  if(scopeLookup($2->nodeKey)){ yyerror("Error: redeclaration of %s",key);}
+                   else {  insertSymbol(*curr,key,t,$2->size,0,1);}
+                if(funcArguments==string(""))funcArguments=($2->nodeType);
+               else funcArguments= funcArguments+string(",")+($2->nodeType);
+                     }
+        $$=non_term_symb("parameter_declaration",NULL,$1,$2);}
 	| declaration_specifiers abstract_declarator {$$=non_term_symb("parameter_declaration",NULL,$1,$2);}
 	| declaration_specifiers {$$=$1;}
 	;
@@ -817,13 +923,27 @@ direct_abstract_declarator
 
 initializer
 	: assignment_expression {$$ = $1;}
-	| '{' initializer_list '}' {$$ = $2;}
-	| '{' initializer_list ',' '}' {$$ = non_term_symb("initializer", $3, $2 ,NULL);}
+	| '{' initializer_list '}' {$$ = $2; $$->nodeType = $2->nodeType+string("*");}
+	| '{' initializer_list ',' '}' {$$ = non_term_symb("initializer", $3, $2 ,NULL);
+									$$->nodeType = $2->nodeType+string("*"); $$->exprType =$2->exprType;
+								}
 	;
 
 initializer_list
-	: initializer {$$ = $1;}
-	| initializer_list ',' initializer {$$ = non_term_symb("initializer_list", NULL, $1 ,$3);}
+	: initializer {$$ = $1;$$->exprType=1;}
+	| initializer_list ',' M  initializer {
+          $$ = non_term_symb("initializer_list", NULL, $1 ,$4);
+          $$->nodeType = $1->nodeType;
+           char* a =validAssign($1->nodeType,$4->nodeType);
+               if(a){
+                    if(!strcmp(a,"true")){ ; }
+                    if(!strcmp(a,"warning")){ ;
+                         yyerror("Warning: Assignment with incompatible pointer type");
+                         }
+                     }
+                else{ yyerror("Error: Incompatible types when initializing type \'%s\' to \'%s\' ",($1->nodeType).c_str(),($4->nodeType).c_str()); }
+           $$->exprType = $1->exprType+1;
+        }
 	;
 
 statement
@@ -836,26 +956,55 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' statement {$$ = non_term_symb("labeled_statement", NULL, term_symb($1), $3);}
+	: IDENTIFIER ':' M statement {$$ = non_term_symb("labeled_statement", NULL, term_symb($1), $4);}
 	| CASE constant_expression ':' statement {$$ = non_term_symb_2("labeled_statement", term_symb("CASE"), $2, $4);}
 	| DEFAULT ':' statement {$$ = non_term_symb("labeled_statement", NULL, term_symb("DEFAULT"), $3);}
 	;
 
 compound_statement
-	: '{' '}' {$$ = term_symb("{ }");}
-	| '{' statement_list '}' {$$ = $2;}
-	| '{' declaration_list '}' {$$ = $2;}
+	: '{' '}' {isFunc=0;$$ = term_symb("{ }");}
+	| E1  statement_list '}'  {if(blockSym){ string s($1);
+                                    s=s+string(".csv");
+                                    string u($1);
+                                    //printSymTables(curr,s);
+                                    //updateSymTable(u); blockSym--;
+									// DOUBTFUL
+                                 } $$ = $2;
+                               }
+	| E1  declaration_list '}'  {if(blockSym){ string s($1);
+                                    s=s+string(".csv");
+                                    string u($1);
+                                    //printSymTables(curr,s);
+                                    //updateSymTable(u); blockSym--;
+									//DOUBTFUL
+                                 } $$ = $2;
+                               }
 	| '{' declaration_list statement_list '}' {$$ = non_term_symb("compound_statement",NULL, $2,$3);}
 	;
 
+E1
+    :  '{'       { if(isFunc==0) {symNumber++;
+                        symFileName = /*string("symTableFunc")+to_string(funcSym)*/funcName+string("Block")+to_string(symNumber);
+                        //scope=S_BLOCK;
+                        //makeSymTable(symFileName,scope,string("12345"));
+                        char * y=new char();
+                        strcpy(y,symFileName.c_str());
+                        $$ = y;
+                        //blockSym++;
+                        }
+                       isFunc=0;
+              }
+
+    ;
+
 declaration_list
 	: declaration {$$=$1;}
-	| declaration_list declaration {$$ = non_term_symb("declaration_list", NULL, $1, $2);}
+	| declaration_list M declaration {$$ = non_term_symb("declaration_list", NULL, $1, $2);}
 	;
 
 statement_list
 	: statement {$$ = $1;}
-	| statement_list statement {$$ = non_term_symb("statement_list", NULL, $1, $2);}
+	| statement_list M statement {$$ = non_term_symb("statement_list", NULL, $1, $2);}
 	;
 
 expression_statement
@@ -863,17 +1012,55 @@ expression_statement
 	| expression ';' {$$ = $1;}
 	;
 
+M4
+  :  IF '(' expression ')' {
+                        //if($3->truelist.begin()==$3->truelist.end()){
+                        //    int k = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("IF", lookup("if")), $3->place, pair<string, sEntry*>("", NULL ),0);
+                        //    int k1 = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL ),0);
+                        //    $3->truelist.push_back(k);
+                        //    $3->falselist.push_back(k1);
+                        //}
+                        $$ = $3;
+  }
+  ;
+
 selection_statement
-	: IF '(' expression ')' statement %prec IFX {$$ = non_term_symb_2("IF (expr) stmt", NULL, $3, $5);}
-	| IF '(' expression ')' statement ELSE statement {$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $3, $5, $7);}
-	| SWITCH '(' expression ')' statement {$$ = non_term_symb_2("SWITCH (expr) stmt", NULL, $3, $5);}
+	: M4 M statement ELSE M statement {$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $1, $3, $6);}
+	| M4 M statement %prec IFX {$$ = non_term_symb_2("IF (expr) stmt", NULL, $1, $3);}
+	| SWITCH '(' expression ')' statement{$$ = non_term_symb_2("SWITCH (expr) stmt", NULL, $3, $5);}
 	;
 
+M6
+  :   expression  {
+                        //if($1->truelist.begin()==$1->truelist.end()){
+                        //    int k = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("IF", lookup("if")), $1->place, pair<string, sEntry*>("", NULL ),0);
+                        //    int k1 = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL ),0);
+                        //    $1->truelist.push_back(k);
+                        //    $1->falselist.push_back(k1);
+						//}
+                        $$ = $1;
+  }
+  ;
+
+
+M7
+  :   expression_statement  {
+                        //if($1->truelist.begin()==$1->truelist.end()){
+                        //    int k = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("IF", lookup("if")), $1->place, pair<string, sEntry*>("", NULL ),0);
+                        //    int k1 = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL ),0);
+                        //    $1->truelist.push_back(k);
+                        //    $1->falselist.push_back(k1);
+						//}
+
+                        $$ = $1;
+  }
+  ;
+
 iteration_statement
-	: WHILE '(' expression ')' statement {$$ = non_term_symb_2("WHILE (expr) stmt", NULL, $3, $5);}
-	| DO statement WHILE '(' expression ')' ';' {$$ = non_term_symb_2("DO stmt WHILE (expr)", NULL, $2, $5);}
-	| FOR '(' expression_statement expression_statement ')' statement {$$ = non_term_symb_2("FOR (expr stmt expr stmt) stmt", $3, $4, $6);}
-	| FOR '(' expression_statement expression_statement expression ')' statement {$$ = non_term_symb_5("FOR (expr stmt expr stmt expr) stmt", NULL, $3, $4, $5, $7);}
+	: WHILE '(' M M6 ')' M statement {$$ = non_term_symb_2("WHILE (expr) stmt", NULL, $4, $7);}
+	| DO M  statement  WHILE '(' M  M6 ')' ';'{$$ = non_term_symb_2("DO stmt WHILE (expr)", NULL, $3, $7);}
+	| FOR '(' expression_statement M M7 ')' M statement {$$ = non_term_symb_2("FOR (expr_stmt expr_stmt) stmt", $3, $5, $8);}
+	| FOR '(' expression_statement M M7 M expression ')' M statement {$$ = non_term_symb_5("FOR (expr_stmt expr_stmt expr) stmt", NULL, $3, $5, $7, $10);}
 	;
 
 jump_statement
@@ -886,7 +1073,7 @@ jump_statement
 
 translation_unit
 	: external_declaration {$$ = $1;}
-	| translation_unit external_declaration {$$ = non_term_symb("translation_unit", NULL, $1, $2);}
+	| translation_unit M external_declaration {$$ = non_term_symb("translation_unit", NULL, $1, $3);}
 	;
 
 external_declaration
@@ -895,11 +1082,39 @@ external_declaration
 	;
 
 function_definition
-	: declaration_specifiers declarator declaration_list compound_statement {$$ = non_term_symb_4("function_definition", $1, $2, $3, $4, NULL);}
-	| declaration_specifiers declarator compound_statement {$$ = non_term_symb_2("function_definition", $1, $2, $3);}
+
+	: declaration_specifiers declarator E2 declaration_list compound_statement
+         {      typeName=string("");
+                string s($3);
+                string u = s+string(".csv");
+                printSymTables(curr,u);
+                symNumber=0;
+               updateSymTable(s);
+                $$ = non_term_symb_4("function_definition", $1, $2, $4, $5, NULL);
+         }
+	| declaration_specifiers declarator E2 compound_statement  {
+              typeName=string("");
+              string s($3);string u =s+string(".csv");
+              printSymTables(curr,u);
+              symNumber=0;
+              updateSymTable(s);
+              $$ = non_term_symb_2("function_definition", $1, $2, $4);
+             }
 	| declarator declaration_list compound_statement {$$ = non_term_symb_2("function_definition",$1,$2,$3);}
 	| declarator compound_statement {$$ = non_term_symb_2("function_definition", $1,NULL,$2);}
 	;
+
+E2
+    : %empty                { typeName=string("");scope = S_FUNC;
+                                         isFunc = 1;
+                                         funcSym++;
+                                         symFileName = funcName;//string("symTableFunc")+to_string(funcSym);
+                                         makeSymTable(symFileName,scope,funcType);
+                                         char* y= new char();
+                                         strcpy(y,symFileName.c_str());
+                                         $$ = y;
+       }
+    ;
 
 %%
 
