@@ -486,20 +486,63 @@ relational_expression
 	;
 
 equality_expression
-	: relational_expression								{$$ = $1;}
-	| equality_expression EQ_OP relational_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);}
-	| equality_expression NE_OP relational_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);}
-	;
+  : relational_expression   {$$ = $1;}
+  | equality_expression EQ_OP relational_expression {
+                                                    $$ = non_term_symb_2("==", $1, NULL, $3);
+                    char* a = equalityExpr($1->nodeType,$3->nodeType);
+                    if(a){ if(!strcmp(a,"true")){
+                            yyerror("Warning: Comparision between pointer and Integer");
+                            }
+                            $$->nodeType = "bool";
+                    }
+                   else{ yyerror("Error:Invalid operands to binary =="); }
+                 if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+                                                  }
+  | equality_expression NE_OP relational_expression {
+                      $$ = non_term_symb_2("!=", $1, NULL, $3);
+                      char* a = equalityExpr($1->nodeType,$3->nodeType);
+                    if(a){   if(!strcmp(a,"true")){
+                            yyerror("Warning: Comparision between pointer and Integer");
+                            }
+                            $$->nodeType = "bool";
+                    }
+                   else{ yyerror("Error:Invalid operands to binary !="); }
+                 if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+                                                  }
+  ;
 
 and_expression
-	: equality_expression						{$$ = $1;}
-	| and_expression '&' equality_expression	{$$ = non_term_symb("&", NULL, $1, $3);}
-	;
+  : equality_expression  { $$ = $1;}
+  | and_expression '&' equality_expression  {
+               $$ = non_term_symb("&",NULL, $1, $3);
+               char* a = bitwiseExpr($1->nodeType,$3->nodeType);
+               if(a){
+                  if(!strcmp(a,"true")) { $$->nodeType = string("bool"); }
+                  else{   $$->nodeType = string("long long");}
+               }
+               else {
+                 yyerror("Error:Invalid operands to the binary &");
+               }
+                 if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+          }
+  ;
 
 exclusive_or_expression
-	: and_expression								{$$ = $1;}
-	| exclusive_or_expression '^' and_expression	{$$ = non_term_symb("^", NULL, $1, $3);}
-	;
+  : and_expression   { $$ = $1;}
+  | exclusive_or_expression '^' and_expression  {
+           $$ = non_term_symb("^", NULL, $1, $3);
+               char* a = bitwiseExpr($1->nodeType,$3->nodeType);
+               if(a){
+                  if(!strcmp(a,"true")) { $$->nodeType = string("bool"); }
+                  else{   $$->nodeType = string("long long");}
+               }
+               else {
+                 yyerror("Error:Invalid operands to the binary ^");
+               }
+                 if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+
+        }
+  ;
 
 inclusive_or_expression
 	: exclusive_or_expression								{$$ = $1;}
