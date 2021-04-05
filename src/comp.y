@@ -491,23 +491,23 @@ equality_expression
                                                     $$ = non_term_symb_2("==", $1, NULL, $3);
                     char* a = equalityExpr($1->nodeType,$3->nodeType);
                     if(a){ if(!strcmp(a,"true")){
-                            yyerror("Warning: Comparision between pointer and Integer");
+                            yyerror("Warning : Comparision between pointer and Integer");
                             }
                             $$->nodeType = "bool";
                     }
-                   else{ yyerror("Error:Invalid operands to binary =="); }
-                 if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+                   else{ yyerror("Error :Invalid operands to binary =="); }
+                 if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
                                                   }
   | equality_expression NE_OP relational_expression {
                       $$ = non_term_symb_2("!=", $1, NULL, $3);
                       char* a = equalityExpr($1->nodeType,$3->nodeType);
                     if(a){   if(!strcmp(a,"true")){
-                            yyerror("Warning: Comparision between pointer and Integer");
+                            yyerror("Warning : Comparision between pointer and Integer");
                             }
                             $$->nodeType = "bool";
                     }
-                   else{ yyerror("Error:Invalid operands to binary !="); }
-                 if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+                   else{ yyerror("Error :Invalid operands to binary !="); }
+                 if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
                                                   }
   ;
 
@@ -521,9 +521,9 @@ and_expression
                   else{   $$->nodeType = string("long long");}
                }
                else {
-                 yyerror("Error:Invalid operands to the binary &");
+                 yyerror("Error :Invalid operands to the binary &");
                }
-                 if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+                 if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
           }
   ;
 
@@ -537,36 +537,81 @@ exclusive_or_expression
                   else{   $$->nodeType = string("long long");}
                }
                else {
-                 yyerror("Error:Invalid operands to the binary ^");
+                 yyerror("Error :Invalid operands to the binary ^");
                }
-                 if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+                 if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
 
         }
   ;
 
 inclusive_or_expression
 	: exclusive_or_expression								{$$ = $1;}
-	| inclusive_or_expression '|' exclusive_or_expression	{$$ = non_term_symb("|", NULL, $1, $3);}
+	| inclusive_or_expression '|' exclusive_or_expression	{$$ = non_term_symb("|", NULL, $1, $3);
+																char* a = bitwiseExpr($1->nodeType,$3->nodeType);
+																if(a){
+																	if(!strcmp(a,"true")) { $$->nodeType = string("bool"); }
+																	else{   $$->nodeType = string("long long");}
+														
+																}
+																else {
+																	yyerror("Error :Invalid operands to the binary |");
+																}
+																	if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+															
+															}
 	;
 
 logical_and_expression
 	: inclusive_or_expression								{$$ = $1;}
-	| logical_and_expression AND_OP inclusive_or_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);}
+	| logical_and_expression AND_OP inclusive_or_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
+																$$->nodeType == string("bool");
+																if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+															}
 	;
 
 logical_or_expression
 	: logical_and_expression								{$$ = $1;}
-	| logical_or_expression OR_OP logical_and_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);}
+	| logical_or_expression OR_OP logical_and_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
+																$$ = nonTerminal2("||", $1,NULL, $3);
+																if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+																$$->nodeType == string("bool");
+																		
+															
+															}
 	;
 
 conditional_expression
 	: logical_or_expression												{$$ = $1;}
-	| logical_or_expression '?' expression ':' conditional_expression	{$$ = non_term_symb_2("logical_expr ? expr : conditional_expr", $1, $3, $5);}
+	| logical_or_expression '?' expression ':' conditional_expression	{$$ = non_term_symb_2("logical_expr ? expr : conditional_expr", $1, $3, $5);
+																			$$->rVal = -11;
+																			char* a = conditionalExpr($3->nodeType,$6->nodeType);
+																			if(a){
+																				string as(a);
+																				$$->nodeType = string("int");
+																			}
+																			else{
+
+																				yyerror("Error :Type mismatch in conditional expression");
+																			}
+																			if($1->isInit==1 && $3->isInit==1 && $5->isInit==1) $$->isInit=1;																		
+																		}
 	;
 
 assignment_expression
 	: conditional_expression										{$$ = $1;}
-	| unary_expression assignment_operator assignment_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);}
+	| unary_expression assignment_operator assignment_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
+																		char* a = assignmentExpr($1->nodeType,$3->nodeType,$2);
+																		if(a){
+																				if(!strcmp(a,"true")){ $$->nodeType = $1->nodeType;
+																				}
+																				if(!strcmp(a,"warning")){ $$->nodeType = $1->nodeType;
+																					yyerror("Warning : Assignment with incompatible pointer type");
+																					}
+																				
+																				}
+																			else{ yyerror("Error : Incompatible types when assigning type \'%s\' to \'%s\' ",($1->nodeType).c_str(),($3->nodeType).c_str()); }
+																		if($1->exprType==3){ if($3->isInit==1) update_isInit($1->nodeKey); }
+																	}
 	;
 
 assignment_operator
