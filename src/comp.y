@@ -637,7 +637,7 @@ assignment_operator
 
 expression
 	: assignment_expression					{$$ = $1;}
-	| expression ',' assignment_expression	{$$ = non_term_symb("expression ','", NULL, $1, $3);}
+	| expression ',' assignment_expression	{$$ = non_term_symb("expression ','", NULL, $1, $3);$$->nodeType = string("void");}
 	;
 
 constant_expression
