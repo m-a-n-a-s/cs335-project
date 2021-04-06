@@ -39,7 +39,7 @@ void yyerror(char *s,...);
 %right <str> SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
 %right <str> XOR_ASSIGN OR_ASSIGN TYPE_NAME
 %token <str> ELLIPSIS
-%type <str> assignment_operator
+%type <str> assignment_operator E1 E2 E3 E5
 
 %start translation_unit
 
@@ -56,6 +56,8 @@ void yyerror(char *s,...);
 %type <ptr> direct_declarator type_qualifier_list parameter_type_list identifier_list parameter_list parameter_declaration
 %type <ptr> abstract_declarator direct_abstract_declarator labeled_statement compound_statement expression_statement declaration_list
 %type <ptr> selection_statement iteration_statement jump_statement external_declaration translation_unit function_definition statement statement_list
+%type <number> M N GOTO_emit
+%type <ptr> M1 M2 M3 M4 M5 M6 M7
 
 %%
 
@@ -116,7 +118,7 @@ postfix_expression
 					if($1->exprType==3){
 						string funcArgs = funcArgList($1->nodeKey);
 						if(!(funcArgs==string(""))) {
-							yyerror(Error : \'%s\' function call requires arguments to be passed \n     \'%s %s\( %s \)\'",($1->nodeKey).c_str(),($$->nodeType).c_str(),($1->nodeKey).c_str(),funcArgs.c_str());
+							yyerror("Error : \'%s\' function call requires arguments to be passed \n     \'%s %s\( %s \)\'",($1->nodeKey).c_str(),($$->nodeType).c_str(),($1->nodeKey).c_str(),funcArgs.c_str());
 						}
 					}
 				}
@@ -297,27 +299,26 @@ cast_expression
 multiplicative_expression
 	: cast_expression								{$$ = $1;}
 
-	| multiplicative_expression '*' cast_expression	{   $$ = non_term_symb("*", NULL, $1, $3);
-														char* a=multilplicativeExpr($1->nodeType, $3->nodeType, '*');
-														if(a){
-															int k;
-															if(strcmp(a,"int")==0){
-																//$$=nonTerminal("*int",NULL,$1,$3);
-																$$->nodeType = string("long long");
-															}
-															else if (strcmp(a, "float")==0){
-																//$$=nonTerminal("*float",NULL,$1,$3);
-																$$->nodeType = string("long double");
-																
-															}
-														}
-														else{
-															//$$=nonTerminal("*",NULL,$1,$3);
-															yyerror("Error : Incompatible type for * operator");
-														}
-														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
-														}
-													}
+	| multiplicative_expression '*' cast_expression{
+			$$ = non_term_symb("*", NULL, $1, $3);
+			char* a=multilplicativeExpr($1->nodeType, $3->nodeType, '*');
+			if(a){
+				int k;
+				if(strcmp(a,"int")==0){
+					//$$=nonTerminal("*int",NULL,$1,$3);
+					$$->nodeType = string("long long");
+				}
+				else if (strcmp(a, "float")==0){
+					//$$=nonTerminal("*float",NULL,$1,$3);
+					$$->nodeType = string("long double");
+				}
+			}
+			else{
+				//$$=nonTerminal("*",NULL,$1,$3);
+				yyerror("Error : Incompatible type for * operator");
+			}
+			if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
+		}
 	| multiplicative_expression '/' cast_expression	{$$ = non_term_symb("/", NULL, $1, $3);
 														if ($3->iVal != 0)
 															$$->iVal = $1->iVal/ $3->iVal;
@@ -570,6 +571,46 @@ inclusive_or_expression
 								}
 	;
 
+M1
+  : logical_and_expression AND_OP {
+                        $$ = $1;
+  }
+  ;
+M2
+  : logical_or_expression OR_OP {
+                        
+                        $$ = $1;
+  }
+  ;
+M3
+  : logical_or_expression '?' {
+                        $$ = $1;
+  }
+  ;
+M
+ : /* empty */ {
+           $$ = getNextIndex();
+ }
+ ;
+
+M5
+  : CASE constant_expression ':' {
+                                  $$=$2;
+                        
+
+
+   }
+  ;
+N
+ : /* empty */ {
+ }
+ ;
+ GOTO_emit
+   : /* empty */ {
+
+                           $$ = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL ),0);
+   }
+   ;
 logical_and_expression
 	: inclusive_or_expression								{$$ = $1;}
 	| logical_and_expression AND_OP inclusive_or_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
@@ -591,7 +632,7 @@ conditional_expression
 	: logical_or_expression												{$$ = $1;}
 	| logical_or_expression '?' expression ':' conditional_expression	{$$ = non_term_symb_2("logical_expr ? expr : conditional_expr", $1, $3, $5);
 										$$->rVal = -11;
-										char* a = conditionalExpr($3->nodeType,$6->nodeType);
+										char* a = conditionalExpr($3->nodeType,$5->nodeType);
 										if(a){
 											string as(a);
 											$$->nodeType = string("int");
@@ -775,7 +816,7 @@ struct_or_union_specifier
 	;
 
 E5
-  : %empty{
+  : /* empty */{
            makeStructTable();
   };
 
@@ -904,7 +945,7 @@ direct_declarator
 							}
 	;
 E3
-   : %empty                 {   typeName =string("");
+   :/* empty */                 {   typeName =string("");
                           funcArguments = string("");
                            paramTable();  }
     ;
@@ -930,7 +971,7 @@ parameter_type_list
 
 parameter_list
 	: parameter_declaration {$$=$1;}
-	| parameter_list ',' M parameter_declaration {$$=non_term_symb("parameter_list",NULL,$1,$4);}
+	| parameter_list ',' parameter_declaration {$$=non_term_symb("parameter_list",NULL,$1,$3);}
 	;
 
 parameter_declaration
@@ -989,17 +1030,17 @@ initializer
 
 initializer_list
 	: initializer {$$ = $1;$$->exprType=1;}
-	| initializer_list ',' M  initializer {
+	| initializer_list ',' M initializer {
           $$ = non_term_symb("initializer_list", NULL, $1 ,$4);
           $$->nodeType = $1->nodeType;
-           char* a =validAssign($1->nodeType,$4->nodeType);
+           char* a =validAssign($1->nodeType,$3->nodeType);
                if(a){
                     if(!strcmp(a,"true")){ ; }
                     if(!strcmp(a,"warning")){ ;
                          yyerror("Warning : Assignment with incompatible pointer type");
                          }
                      }
-                else{ yyerror("Error : Incompatible types when initializing type \'%s\' to \'%s\' ",($1->nodeType).c_str(),($4->nodeType).c_str()); }
+                else{ yyerror("Error : Incompatible types when initializing type \'%s\' to \'%s\' ",($1->nodeType).c_str(),($3->nodeType).c_str()); }
            $$->exprType = $1->exprType+1;
         }
 	;
@@ -1158,12 +1199,12 @@ function_definition
               updateSymTable(s);
               $$ = non_term_symb_2("function_definition", $1, $2, $4);
              }
-	| declarator declaration_list compound_statement {$$ = non_term_symb_2("function_definition",$1,$2,$3); //DOUBTFUL}
-	| declarator compound_statement {$$ = non_term_symb_2("function_definition", $1,NULL,$2);//DOUBTFUL}
+	| declarator declaration_list compound_statement {$$ = non_term_symb_2("function_definition",$1,$2,$3);} //DOUBTFUL
+	| declarator compound_statement {$$ = non_term_symb_2("function_definition", $1,NULL,$2);}//DOUBTFUL
 	;
 
 E2
-    : %empty                { typeName=string("");scope = S_FUNC;
+    : /* empty */                { typeName=string("");scope = S_FUNC;
                                          isFunc = 1;
                                          funcSym++;
                                          symFileName = funcName;//string("symTableFunc")+to_string(funcSym);
