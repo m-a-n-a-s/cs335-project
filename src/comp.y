@@ -116,7 +116,7 @@ postfix_expression
 					if($1->exprType==3){
 						string funcArgs = funcArgList($1->nodeKey);
 						if(!(funcArgs==string(""))) {
-							yyerror(Error : \'%s\' function call requires arguments to be passed \n     \'%s %s\( %s \)\'",($1->nodeKey).c_str(),($$->nodeType).c_str(),($1->nodeKey).c_str(),funcArgs.c_str());
+							yyerror("Error : \'%s\' function call requires arguments to be passed \n     \'%s %s\( %s \)\'",($1->nodeKey).c_str(),($$->nodeType).c_str(),($1->nodeKey).c_str(),funcArgs.c_str());
 						}
 					}
 				}
@@ -316,8 +316,8 @@ multiplicative_expression
 															yyerror("Error : Incompatible type for * operator");
 														}
 														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
-														}
 													}
+													
 	| multiplicative_expression '/' cast_expression	{$$ = non_term_symb("/", NULL, $1, $3);
 														if ($3->iVal != 0)
 															$$->iVal = $1->iVal/ $3->iVal;
@@ -859,7 +859,7 @@ direct_declarator
                                           $$->nodeType=$2->nodeType;}
 						}
 	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);}
-										//DOUBTFUL}
+										//DOUBTFULL}
 	| direct_declarator '[' ']'    {$$ = square("direct_declarator", $1);
 				     	if($1->exprType==1){ $$->exprType=1;
                                      	$$->nodeKey=$1->nodeKey;
@@ -1026,7 +1026,7 @@ compound_statement
                                     string u($1);
                                     //printSymTables(curr,s);
                                     //updateSymTable(u); blockSym--;
-									// DOUBTFUL
+									
                                  } $$ = $2;
                                }
 	| E1  declaration_list '}'  {if(blockSym){ string s($1);
@@ -1034,7 +1034,7 @@ compound_statement
                                     string u($1);
                                     //printSymTables(curr,s);
                                     //updateSymTable(u); blockSym--;
-									//DOUBTFUL
+									
                                  } $$ = $2;
                                }
 	| '{' declaration_list statement_list '}' {$$ = non_term_symb("compound_statement",NULL, $2,$3);}
@@ -1157,9 +1157,13 @@ function_definition
               symNumber=0;
               updateSymTable(s);
               $$ = non_term_symb_2("function_definition", $1, $2, $4);
-             }
-	| declarator declaration_list compound_statement {$$ = non_term_symb_2("function_definition",$1,$2,$3); //DOUBTFUL}
-	| declarator compound_statement {$$ = non_term_symb_2("function_definition", $1,NULL,$2);//DOUBTFUL}
+            }
+	| declarator declaration_list compound_statement { $$ = non_term_symb_2("function_definition",$1,$2,$3);
+														//DOUBTFULL
+													}
+	| declarator compound_statement { $$ = non_term_symb_2("function_definition", $1,NULL,$2);
+									//DOUBTFULL
+									}
 	;
 
 E2
