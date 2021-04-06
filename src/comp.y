@@ -637,7 +637,7 @@ assignment_operator
 
 expression
 	: assignment_expression					{$$ = $1;}
-	| expression ',' assignment_expression	{$$ = non_term_symb("expression ','", NULL, $1, $3);}
+	| expression ',' assignment_expression	{$$ = non_term_symb("expression ','", NULL, $1, $3);$$->nodeType = string("void");}
 	;
 
 constant_expression
@@ -859,7 +859,7 @@ direct_declarator
                                           $$->nodeType=$2->nodeType;}
 						}
 	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);}
-										// DOUBTFUL}
+										//DOUBTFUL}
 	| direct_declarator '[' ']'    {$$ = square("direct_declarator", $1);
 				     	if($1->exprType==1){ $$->exprType=1;
                                      	$$->nodeKey=$1->nodeKey;
