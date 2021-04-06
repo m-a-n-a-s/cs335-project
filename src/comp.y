@@ -59,6 +59,10 @@ void yyerror(char *s,...);
 
 %%
 
+// In struct_or_union '{' struct_declaration_list '}' check the last error line which I have commented. 
+// Please add the rules of direct_declarator '[' constant_expression ']'
+
+
 primary_expression
 	: IDENTIFIER			{$$ = term_symb($1);
 								char *a=primaryExpr($1);
@@ -271,40 +275,42 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&");}
-	| '*'	{$$ = term_symb("*");}
-	| '+'	{$$ = term_symb("+");}
-	| '-'	{$$ = term_symb("-");}
-	| '~'	{$$ = term_symb("~");}
-	| '!'	{$$ = term_symb("!");}
+	: '&'	{$$ = term_symb("&"); $$->place = pair<string, sEntry*>("&", lookup("&"));}
+	| '*'	{$$ = term_symb("*"); $$->place = pair<string, sEntry*>("unary*", lookup("*"));}
+	| '+'	{$$ = term_symb("+"); $$->place = pair<string, sEntry*>("unary+", lookup("+"));}
+	| '-'	{$$ = term_symb("-"); $$->place = pair<string, sEntry*>("unary-", lookup("-"));}
+	| '~'	{$$ = term_symb("~"); $$->place = pair<string, sEntry*>("~", lookup("~"));}
+	| '!'	{$$ = term_symb("!"); $$->place = pair<string, sEntry*>("!", lookup("!"));}
 	;
 
 cast_expression
 	: unary_expression					{$$ = $1;}
-	| '(' type_name ')' cast_expression	{$$ = non_term_symb("cast_expression", NULL, $2, $4);
-												$$->nodeType = $2->nodeType;
-                        						if($4->isInit==1) $$->isInit=1;
+	| '(' type_name ')' cast_expression	{
+											$$ = non_term_symb("cast_expression", NULL, $2, $4);
+											$$->nodeType = $2->nodeType;
+                        					if($4->isInit==1) $$->isInit=1;
+
 										}
 	;
 
 multiplicative_expression
 	: cast_expression								{$$ = $1;}
-	| multiplicative_expression '*' cast_expression	{$$ = non_term_symb("*", NULL, $1, $3);
+	| multiplicative_expression '*' cast_expression	{   $$ = non_term_symb("*", NULL, $1, $3);
 														char* a=multilplicativeExpr($1->nodeType, $3->nodeType, '*');
 														if(a){
 															int k;
 															if(strcmp(a,"int")==0){
-																//$$=nonTerminal("*int",NULL,$1,$3);
+																$$=nonTerminal("*int",NULL,$1,$3);
 																$$->nodeType = string("long long");
 															}
 															else if (strcmp(a, "float")==0){
-																//$$=nonTerminal("*float",NULL,$1,$3);
+																$$=nonTerminal("*float",NULL,$1,$3);
 																$$->nodeType = string("long double");
 																
 															}
 														}
 														else{
-															//$$=nonTerminal("*",NULL,$1,$3);
+															$$=nonTerminal("*",NULL,$1,$3);
 															yyerror("Error : Incompatible type for * operator");
 														}
 														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
@@ -312,22 +318,22 @@ multiplicative_expression
 													}
 	| multiplicative_expression '/' cast_expression	{$$ = non_term_symb("/", NULL, $1, $3);
 														if ($3->iVal != 0)
-														$$->iVal = $1->iVal/ $3->iVal;
+															$$->iVal = $1->iVal/ $3->iVal;
 														char* a=multilplicativeExpr($1->nodeType, $3->nodeType, '/');
 														if(a){int k;
 															if(!strcmp(a,"int")){
-																//$$=nonTerminal("/int",NULL,$1,$3);
+																$$=nonTerminal("/int",NULL,$1,$3);
 																$$->nodeType = string("long long");
 															
 															}
 															else if (!strcmp(a,"float")){
-																//$$=nonTerminal("/float",NULL,$1,$3);
+																$$=nonTerminal("/float",NULL,$1,$3);
 																$$->nodeType = string("long double");
 															
 															}
 														}
 														else{
-															//$$=nonTerminal("/",NULL,$1,$3);
+															$$=nonTerminal("/",NULL,$1,$3);
 															yyerror("Error : Incompatible type for / operator");
 														}
 														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
@@ -657,8 +663,43 @@ init_declarator_list
 	;
 
 init_declarator
-	: declarator					{$$ = $1;}
-	| declarator '=' initializer	{$$ = non_term_symb("=", NULL, $1, $3);}
+	: declarator{
+		$$ = $1;
+		if($1->exprType==1){ 
+			char *t=new char();
+        	strcpy(t,($1->nodeType).c_str());
+        	char *key =new char();
+        	strcpy(key,($1->nodeKey).c_str());
+        	if(scopeLookup($1->nodeKey)){
+                yyerror("Error: redeclaration of \'%s\'",key);
+        	}else if($1->nodeType==string("void")){
+        	    yyerror("Error: Variable or field \'%s\' declared void",key);
+        	}else {  
+				insertSymbol(*curr,key,t,$1->size,0,0);
+			}
+            $$->place = pair<string, sEntry*>($1->nodeKey, lookup($1->nodeKey));
+        }
+	}
+	| declarator '=' initializer	{
+		$$ = non_term_symb("=", NULL, $1, $3);
+		if($1->exprType==1||$1->exprType==15){ 
+			char *t=new char();
+            strcpy(t,($1->nodeType).c_str());
+            char *key =new char();
+            strcpy(key,($1->nodeKey).c_str());
+        if(scopeLookup($1->nodeKey)){
+			yyerror("Error: Redeclaration of \'%s\'",key);
+            }else if($1->nodeType==string("void")){
+                 yyerror("Error: Variable or field \'%s\' declared void",key);
+            }
+            else { 
+				if($$->exprType==15) { 
+					insertSymbol(*curr,key,t,($3->exprType*$1->iVal),0,1); 
+				}
+                insertSymbol(*curr,key,t,$1->size,0,1);
+            }
+        }
+	}
 	;
 
 storage_class_specifier
@@ -1115,6 +1156,6 @@ E2
                                          $$ = y;
        }
     ;
-
 %%
 
+%%
