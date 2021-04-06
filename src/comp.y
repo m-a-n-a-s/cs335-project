@@ -859,7 +859,7 @@ direct_declarator
                                           $$->nodeType=$2->nodeType;}
 						}
 	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);}
-										// DOUBTFUL}
+										//DOUBTFUL}
 	| direct_declarator '[' ']'    {$$ = square("direct_declarator", $1);
 				     	if($1->exprType==1){ $$->exprType=1;
                                      	$$->nodeKey=$1->nodeKey;
@@ -872,7 +872,7 @@ direct_declarator
 					$$->iVal=getSize(a);
 					}
 
-	| direct_declarator '(' parameter_type_list ')' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);
+	| direct_declarator '(' E3 parameter_type_list ')' {$$ = non_term_symb("direct_declarator", NULL, $1, $4);
 							if($1->exprType==1){ $$->nodeKey=$1->nodeKey;
 							$$->exprType=2;
 							$$->nodeType=$1->nodeType;
@@ -884,13 +884,13 @@ direct_declarator
 							}
 							}
 
-	| direct_declarator '(' identifier_list ')' 	{$$ = non_term_symb("direct_declarator", NULL, $1, $3);
+	| direct_declarator '(' E3 identifier_list ')' 	{$$ = non_term_symb("direct_declarator", NULL, $1, $4);
 							char* a = new char();
 							strcpy(a,($$->nodeType).c_str());
 							$$->size = getSize(a);
 							}
 
-	| direct_declarator '(' ')' 			{$$ = parentheses("direct_declarator", $1);
+	| direct_declarator '(' E3 ')' 			{$$ = parentheses("direct_declarator", $1);
 							if($1->exprType==1){
 								$$->nodeKey=$1->nodeKey;
 								insertFuncArguments($1->nodeKey,string(""));
@@ -903,7 +903,11 @@ direct_declarator
 							$$->size = getSize(a);
 							}
 	;
-
+E3
+   : %empty                 {   typeName =string("");
+                          funcArguments = string("");
+                           paramTable();  }
+    ;
 pointer
 	: '*' {$$=term_symb("*");$$->nodeType=string("*");}
 	| '*' type_qualifier_list {$$=non_term_symb("*",NULL,$2,NULL);$$->nodeType=string("*");}
@@ -1131,8 +1135,8 @@ translation_unit
 	;
 
 external_declaration
-	: function_definition {$$ = $1;}
-	| declaration {$$ = $1;}
+	: function_definition {typeName=string("");$$ = $1;}
+	| declaration {typeName=string("");$$ = $1;}
 	;
 
 function_definition
@@ -1154,8 +1158,8 @@ function_definition
               updateSymTable(s);
               $$ = non_term_symb_2("function_definition", $1, $2, $4);
              }
-	| declarator declaration_list compound_statement {$$ = non_term_symb_2("function_definition",$1,$2,$3);}
-	| declarator compound_statement {$$ = non_term_symb_2("function_definition", $1,NULL,$2);}
+	| declarator declaration_list compound_statement {$$ = non_term_symb_2("function_definition",$1,$2,$3); //DOUBTFUL}
+	| declarator compound_statement {$$ = non_term_symb_2("function_definition", $1,NULL,$2);//DOUBTFUL}
 	;
 
 E2
