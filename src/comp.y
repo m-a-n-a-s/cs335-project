@@ -298,12 +298,12 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&");}
-	| '*'	{$$ = term_symb("*");}
-	| '+'	{$$ = term_symb("+");}
-	| '-'	{$$ = term_symb("-");}
-	| '~'	{$$ = term_symb("~");}
-	| '!'	{$$ = term_symb("!");}
+	: '&'	{$$ = term_symb("&");$$->place = pair<string, sEntry*>("&", lookup("&"));}
+	| '*'	{$$ = term_symb("*");$$->place = pair<string, sEntry*>("unary*", lookup("*"));}
+	| '+'	{$$ = term_symb("+");$$->place = pair<string, sEntry*>("unary+", lookup("+"));}
+	| '-'	{$$ = term_symb("-");$$->place = pair<string, sEntry*>("unary-", lookup("-"));}
+	| '~'	{$$ = term_symb("~");$$->place = pair<string, sEntry*>("~", lookup("~"));}
+	| '!'	{$$ = term_symb("!");$$->place = pair<string, sEntry*>("!", lookup("!"));}
 	;
 
 cast_expression
@@ -666,8 +666,8 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers ';' {$$=$1; typeName=string("");}
-	| declaration_specifiers init_declarator_list ';'	{$$ = non_term_symb("declaration", NULL, $1, $2); typeName=string("");}
+	: declaration_specifiers ';' {typeName=string("");$$=$1;}
+	| declaration_specifiers init_declarator_list ';'	{typeName=string("");$$ = non_term_symb("declaration", NULL, $1, $2);}
 	;
 
 declaration_specifiers
@@ -954,7 +954,7 @@ parameter_list
 	;
 
 parameter_declaration
-	: declaration_specifiers declarator {
+	: declaration_specifiers declarator {typeName=string("");
 
           //paramTable();
          if($2->exprType==1){ char *t=new char();
@@ -967,8 +967,8 @@ parameter_declaration
                else funcArguments= funcArguments+string(",")+($2->nodeType);
                      }
         $$=non_term_symb("parameter_declaration",NULL,$1,$2);}
-	| declaration_specifiers abstract_declarator {$$=non_term_symb("parameter_declaration",NULL,$1,$2);}
-	| declaration_specifiers {$$=$1;}
+	| declaration_specifiers abstract_declarator {$$=non_term_symb("parameter_declaration",NULL,$1,$2);typeName=string("");}
+	| declaration_specifiers {$$=$1;typeName=string("");}
 	;
 
 identifier_list
