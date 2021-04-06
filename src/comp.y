@@ -582,7 +582,7 @@ logical_or_expression
 	: logical_and_expression								{$$ = $1;}
 	| logical_or_expression OR_OP logical_and_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
 								//$$ = nonTerminal2("||", $1,NULL, $3);
-								if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+								if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
 								$$->nodeType == string("bool");
 								}
 	;
