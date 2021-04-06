@@ -41,7 +41,7 @@ IS			(u|U|l|L)*
 "for"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"FOR"); return FOR; }
 "goto"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"GOTO"); return GOTO; }
 "if"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IF"); return IF; }
-"int"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"INT"); return INT; }
+"int"			{ printf("found int\n"); count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"INT"); return INT; }
 "long"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"LONG"); return LONG; }
 "register"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"REGISTER"); return REGISTER; }
 "return"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"RETURN"); return RETURN; }
@@ -58,7 +58,7 @@ IS			(u|U|l|L)*
 "volatile"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"VOLATILE"); return VOLATILE; }
 "while"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"WHILE"); return WHILE; }
 
-{L}({L}|{D})*		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IDENTIFIER"); return IDENTIFIER; }
+{L}({L}|{D})*		{ printf("found %s\n",yytext);count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IDENTIFIER"); return IDENTIFIER; }
 0[xX]{H}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
 0{D}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
 {D}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }

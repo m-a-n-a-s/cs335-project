@@ -1,7 +1,7 @@
 %{
 // #include "functions.h"
 #include <iostream>
-#include <cstring>
+// #include <cstring>
 #include <list>
 #include <stdio.h>
 #include <stdlib.h>
@@ -666,14 +666,14 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers ';' {$$=$1;}
-	| declaration_specifiers init_declarator_list ';'	{$$ = non_term_symb("declaration", NULL, $1, $2);}
+	: declaration_specifiers ';' {$$=$1; typeName=string("");}
+	| declaration_specifiers init_declarator_list ';'	{$$ = non_term_symb("declaration", NULL, $1, $2); typeName=string("");}
 	;
 
 declaration_specifiers
 	: storage_class_specifier							{$$ = $1;}
 	| storage_class_specifier declaration_specifiers	{$$ = non_term_symb("declaration_specifiers", NULL, $1, $2);}
-	| type_specifier									{$$ = $1;}		
+	| type_specifier									{printf("In declaration_specifiers\n"); $$ = $1;}		
 	| type_specifier declaration_specifiers				{$$ = non_term_symb("declaration_specifiers", NULL, $1, $2);}
 	| type_qualifier									{$$ = $1;}
 	| type_qualifier declaration_specifiers				{$$ = non_term_symb("declaration_specifiers", NULL, $1, $2);}
@@ -742,7 +742,7 @@ type_specifier
 	| SHORT							{if(typeName==string(""))typeName = string($1);
                    					else typeName = typeName+string(" ")+string($1);
 									$$ = term_symb($1);}
-	| INT							{if(typeName==string(""))typeName = string($1);
+	| INT							{printf("Hello in type specifier\n"); if(typeName==string(""))typeName = string($1);
                    					else typeName = typeName+string(" ")+string($1);
 									$$ = term_symb($1);}
 	| LONG							{if(typeName==string(""))typeName = string($1);
@@ -866,12 +866,12 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER {$$=term_symb($1);
-				$$->exprType=1;$$->nodeKey=string($1);
-				$$->nodeType=typeName;
-				char* a =new char();
-                strcpy(a,typeName.c_str());
-				$$->size = getSize(a);}
+	: IDENTIFIER {printf("1\n");$$=term_symb($1);printf("2 %s\n",$1);
+				$$->exprType=1;printf("3\n"); /*$$->nodeKey=string($1);*/string s($1);$$->nodeKey=s;printf("4\n");cout<<$$->nodeKey<<endl;
+				$$->nodeType=typeName;printf("5%s\n",$$->nodeType);
+				char* a =new char();printf("6\n");
+                strcpy(a,typeName.c_str());printf("7\n");
+				$$->size = getSize(a);printf("8\n");}
 	| '(' declarator ')' {$$ = $2;
 						if($2->exprType==1){ $$->exprType=1;
                                           $$->nodeKey=$2->nodeKey;
@@ -920,6 +920,7 @@ direct_declarator
 							char* a = new char();
 							strcpy(a,($$->nodeType).c_str());
 							$$->size = getSize(a);
+							printf("Hello\n");
 							}
 	;
 E3
@@ -1173,12 +1174,22 @@ int main(int argc, char * argv[]){
         printf("ERROR ::: USAGE: <Parser> <File Name> -o <Output File Name>\n");
         return -1;
     }
+	printf("Hello in main\n");
+	funcName = string("GST");
+	currArguments = string("");
+	stInitialize();
+	
     yyin = fopen(argv[1], "r");
     ast = fopen(argv[3], "w");
     fprintf(ast, "digraph G {\n\tordering=out;\n");
+	printf("before yyparse\n");
     yyparse();
     fprintf(ast, "}\n");
     fclose(yyin);
     fclose(ast);
+
+	symFileName = "GST.csv";
+  	printSymTables(curr,symFileName);
+  	printFuncArguments();
     return 0;
 }

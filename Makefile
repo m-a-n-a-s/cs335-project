@@ -32,7 +32,7 @@ $(BIN)/compiler: $(BUILD)/y.tab.c $(BUILD)/lex.yy.c $(OBJ)
 
 $(BUILD)/y.tab.c: $(SOURCE)/comp.y
 	@mkdir -p $(BUILD)
-	yacc -d $^ -o $@
+	yacc -dvt $^ -o $@
 
 $(BUILD)/lex.yy.c: $(SOURCE)/comp.l
 	@mkdir -p $(BUILD)
