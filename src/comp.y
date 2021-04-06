@@ -1,6 +1,5 @@
 %{
-#include "functions.h"
-
+// #include "functions.h"
 #include <iostream>
 #include <cstring>
 #include <list>
@@ -8,10 +7,31 @@
 #include <stdlib.h>
 #include <fcntl.h>
 #include <stdarg.h>
+#include <string>
 using namespace std;
 
+
+int scope;
+int symNumber = 0;
+int funcSym=0;
+int isFunc;
+int blockSym=0;
 int yylex(void);
 void yyerror(char *s,...);
+
+#include "typecheck.h"
+#include "functions.h"
+#include "symTable.h"
+
+string typeName="";
+extern int yylineno;
+string symFileName;
+string funcName;
+string funcType;
+int structCounter=0;
+string funcArguments;
+string currArguments;
+
 %}
 
 %union {
@@ -56,8 +76,6 @@ void yyerror(char *s,...);
 %type <ptr> direct_declarator type_qualifier_list parameter_type_list identifier_list parameter_list parameter_declaration
 %type <ptr> abstract_declarator direct_abstract_declarator labeled_statement compound_statement expression_statement declaration_list
 %type <ptr> selection_statement iteration_statement jump_statement external_declaration translation_unit function_definition statement statement_list
-%type <number> M N GOTO_emit
-%type <ptr> M1 M2 M3 M4 M5 M6 M7
 
 %%
 
@@ -571,46 +589,8 @@ inclusive_or_expression
 								}
 	;
 
-M1
-  : logical_and_expression AND_OP {
-                        $$ = $1;
-  }
-  ;
-M2
-  : logical_or_expression OR_OP {
-                        
-                        $$ = $1;
-  }
-  ;
-M3
-  : logical_or_expression '?' {
-                        $$ = $1;
-  }
-  ;
-M
- : /* empty */ {
-           $$ = getNextIndex();
- }
- ;
 
-M5
-  : CASE constant_expression ':' {
-                                  $$=$2;
-                        
-
-
-   }
-  ;
-N
- : /* empty */ {
- }
- ;
- GOTO_emit
-   : /* empty */ {
-
-                           $$ = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL ),0);
-   }
-   ;
+   
 logical_and_expression
 	: inclusive_or_expression								{$$ = $1;}
 	| logical_and_expression AND_OP inclusive_or_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
@@ -719,7 +699,7 @@ init_declarator
         	}else {  
 				insertSymbol(*curr,key,t,$1->size,0,0);
 			}
-            $$->place = pair<string, sEntry*>($1->nodeKey, lookup($1->nodeKey));
+            //$$->place = pair<string, sEntry*>($1->nodeKey, lookup($1->nodeKey));
         }
 	}
 	| declarator '=' initializer	{
@@ -780,12 +760,10 @@ type_specifier
 	| UNSIGNED						{if(typeName==string(""))typeName = string($1);
                    					else typeName = typeName+string(" ")+string($1);
 									$$ = term_symb($1);}
-	| struct_or_union_specifier		{if(typeName==string(""))typeName = string($1);
-                   					else typeName = typeName+string(" ")+string($1);
+	| struct_or_union_specifier		{if(typeName==string(""))typeName = $$->nodeType;
+                   					else typeName = typeName+string(" ")+$$->nodeType;
 									$$ = $1;}
-	| enum_specifier				{if(typeName==string(""))typeName = string($1);
-                   					else typeName = typeName+string(" ")+string($1);
-									$$ = $1;}
+	| enum_specifier				{$$ = $1; yyerror("Error : not implemented Enum specifier");}
 	| TYPE_NAME						{if(typeName==string(""))typeName = string($1);
                    					else typeName = typeName+string(" ")+string($1);
 									$$ = term_symb($1);}
@@ -816,7 +794,7 @@ struct_or_union_specifier
 	;
 
 E5
-  : /* empty */{
+  : %empty {
            makeStructTable();
   };
 
@@ -945,7 +923,7 @@ direct_declarator
 							}
 	;
 E3
-   :/* empty */                 {   typeName =string("");
+   :%empty                  {   typeName =string("");
                           funcArguments = string("");
                            paramTable();  }
     ;
@@ -1030,8 +1008,8 @@ initializer
 
 initializer_list
 	: initializer {$$ = $1;$$->exprType=1;}
-	| initializer_list ',' M initializer {
-          $$ = non_term_symb("initializer_list", NULL, $1 ,$4);
+	| initializer_list ',' initializer {
+          $$ = non_term_symb("initializer_list", NULL, $1 ,$3);
           $$->nodeType = $1->nodeType;
            char* a =validAssign($1->nodeType,$3->nodeType);
                if(a){
@@ -1055,7 +1033,7 @@ statement
 	;
 
 labeled_statement
-	: IDENTIFIER ':' M statement {$$ = non_term_symb("labeled_statement", NULL, term_symb($1), $4);}
+	: IDENTIFIER ':' statement {$$ = non_term_symb("labeled_statement", NULL, term_symb($1), $3);}
 	| CASE constant_expression ':' statement {$$ = non_term_symb_2("labeled_statement", term_symb("CASE"), $2, $4);}
 	| DEFAULT ':' statement {$$ = non_term_symb("labeled_statement", NULL, term_symb("DEFAULT"), $3);}
 	;
@@ -1098,12 +1076,12 @@ E1
 
 declaration_list
 	: declaration {$$=$1;}
-	| declaration_list M declaration {$$ = non_term_symb("declaration_list", NULL, $1, $2);}
+	| declaration_list declaration {$$ = non_term_symb("declaration_list", NULL, $1, $2);}
 	;
 
 statement_list
 	: statement {$$ = $1;}
-	| statement_list M statement {$$ = non_term_symb("statement_list", NULL, $1, $2);}
+	| statement_list statement {$$ = non_term_symb("statement_list", NULL, $1, $2);}
 	;
 
 expression_statement
@@ -1111,55 +1089,18 @@ expression_statement
 	| expression ';' {$$ = $1;}
 	;
 
-M4
-  :  IF '(' expression ')' {
-                        //if($3->truelist.begin()==$3->truelist.end()){
-                        //    int k = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("IF", lookup("if")), $3->place, pair<string, sEntry*>("", NULL ),0);
-                        //    int k1 = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL ),0);
-                        //    $3->truelist.push_back(k);
-                        //    $3->falselist.push_back(k1);
-                        //}
-                        $$ = $3;
-  }
-  ;
 
 selection_statement
-	: M4 M statement ELSE M statement {$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $1, $3, $6);}
-	| M4 M statement %prec IFX {$$ = non_term_symb_2("IF (expr) stmt", NULL, $1, $3);}
+	: IF '(' expression ')' statement ELSE statement {$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $3, $5, $7);}
+	| IF '(' expression ')' statement %prec IFX {$$ = non_term_symb_2("IF (expr) stmt", NULL, $3, $5);}
 	| SWITCH '(' expression ')' statement{$$ = non_term_symb_2("SWITCH (expr) stmt", NULL, $3, $5);}
 	;
 
-M6
-  :   expression  {
-                        //if($1->truelist.begin()==$1->truelist.end()){
-                        //    int k = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("IF", lookup("if")), $1->place, pair<string, sEntry*>("", NULL ),0);
-                        //    int k1 = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL ),0);
-                        //    $1->truelist.push_back(k);
-                        //    $1->falselist.push_back(k1);
-						//}
-                        $$ = $1;
-  }
-  ;
-
-
-M7
-  :   expression_statement  {
-                        //if($1->truelist.begin()==$1->truelist.end()){
-                        //    int k = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("IF", lookup("if")), $1->place, pair<string, sEntry*>("", NULL ),0);
-                        //    int k1 = emit(pair<string, sEntry*>("GOTO", lookup("goto")),pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL), pair<string, sEntry*>("", NULL ),0);
-                        //    $1->truelist.push_back(k);
-                        //    $1->falselist.push_back(k1);
-						//}
-
-                        $$ = $1;
-  }
-  ;
-
 iteration_statement
-	: WHILE '(' M M6 ')' M statement {$$ = non_term_symb_2("WHILE (expr) stmt", NULL, $4, $7);}
-	| DO M  statement  WHILE '(' M  M6 ')' ';'{$$ = non_term_symb_2("DO stmt WHILE (expr)", NULL, $3, $7);}
-	| FOR '(' expression_statement M M7 ')' M statement {$$ = non_term_symb_2("FOR (expr_stmt expr_stmt) stmt", $3, $5, $8);}
-	| FOR '(' expression_statement M M7 M expression ')' M statement {$$ = non_term_symb_5("FOR (expr_stmt expr_stmt expr) stmt", NULL, $3, $5, $7, $10);}
+	: WHILE '(' expression ')' statement {$$ = non_term_symb_2("WHILE (expr) stmt", NULL, $3, $5);}
+	| DO statement  WHILE '(' expression ')' ';'{$$ = non_term_symb_2("DO stmt WHILE (expr)", NULL, $2, $5);}
+	| FOR '(' expression_statement expression_statement ')' statement {$$ = non_term_symb_2("FOR (expr_stmt expr_stmt) stmt", $3, $4, $6);}
+	| FOR '(' expression_statement expression_statement expression ')'statement {$$ = non_term_symb_5("FOR (expr_stmt expr_stmt expr) stmt", NULL, $3, $4, $5, $7);}
 	;
 
 jump_statement
@@ -1172,7 +1113,7 @@ jump_statement
 
 translation_unit
 	: external_declaration {$$ = $1;}
-	| translation_unit M external_declaration {$$ = non_term_symb("translation_unit", NULL, $1, $3);}
+	| translation_unit external_declaration {$$ = non_term_symb("translation_unit", NULL, $1, $2);}
 	;
 
 external_declaration
@@ -1208,7 +1149,7 @@ function_definition
 	;
 
 E2
-    : /* empty */                { typeName=string("");scope = S_FUNC;
+    : %empty                 { typeName=string("");scope = S_FUNC;
                                          isFunc = 1;
                                          funcSym++;
                                          symFileName = funcName;//string("symTableFunc")+to_string(funcSym);
@@ -1220,3 +1161,24 @@ E2
     ;
 
 %%
+
+
+extern FILE *yyin;
+FILE* ast;
+
+
+
+int main(int argc, char * argv[]){
+    if (argc < 4){
+        printf("ERROR ::: USAGE: <Parser> <File Name> -o <Output File Name>\n");
+        return -1;
+    }
+    yyin = fopen(argv[1], "r");
+    ast = fopen(argv[3], "w");
+    fprintf(ast, "digraph G {\n\tordering=out;\n");
+    yyparse();
+    fprintf(ast, "}\n");
+    fclose(yyin);
+    fclose(ast);
+    return 0;
+}

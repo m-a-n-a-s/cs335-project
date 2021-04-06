@@ -376,7 +376,7 @@ void addKeywords(){
   {string *oper = new string();  *oper = "OR_OP"; insertSymbol(*curr,"||","Operator",8,0,1); } // || operator
   {string *oper = new string();  *oper = "LE_OP"; insertSymbol(*curr,"<=","Operator",8,0,1); } // <= operator
   {string *oper = new string();  *oper = "GE_OP"; insertSymbol(*curr,">=","Operator",8,0,1); } // >= operator
-  {string *oper = new string();  *oper = "EQ_OP"; insertSymbol(*curr,"\=\=","Operator",8,0,1); } // == operator
+  {string *oper = new string();  *oper = "EQ_OP"; insertSymbol(*curr,"==","Operator",8,0,1); } // == operator
   {string *oper = new string();  *oper = "NE_OP"; insertSymbol(*curr,"!=","Operator",8,0,1); } // != operator
   {string *oper = new string();  *oper = ";"; insertSymbol(*curr,";","Operator",8,0,1); } // ; operator
   {string *oper = new string();  *oper = "{"; insertSymbol(*curr,"{","Operator",8,0,1); } // { operator

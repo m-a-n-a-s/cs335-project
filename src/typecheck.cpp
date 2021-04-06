@@ -1,4 +1,4 @@
-#include "typeCheck.h"
+#include "typecheck.h"
 #include "symTable.h"
 
 char* primaryExpr(char* identifier){
