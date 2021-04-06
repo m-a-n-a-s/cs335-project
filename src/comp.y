@@ -275,12 +275,12 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&"); $$->place = pair<string, sEntry*>("&", lookup("&"));}
-	| '*'	{$$ = term_symb("*"); $$->place = pair<string, sEntry*>("unary*", lookup("*"));}
-	| '+'	{$$ = term_symb("+"); $$->place = pair<string, sEntry*>("unary+", lookup("+"));}
-	| '-'	{$$ = term_symb("-"); $$->place = pair<string, sEntry*>("unary-", lookup("-"));}
-	| '~'	{$$ = term_symb("~"); $$->place = pair<string, sEntry*>("~", lookup("~"));}
-	| '!'	{$$ = term_symb("!"); $$->place = pair<string, sEntry*>("!", lookup("!"));}
+	: '&'	{$$ = term_symb("&");}
+	| '*'	{$$ = term_symb("*");}
+	| '+'	{$$ = term_symb("+");}
+	| '-'	{$$ = term_symb("-");}
+	| '~'	{$$ = term_symb("~");}
+	| '!'	{$$ = term_symb("!");}
 	;
 
 cast_expression
@@ -300,17 +300,17 @@ multiplicative_expression
 														if(a){
 															int k;
 															if(strcmp(a,"int")==0){
-																$$=nonTerminal("*int",NULL,$1,$3);
+																//$$=nonTerminal("*int",NULL,$1,$3);
 																$$->nodeType = string("long long");
 															}
 															else if (strcmp(a, "float")==0){
-																$$=nonTerminal("*float",NULL,$1,$3);
+																//$$=nonTerminal("*float",NULL,$1,$3);
 																$$->nodeType = string("long double");
 																
 															}
 														}
 														else{
-															$$=nonTerminal("*",NULL,$1,$3);
+															//$$=nonTerminal("*",NULL,$1,$3);
 															yyerror("Error : Incompatible type for * operator");
 														}
 														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
@@ -322,18 +322,18 @@ multiplicative_expression
 														char* a=multilplicativeExpr($1->nodeType, $3->nodeType, '/');
 														if(a){int k;
 															if(!strcmp(a,"int")){
-																$$=nonTerminal("/int",NULL,$1,$3);
+																//$$=nonTerminal("/int",NULL,$1,$3);
 																$$->nodeType = string("long long");
 															
 															}
 															else if (!strcmp(a,"float")){
-																$$=nonTerminal("/float",NULL,$1,$3);
+																//$$=nonTerminal("/float",NULL,$1,$3);
 																$$->nodeType = string("long double");
 															
 															}
 														}
 														else{
-															$$=nonTerminal("/",NULL,$1,$3);
+															//$$=nonTerminal("/",NULL,$1,$3);
 															yyerror("Error : Incompatible type for / operator");
 														}
 														if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
@@ -419,7 +419,7 @@ shift_expression
 
 													}
 	| shift_expression RIGHT_OP additive_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
-														$$ = nonTerminal2(">>", $1, NULL, $3);
+														//$$ = nonTerminal2(">>", $1, NULL, $3);
 														char* a = shiftExpr($1->nodeType,$3->nodeType);
 														if(a){
 															$$->nodeType = $1->nodeType;
@@ -562,7 +562,7 @@ inclusive_or_expression
 																else {
 																	yyerror("Error :Invalid operands to the binary |");
 																}
-																	if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+																	if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
 															
 															}
 	;
@@ -571,15 +571,15 @@ logical_and_expression
 	: inclusive_or_expression								{$$ = $1;}
 	| logical_and_expression AND_OP inclusive_or_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
 																$$->nodeType == string("bool");
-																if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+																if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
 															}
 	;
 
 logical_or_expression
 	: logical_and_expression								{$$ = $1;}
 	| logical_or_expression OR_OP logical_and_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
-																$$ = nonTerminal2("||", $1,NULL, $3);
-																if($1->isInit==1 && $3->isInit==3) $$->isInit=1;
+																//$$ = nonTerminal2("||", $1,NULL, $3);
+																if($1->isInit==1 && $3->isInit==1) $$->isInit=1;
 																$$->nodeType == string("bool");
 																		
 															
@@ -671,9 +671,9 @@ init_declarator
         	char *key =new char();
         	strcpy(key,($1->nodeKey).c_str());
         	if(scopeLookup($1->nodeKey)){
-                yyerror("Error: redeclaration of \'%s\'",key);
+                yyerror("Error : redeclaration of \'%s\'",key);
         	}else if($1->nodeType==string("void")){
-        	    yyerror("Error: Variable or field \'%s\' declared void",key);
+        	    yyerror("Error : Variable or field \'%s\' declared void",key);
         	}else {  
 				insertSymbol(*curr,key,t,$1->size,0,0);
 			}
@@ -688,9 +688,9 @@ init_declarator
             char *key =new char();
             strcpy(key,($1->nodeKey).c_str());
         if(scopeLookup($1->nodeKey)){
-			yyerror("Error: Redeclaration of \'%s\'",key);
+			yyerror("Error : Redeclaration of \'%s\'",key);
             }else if($1->nodeType==string("void")){
-                 yyerror("Error: Variable or field \'%s\' declared void",key);
+                 yyerror("Error : Variable or field \'%s\' declared void",key);
             }
             else { 
 				if($$->exprType==15) { 
@@ -754,19 +754,19 @@ struct_or_union_specifier
 																	$$ = non_term_symb("struct_or_union_specifier", $2, $1, $5);
 																	if(endStructTable(as)){
 																	$$->nodeType = string("STRUCT_")+as; }
-																	else yyerror("Error: struct \'%s\' is already defined\n", $2);
+																	else yyerror("Error : struct \'%s\' is already defined\n", $2);
 																		}
 	| struct_or_union E5 '{' struct_declaration_list '}'				{$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $4);
 																	structCounter++;
 																	string as = to_string(structCounter);
 																	if(endStructTable(as)){
 																	$$->nodeType = string("STRUCT_")+as; }
-																	else yyerror("Error: struct \'%s\' is already defined\n", $2);}
+																	else yyerror("Error : struct \'%s\' is already defined\n", $2);}
 	| struct_or_union IDENTIFIER									{$$ = non_term_symb("struct_or_union_specifier", $2, $1, NULL);
 																	string as($2);
 																	as = "STRUCT_" + as;
 																	if(isStruct(as)) $$->nodeType = as;
-																	else yyerror("Error: No struct \'%s\' is defined",$2);}
+																	else yyerror("Error : No struct \'%s\' is defined",$2);}
 	;
 
 E5
@@ -802,10 +802,10 @@ struct_declarator_list
 
 struct_declarator
 	: declarator {$$ = $1;
-				if(!insertStructSymbol($1->nodeKey, $1->nodeType, $1->size, 0, 0)) yyerror("Error: \'%s\' is already declared in the same struct", $1->nodeKey.c_str());}
+				if(!insertStructSymbol($1->nodeKey, $1->nodeType, $1->size, 0, 0)) yyerror(" : \'%s\' is already declared in the same struct", $1->nodeKey.c_str());}
 	| ':' constant_expression {$$ = $2;}
 	| declarator ':' constant_expression {$$ = non_term_symb("struct_declarator", NULL, $1, $3);
-										if(!insertStructSymbol($1->nodeKey, $1->nodeType, $1->size, 0, 1)) yyerror("Error: \'%s\' is already declared in the same struct", $1->nodeKey.c_str());}
+										if(!insertStructSymbol($1->nodeKey, $1->nodeType, $1->size, 0, 1)) yyerror("Error : \'%s\' is already declared in the same struct", $1->nodeKey.c_str());}
 	;
 
 enum_specifier
@@ -924,7 +924,7 @@ parameter_declaration
                      strcpy(t,($2->nodeType).c_str());
                      char *key =new char();
                      strcpy(key,($2->nodeKey).c_str());
-                  if(scopeLookup($2->nodeKey)){ yyerror("Error: redeclaration of %s",key);}
+                  if(scopeLookup($2->nodeKey)){ yyerror("Error : redeclaration of %s",key);}
                    else {  insertSymbol(*curr,key,t,$2->size,0,1);}
                 if(funcArguments==string(""))funcArguments=($2->nodeType);
                else funcArguments= funcArguments+string(",")+($2->nodeType);
@@ -979,10 +979,10 @@ initializer_list
                if(a){
                     if(!strcmp(a,"true")){ ; }
                     if(!strcmp(a,"warning")){ ;
-                         yyerror("Warning: Assignment with incompatible pointer type");
+                         yyerror("Warning : Assignment with incompatible pointer type");
                          }
                      }
-                else{ yyerror("Error: Incompatible types when initializing type \'%s\' to \'%s\' ",($1->nodeType).c_str(),($4->nodeType).c_str()); }
+                else{ yyerror("Error : Incompatible types when initializing type \'%s\' to \'%s\' ",($1->nodeType).c_str(),($4->nodeType).c_str()); }
            $$->exprType = $1->exprType+1;
         }
 	;
@@ -1156,6 +1156,5 @@ E2
                                          $$ = y;
        }
     ;
-%%
 
 %%
