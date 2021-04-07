@@ -1,7 +1,5 @@
 // A program to convert  from decimal
 
-#include<stdio.h>
-
 int main()
 {
   int n,k;
