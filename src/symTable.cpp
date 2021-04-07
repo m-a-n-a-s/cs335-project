@@ -94,13 +94,13 @@ void stInitialize(){
     curr = &GST;
     is_next = 0;
     addKeywords();
-    funcArgumentMap.insert(pair<string,string>(string("printn"),string("int")));
-    funcArgumentMap.insert(pair<string,string>(string("printf"),string("int")));
-    funcArgumentMap.insert(pair<string,string>(string("prints"),string("char*")));
+   //  funcArgumentMap.insert(pair<string,string>(string("printn"),string("int")));
+    funcArgumentMap.insert(pair<string,string>(string("printf"),string("char *,...")));
+   //  funcArgumentMap.insert(pair<string,string>(string("prints"),string("char*")));
     funcArgumentMap.insert(pair<string,string>(string("scanf"),string("")));
-    funcArgumentMap.insert(pair<string,string>(string("strlen"),string("void*")));
-    funcArgumentMap.insert(pair<string,string>(string("readFile"),string("char*")));
-    funcArgumentMap.insert(pair<string,string>(string("writeFile"),string("char*,char*")));
+   //  funcArgumentMap.insert(pair<string,string>(string("strlen"),string("void*")));
+   //  funcArgumentMap.insert(pair<string,string>(string("readFile"),string("char*")));
+   //  funcArgumentMap.insert(pair<string,string>(string("writeFile"),string("char*,char*")));
 
 }
 void paramTable(){
@@ -308,112 +308,112 @@ void printSymTables(symTable* a, string filename) {
 void addKeywords(){
 
 //-------------------inserting keywords-------------------------------------------
-  { string *keyword = new string(); *keyword = "AUTO"; insertSymbol(*curr,"auto","Keyword",8,0,1); } // auto keyword
-  { string *keyword = new string(); *keyword = "BREAK"; insertSymbol(*curr,"break","Keyword",8,0,1); } // break keyword
-  { string *keyword = new string(); *keyword = "CASE"; insertSymbol(*curr,"case","Keyword",8,0,1); } // case keyword
-  { string *keyword = new string(); *keyword = "CHAR"; insertSymbol(*curr,"char","Keyword",8,0,1); } // char keyword
-  { string *keyword = new string(); *keyword = "CONST"; insertSymbol(*curr,"const","Keyword",8,0,1); } // const keyword
-  { string *keyword = new string(); *keyword = "CONTINUE"; insertSymbol(*curr,"continue","Keyword",8,0,1); } // CONTINUE keyword
-  { string *keyword = new string(); *keyword = "DEFAULT"; insertSymbol(*curr,"default","Keyword",8,0,1); } // default keyword
-  { string *keyword = new string(); *keyword = "DO"; insertSymbol(*curr,"do","Keyword",8,0,1); } // do keyword
-  { string *keyword = new string(); *keyword = "DOUBLE"; insertSymbol(*curr,"double","Keyword",8,0,1); } // double keyword
-  { string *keyword = new string(); *keyword = "ELSE"; insertSymbol(*curr,"else","Keyword",8,0,1); } // else keyword
-  { string *keyword = new string(); *keyword = "ENUM"; insertSymbol(*curr,"enum","Keyword",8,0,1); } // enum keyword
-  { string *keyword = new string(); *keyword = "EXTERN"; insertSymbol(*curr,"extern","Keyword",8,0,1); } // extern keyword
-  { string *keyword = new string(); *keyword = "FLOAT"; insertSymbol(*curr,"float","Keyword",8,0,1); } // float keyword
-  { string *keyword = new string(); *keyword = "FOR"; insertSymbol(*curr,"for","Keyword",8,0,1); } // for keyword
-  { string *keyword = new string(); *keyword = "GOTO"; insertSymbol(*curr,"goto","Keyword",8,0,1); } // goto keyword
-  { string *keyword = new string(); *keyword = "IF"; insertSymbol(*curr,"if","Keyword",8,0,1); } // if keyword
-  { string *keyword = new string(); *keyword = "INLINE"; insertSymbol(*curr,"inline","Keyword",8,0,1); } // inline keyword
-  { string *keyword = new string(); *keyword = "INT"; insertSymbol(*curr,"int","Keyword",8,0,1); } // int keyword
-  { string *keyword = new string(); *keyword = "LONG"; insertSymbol(*curr,"long","Keyword",8,0,1); } // long keyword
-  { string *keyword = new string(); *keyword = "REGISTER"; insertSymbol(*curr,"register","Keyword",8,0,1); } // register keyword
-  {string *keyword = new string();  *keyword = "RESTRICT"; insertSymbol(*curr,"restrict","Keyword",8,0,1); } // restrict keyword
-  {string *keyword = new string();  *keyword = "RETURN"; insertSymbol(*curr,"return","Keyword",8,0,1); } // return keyword
-  {string *keyword = new string();  *keyword = "SHORT"; insertSymbol(*curr,"short","Keyword",8,0,1); } // short keyword
-  {string *keyword = new string();  *keyword = "SIGNED"; insertSymbol(*curr,"signed","Keyword",8,0,1); } // signed keyword
-  {string *keyword = new string();  *keyword = "SIZEOF"; insertSymbol(*curr,"sizeof","Keyword",8,0,1); } // sizeof keyword
-  {string *keyword = new string();  *keyword = "STATIC"; insertSymbol(*curr,"static","Keyword",8,0,1); } // static keyword
-  {string *keyword = new string();  *keyword = "STRUCT"; insertSymbol(*curr,"struct","Keyword",8,0,1); } // struct keyword
-  {string *keyword = new string();  *keyword = "SWITCH"; insertSymbol(*curr,"switch","Keyword",8,0,1); } // switch keyword
-  {string *keyword = new string();  *keyword = "TYPEDEF"; insertSymbol(*curr,"typedef","Keyword",8,0,1); } // typedef keyword
-  {string *keyword = new string();  *keyword = "UNION"; insertSymbol(*curr,"union","Keyword",8,0,1); } // union keyword
-  {string *keyword = new string();  *keyword = "UNSIGNED"; insertSymbol(*curr,"unsigned","Keyword",8,0,1); } // unsigned keyword
-  {string *keyword = new string();  *keyword = "VOID"; insertSymbol(*curr,"void","Keyword",8,0,1); } // void keyword
-  {string *keyword = new string();  *keyword = "VOLATILE"; insertSymbol(*curr,"volatile","Keyword",8,0,1); } // volatile keyword
-  {string *keyword = new string();  *keyword = "WHILE"; insertSymbol(*curr,"while","Keyword",8,0,1); } // while keyword
-  {string *keyword = new string();  *keyword = "ALIGNAS"; insertSymbol(*curr,"_Alignas","Keyword",8,0,1); } // _Alignas keyword
-  {string *keyword = new string();  *keyword = "ALIGNOF"; insertSymbol(*curr,"_Alignof","Keyword",8,0,1); } // _Alignof keyword
-  {string *keyword = new string();  *keyword = "ATOMIC"; insertSymbol(*curr,"_Atomic","Keyword",8,0,1); } // _Atomic keyword
-  {string *keyword = new string();  *keyword = "BOOL"; insertSymbol(*curr,"_Bool","Keyword",8,0,1); } // _Bool keyword
-  {string *keyword = new string();  *keyword = "COMPLEX"; insertSymbol(*curr,"_Complex","Keyword",8,0,1); } // _Complex keyword
-  {string *keyword = new string();  *keyword = "GENERIC"; insertSymbol(*curr,"_Generic","Keyword",8,0,1); } // _Generic keyword
-  {string *keyword = new string();  *keyword = "IMAGINARY"; insertSymbol(*curr,"_Imaginary","Keyword",8,0,1); } // _Imaginary keyword
-  {string *keyword = new string();  *keyword = "NORETURN"; insertSymbol(*curr,"_Noreturn","Keyword",8,0,1); } // _Noreturn keyword
-  {string *keyword = new string();  *keyword = "STATIC_ASSERT"; insertSymbol(*curr,"_Static_assert","Keyword",8,0,1); } // _Static_assert keyword
-  {string *keyword = new string();  *keyword = "THREAD_LOCAL"; insertSymbol(*curr,"_Thread_local","Keyword",8,0,1); } // _Thread_local keyword
-  {string *keyword = new string();  *keyword = "FUNC_NAME"; insertSymbol(*curr,"__func__","Keyword",8,0,1); } // __func__ keyword
+//   { string *keyword = new string(); *keyword = "AUTO"; insertSymbol(*curr,"auto","Keyword",8,0,1); } // auto keyword
+//   { string *keyword = new string(); *keyword = "BREAK"; insertSymbol(*curr,"break","Keyword",8,0,1); } // break keyword
+//   { string *keyword = new string(); *keyword = "CASE"; insertSymbol(*curr,"case","Keyword",8,0,1); } // case keyword
+//   { string *keyword = new string(); *keyword = "CHAR"; insertSymbol(*curr,"char","Keyword",8,0,1); } // char keyword
+//   { string *keyword = new string(); *keyword = "CONST"; insertSymbol(*curr,"const","Keyword",8,0,1); } // const keyword
+//   { string *keyword = new string(); *keyword = "CONTINUE"; insertSymbol(*curr,"continue","Keyword",8,0,1); } // CONTINUE keyword
+//   { string *keyword = new string(); *keyword = "DEFAULT"; insertSymbol(*curr,"default","Keyword",8,0,1); } // default keyword
+//   { string *keyword = new string(); *keyword = "DO"; insertSymbol(*curr,"do","Keyword",8,0,1); } // do keyword
+//   { string *keyword = new string(); *keyword = "DOUBLE"; insertSymbol(*curr,"double","Keyword",8,0,1); } // double keyword
+//   { string *keyword = new string(); *keyword = "ELSE"; insertSymbol(*curr,"else","Keyword",8,0,1); } // else keyword
+//   { string *keyword = new string(); *keyword = "ENUM"; insertSymbol(*curr,"enum","Keyword",8,0,1); } // enum keyword
+//   { string *keyword = new string(); *keyword = "EXTERN"; insertSymbol(*curr,"extern","Keyword",8,0,1); } // extern keyword
+//   { string *keyword = new string(); *keyword = "FLOAT"; insertSymbol(*curr,"float","Keyword",8,0,1); } // float keyword
+//   { string *keyword = new string(); *keyword = "FOR"; insertSymbol(*curr,"for","Keyword",8,0,1); } // for keyword
+//   { string *keyword = new string(); *keyword = "GOTO"; insertSymbol(*curr,"goto","Keyword",8,0,1); } // goto keyword
+//   { string *keyword = new string(); *keyword = "IF"; insertSymbol(*curr,"if","Keyword",8,0,1); } // if keyword
+//   { string *keyword = new string(); *keyword = "INLINE"; insertSymbol(*curr,"inline","Keyword",8,0,1); } // inline keyword
+//   { string *keyword = new string(); *keyword = "INT"; insertSymbol(*curr,"int","Keyword",8,0,1); } // int keyword
+//   { string *keyword = new string(); *keyword = "LONG"; insertSymbol(*curr,"long","Keyword",8,0,1); } // long keyword
+//   { string *keyword = new string(); *keyword = "REGISTER"; insertSymbol(*curr,"register","Keyword",8,0,1); } // register keyword
+//   {string *keyword = new string();  *keyword = "RESTRICT"; insertSymbol(*curr,"restrict","Keyword",8,0,1); } // restrict keyword
+//   {string *keyword = new string();  *keyword = "RETURN"; insertSymbol(*curr,"return","Keyword",8,0,1); } // return keyword
+//   {string *keyword = new string();  *keyword = "SHORT"; insertSymbol(*curr,"short","Keyword",8,0,1); } // short keyword
+//   {string *keyword = new string();  *keyword = "SIGNED"; insertSymbol(*curr,"signed","Keyword",8,0,1); } // signed keyword
+//   {string *keyword = new string();  *keyword = "SIZEOF"; insertSymbol(*curr,"sizeof","Keyword",8,0,1); } // sizeof keyword
+//   {string *keyword = new string();  *keyword = "STATIC"; insertSymbol(*curr,"static","Keyword",8,0,1); } // static keyword
+//   {string *keyword = new string();  *keyword = "STRUCT"; insertSymbol(*curr,"struct","Keyword",8,0,1); } // struct keyword
+//   {string *keyword = new string();  *keyword = "SWITCH"; insertSymbol(*curr,"switch","Keyword",8,0,1); } // switch keyword
+//   {string *keyword = new string();  *keyword = "TYPEDEF"; insertSymbol(*curr,"typedef","Keyword",8,0,1); } // typedef keyword
+//   {string *keyword = new string();  *keyword = "UNION"; insertSymbol(*curr,"union","Keyword",8,0,1); } // union keyword
+//   {string *keyword = new string();  *keyword = "UNSIGNED"; insertSymbol(*curr,"unsigned","Keyword",8,0,1); } // unsigned keyword
+//   {string *keyword = new string();  *keyword = "VOID"; insertSymbol(*curr,"void","Keyword",8,0,1); } // void keyword
+//   {string *keyword = new string();  *keyword = "VOLATILE"; insertSymbol(*curr,"volatile","Keyword",8,0,1); } // volatile keyword
+//   {string *keyword = new string();  *keyword = "WHILE"; insertSymbol(*curr,"while","Keyword",8,0,1); } // while keyword
+//   {string *keyword = new string();  *keyword = "ALIGNAS"; insertSymbol(*curr,"_Alignas","Keyword",8,0,1); } // _Alignas keyword
+//   {string *keyword = new string();  *keyword = "ALIGNOF"; insertSymbol(*curr,"_Alignof","Keyword",8,0,1); } // _Alignof keyword
+//   {string *keyword = new string();  *keyword = "ATOMIC"; insertSymbol(*curr,"_Atomic","Keyword",8,0,1); } // _Atomic keyword
+//   {string *keyword = new string();  *keyword = "BOOL"; insertSymbol(*curr,"_Bool","Keyword",8,0,1); } // _Bool keyword
+//   {string *keyword = new string();  *keyword = "COMPLEX"; insertSymbol(*curr,"_Complex","Keyword",8,0,1); } // _Complex keyword
+//   {string *keyword = new string();  *keyword = "GENERIC"; insertSymbol(*curr,"_Generic","Keyword",8,0,1); } // _Generic keyword
+//   {string *keyword = new string();  *keyword = "IMAGINARY"; insertSymbol(*curr,"_Imaginary","Keyword",8,0,1); } // _Imaginary keyword
+//   {string *keyword = new string();  *keyword = "NORETURN"; insertSymbol(*curr,"_Noreturn","Keyword",8,0,1); } // _Noreturn keyword
+//   {string *keyword = new string();  *keyword = "STATIC_ASSERT"; insertSymbol(*curr,"_Static_assert","Keyword",8,0,1); } // _Static_assert keyword
+//   {string *keyword = new string();  *keyword = "THREAD_LOCAL"; insertSymbol(*curr,"_Thread_local","Keyword",8,0,1); } // _Thread_local keyword
+//   {string *keyword = new string();  *keyword = "FUNC_NAME"; insertSymbol(*curr,"__func__","Keyword",8,0,1); } // __func__ keyword
 
-//-----------------------------inserting operators---------------------------------------------------
+// //-----------------------------inserting operators---------------------------------------------------
 
-  {string *oper = new string();  *oper = "ELLIPSIS"; insertSymbol(*curr,"...","Operator",8,0,1); } // ... operator
-  {string *oper = new string();  *oper = "RIGHT_ASSIGN"; insertSymbol(*curr,">>==","Operator",8,0,1); } // >>== operator
-  {string *oper = new string();  *oper = "LEFT_ASSIGN"; insertSymbol(*curr,"<<==","Operator",8,0,1); } // <<== operator
-  {string *oper = new string();  *oper = "ADD_ASSIGN"; insertSymbol(*curr,"+=","Operator",8,0,1); } // += operator
-  {string *oper = new string();  *oper = "SUB_ASSIGN"; insertSymbol(*curr,"-=","Operator",8,0,1); } // -= operator
-  {string *oper = new string();  *oper = "MUL_ASSIGN"; insertSymbol(*curr,"*=","Operator",8,0,1); } // *= operator
-  {string *oper = new string();  *oper = "DIV_ASSIGN"; insertSymbol(*curr,"/=","Operator",8,0,1); } // /= operator
-  {string *oper = new string();  *oper = "MOD_ASSIGN"; insertSymbol(*curr,"%=","Operator",8,0,1); } // %= operator
-  {string *oper = new string();  *oper = "AND_ASSIGN"; insertSymbol(*curr,"&=","Operator",8,0,1); } // &= operator
-  {string *oper = new string();  *oper = "XOR_ASSIGN"; insertSymbol(*curr,"^=","Operator",8,0,1); } // ^= operator
-  {string *oper = new string();  *oper = "OR_ASSIGN"; insertSymbol(*curr,"|=","Operator",8,0,1); } // |= operator
-  {string *oper = new string();  *oper = "RIGHT_OP"; insertSymbol(*curr,">>","Operator",8,0,1); } // >> operator
-  {string *oper = new string();  *oper = "LEFT_OP"; insertSymbol(*curr,"<<","Operator",8,0,1); } // << operator
-  {string *oper = new string();  *oper = "INC_OP"; insertSymbol(*curr,"++","Operator",8,0,1); } // ++ operator
-  {string *oper = new string();  *oper = "DEC_OP"; insertSymbol(*curr,"--","Operator",8,0,1); } // -- operator
-  {string *oper = new string();  *oper = "PTR_OP"; insertSymbol(*curr,"->","Operator",8,0,1); } // -> operator
-  {string *oper = new string();  *oper = "AND_OP"; insertSymbol(*curr,"&&","Operator",8,0,1); } // && operator
-  {string *oper = new string();  *oper = "OR_OP"; insertSymbol(*curr,"||","Operator",8,0,1); } // || operator
-  {string *oper = new string();  *oper = "LE_OP"; insertSymbol(*curr,"<=","Operator",8,0,1); } // <= operator
-  {string *oper = new string();  *oper = "GE_OP"; insertSymbol(*curr,">=","Operator",8,0,1); } // >= operator
-  {string *oper = new string();  *oper = "EQ_OP"; insertSymbol(*curr,"==","Operator",8,0,1); } // == operator
-  {string *oper = new string();  *oper = "NE_OP"; insertSymbol(*curr,"!=","Operator",8,0,1); } // != operator
-  {string *oper = new string();  *oper = ";"; insertSymbol(*curr,";","Operator",8,0,1); } // ; operator
-  {string *oper = new string();  *oper = "{"; insertSymbol(*curr,"{","Operator",8,0,1); } // { operator
-  {string *oper = new string();  *oper = "{"; insertSymbol(*curr,"<%","Operator",8,0,1); } // <% operator
-  {string *oper = new string();  *oper = "}"; insertSymbol(*curr,"}","Operator",8,0,1); } // } operator
-  {string *oper = new string();  *oper = "}"; insertSymbol(*curr,"%>","Operator",8,0,1); } // %> operator
-  {string *oper = new string();  *oper = ","; insertSymbol(*curr,",","Operator",8,0,1); } // , operator
-  {string *oper = new string();  *oper = ":"; insertSymbol(*curr,":","Operator",8,0,1); } // : operator
-  {string *oper = new string();  *oper = "="; insertSymbol(*curr,"=","Operator",8,0,1); } // = operator
-  {string *oper = new string();  *oper = "("; insertSymbol(*curr,"(","Operator",8,0,1); } // ( operator
-  {string *oper = new string();  *oper = ")"; insertSymbol(*curr,")","Operator",8,0,1); } // ) operator
-  {string *oper = new string();  *oper = "["; insertSymbol(*curr,"[","Operator",8,0,1); } // [ operator
-  {string *oper = new string();  *oper = "["; insertSymbol(*curr,"<:","Operator",8,0,1); } // <: operator
-  {string *oper = new string();  *oper = "]"; insertSymbol(*curr,":>","Operator",8,0,1); } // :> operator
-  {string *oper = new string();  *oper = "]"; insertSymbol(*curr,"]","Operator",8,0,1); } // ] operator
-  {string *oper = new string();  *oper = "."; insertSymbol(*curr,".","Operator",8,0,1); } // . operator
-  {string *oper = new string();  *oper = "&"; insertSymbol(*curr,"&","Operator",8,0,1); } // & operator
-  {string *oper = new string();  *oper = "!"; insertSymbol(*curr,"!","Operator",8,0,1); } // ! operator
-  {string *oper = new string();  *oper = "~"; insertSymbol(*curr,"~","Operator",8,0,1); } // ~ operator
-  {string *oper = new string();  *oper = "-"; insertSymbol(*curr,"-","Operator",8,0,1); } // - operator
-  {string *oper = new string();  *oper = "+"; insertSymbol(*curr,"+","Operator",8,0,1); } // + operator
-  {string *oper = new string();  *oper = "*"; insertSymbol(*curr,"*","Operator",8,0,1); } // * operator
-  {string *oper = new string();  *oper = "/"; insertSymbol(*curr,"/","Operator",8,0,1); } // / operator
-  {string *oper = new string();  *oper = "%"; insertSymbol(*curr,"%","Operator",8,0,1); } // % operator
-  {string *oper = new string();  *oper = "<"; insertSymbol(*curr,"<","Operator",8,0,1); } // < operator
-  {string *oper = new string();  *oper = ">"; insertSymbol(*curr,">","Operator",8,0,1); } // > operator
-  {string *oper = new string();  *oper = "^"; insertSymbol(*curr,"^","Operator",8,0,1); } // ^ operator
-  {string *oper = new string();  *oper = "|"; insertSymbol(*curr,"|","Operator",8,0,1); } // | operator
-  {string *oper = new string();  *oper = "?"; insertSymbol(*curr,"?","Operator",8,0,1); } // ? operator
+//   {string *oper = new string();  *oper = "ELLIPSIS"; insertSymbol(*curr,"...","Operator",8,0,1); } // ... operator
+//   {string *oper = new string();  *oper = "RIGHT_ASSIGN"; insertSymbol(*curr,">>==","Operator",8,0,1); } // >>== operator
+//   {string *oper = new string();  *oper = "LEFT_ASSIGN"; insertSymbol(*curr,"<<==","Operator",8,0,1); } // <<== operator
+//   {string *oper = new string();  *oper = "ADD_ASSIGN"; insertSymbol(*curr,"+=","Operator",8,0,1); } // += operator
+//   {string *oper = new string();  *oper = "SUB_ASSIGN"; insertSymbol(*curr,"-=","Operator",8,0,1); } // -= operator
+//   {string *oper = new string();  *oper = "MUL_ASSIGN"; insertSymbol(*curr,"*=","Operator",8,0,1); } // *= operator
+//   {string *oper = new string();  *oper = "DIV_ASSIGN"; insertSymbol(*curr,"/=","Operator",8,0,1); } // /= operator
+//   {string *oper = new string();  *oper = "MOD_ASSIGN"; insertSymbol(*curr,"%=","Operator",8,0,1); } // %= operator
+//   {string *oper = new string();  *oper = "AND_ASSIGN"; insertSymbol(*curr,"&=","Operator",8,0,1); } // &= operator
+//   {string *oper = new string();  *oper = "XOR_ASSIGN"; insertSymbol(*curr,"^=","Operator",8,0,1); } // ^= operator
+//   {string *oper = new string();  *oper = "OR_ASSIGN"; insertSymbol(*curr,"|=","Operator",8,0,1); } // |= operator
+//   {string *oper = new string();  *oper = "RIGHT_OP"; insertSymbol(*curr,">>","Operator",8,0,1); } // >> operator
+//   {string *oper = new string();  *oper = "LEFT_OP"; insertSymbol(*curr,"<<","Operator",8,0,1); } // << operator
+//   {string *oper = new string();  *oper = "INC_OP"; insertSymbol(*curr,"++","Operator",8,0,1); } // ++ operator
+//   {string *oper = new string();  *oper = "DEC_OP"; insertSymbol(*curr,"--","Operator",8,0,1); } // -- operator
+//   {string *oper = new string();  *oper = "PTR_OP"; insertSymbol(*curr,"->","Operator",8,0,1); } // -> operator
+//   {string *oper = new string();  *oper = "AND_OP"; insertSymbol(*curr,"&&","Operator",8,0,1); } // && operator
+//   {string *oper = new string();  *oper = "OR_OP"; insertSymbol(*curr,"||","Operator",8,0,1); } // || operator
+//   {string *oper = new string();  *oper = "LE_OP"; insertSymbol(*curr,"<=","Operator",8,0,1); } // <= operator
+//   {string *oper = new string();  *oper = "GE_OP"; insertSymbol(*curr,">=","Operator",8,0,1); } // >= operator
+//   {string *oper = new string();  *oper = "EQ_OP"; insertSymbol(*curr,"==","Operator",8,0,1); } // == operator
+//   {string *oper = new string();  *oper = "NE_OP"; insertSymbol(*curr,"!=","Operator",8,0,1); } // != operator
+//   {string *oper = new string();  *oper = ";"; insertSymbol(*curr,";","Operator",8,0,1); } // ; operator
+//   {string *oper = new string();  *oper = "{"; insertSymbol(*curr,"{","Operator",8,0,1); } // { operator
+//   {string *oper = new string();  *oper = "{"; insertSymbol(*curr,"<%","Operator",8,0,1); } // <% operator
+//   {string *oper = new string();  *oper = "}"; insertSymbol(*curr,"}","Operator",8,0,1); } // } operator
+//   {string *oper = new string();  *oper = "}"; insertSymbol(*curr,"%>","Operator",8,0,1); } // %> operator
+//   {string *oper = new string();  *oper = ","; insertSymbol(*curr,",","Operator",8,0,1); } // , operator
+//   {string *oper = new string();  *oper = ":"; insertSymbol(*curr,":","Operator",8,0,1); } // : operator
+//   {string *oper = new string();  *oper = "="; insertSymbol(*curr,"=","Operator",8,0,1); } // = operator
+//   {string *oper = new string();  *oper = "("; insertSymbol(*curr,"(","Operator",8,0,1); } // ( operator
+//   {string *oper = new string();  *oper = ")"; insertSymbol(*curr,")","Operator",8,0,1); } // ) operator
+//   {string *oper = new string();  *oper = "["; insertSymbol(*curr,"[","Operator",8,0,1); } // [ operator
+//   {string *oper = new string();  *oper = "["; insertSymbol(*curr,"<:","Operator",8,0,1); } // <: operator
+//   {string *oper = new string();  *oper = "]"; insertSymbol(*curr,":>","Operator",8,0,1); } // :> operator
+//   {string *oper = new string();  *oper = "]"; insertSymbol(*curr,"]","Operator",8,0,1); } // ] operator
+//   {string *oper = new string();  *oper = "."; insertSymbol(*curr,".","Operator",8,0,1); } // . operator
+//   {string *oper = new string();  *oper = "&"; insertSymbol(*curr,"&","Operator",8,0,1); } // & operator
+//   {string *oper = new string();  *oper = "!"; insertSymbol(*curr,"!","Operator",8,0,1); } // ! operator
+//   {string *oper = new string();  *oper = "~"; insertSymbol(*curr,"~","Operator",8,0,1); } // ~ operator
+//   {string *oper = new string();  *oper = "-"; insertSymbol(*curr,"-","Operator",8,0,1); } // - operator
+//   {string *oper = new string();  *oper = "+"; insertSymbol(*curr,"+","Operator",8,0,1); } // + operator
+//   {string *oper = new string();  *oper = "*"; insertSymbol(*curr,"*","Operator",8,0,1); } // * operator
+//   {string *oper = new string();  *oper = "/"; insertSymbol(*curr,"/","Operator",8,0,1); } // / operator
+//   {string *oper = new string();  *oper = "%"; insertSymbol(*curr,"%","Operator",8,0,1); } // % operator
+//   {string *oper = new string();  *oper = "<"; insertSymbol(*curr,"<","Operator",8,0,1); } // < operator
+//   {string *oper = new string();  *oper = ">"; insertSymbol(*curr,">","Operator",8,0,1); } // > operator
+//   {string *oper = new string();  *oper = "^"; insertSymbol(*curr,"^","Operator",8,0,1); } // ^ operator
+//   {string *oper = new string();  *oper = "|"; insertSymbol(*curr,"|","Operator",8,0,1); } // | operator
+//   {string *oper = new string();  *oper = "?"; insertSymbol(*curr,"?","Operator",8,0,1); } // ? operator
 
 //////////////// basic printf, scanf, strlen :: to get the code running /////////
   insertSymbol(*curr,"printf","FUNC_void",8,0,1); //
   insertSymbol(*curr,"scanf","FUNC_int",8,0,1);
-  insertSymbol(*curr,"prints","FUNC_void",8,0,1); //
-  insertSymbol(*curr,"strlen","FUNC_int",8,0,1); //
-  insertSymbol(*curr,"printn","FUNC_void",8,0,1); //
-  insertSymbol(*curr,"readFile","FUNC_int",8,0,1);
-  insertSymbol(*curr,"writeFile","FUNC_int",8,0,1);
+  //insertSymbol(*curr,"prints","FUNC_void",8,0,1); //
+  //insertSymbol(*curr,"strlen","FUNC_int",8,0,1); //
+  //insertSymbol(*curr,"printn","FUNC_void",8,0,1); //
+  //insertSymbol(*curr,"readFile","FUNC_int",8,0,1);
+  //insertSymbol(*curr,"writeFile","FUNC_int",8,0,1);
 
 }

@@ -236,7 +236,7 @@ postfix_expression
 											string as($3);
 											string as1 = ($1->nodeType).substr(0,($1->nodeType).length()-1);
 											int k = structLookup(as1, as);
-											cout<<k<<endl;
+											//cout<<k<<endl;
 											if(k==1){ yyerror("Error : \'%s\' is an invalid operator on \'%s\'", $2, $1->nodeKey.c_str() );
 											}
 											else if(k==2){ yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->nodeKey.c_str() );
@@ -892,7 +892,16 @@ declarator
 								char* a = new char();
 								strcpy(a,($$->nodeType).c_str());$$->size = getSize(a);}
 	| direct_declarator {$$ = $1;
-						if($1->exprType==2){ funcName=$1->nodeKey; funcType = $1->nodeType;}}
+						if($1->exprType==2){ funcName=$1->nodeKey; 
+							if($1->nodeType==""){
+								
+								yyerror("Error :return type of %s defaults to int",$1->token);
+								funcType="int";
+								$$->nodeType=funcType;
+							}
+							else funcType = $1->nodeType;
+						}
+						}
 	;
 
 direct_declarator
@@ -907,7 +916,23 @@ direct_declarator
                                           $$->nodeKey=$2->nodeKey;
                                           $$->nodeType=$2->nodeType;}
 						}
-	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);}
+	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);
+														//cout<<"hello\n";
+														 if($1->exprType==1){ $$->exprType=1;
+																$$->nodeKey=$1->nodeKey;
+																string stmp=$1->nodeType+string("*");
+																$$->nodeType=stmp;
+														}
+														if($3->iVal){ $$->size = $1->size * $3->iVal; }
+														else { char* a = new char();
+																strcpy(a,($$->nodeType).c_str());
+																$$->size = getSize(a); 
+															}
+																//------------------3AC---------------------------------//
+																//$$->place = pair<string, sEntry*>($$->nodeKey, NULL);
+																//-------------------------------------------------------//
+
+													}
 										//DOUBTFULL}
 	| direct_declarator '[' ']'    {$$ = square("direct_declarator", $1);
 				     	if($1->exprType==1){ $$->exprType=1;
@@ -1171,6 +1196,7 @@ function_definition
               $$ = non_term_symb_2("function_definition", $1, $2, $4);
             }
 	| declarator declaration_list compound_statement { $$ = non_term_symb_2("function_definition",$1,$2,$3);
+														
 														//DOUBTFULL
 													}
 	| declarator compound_statement { $$ = non_term_symb_2("function_definition", $1,NULL,$2);

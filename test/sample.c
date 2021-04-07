@@ -1,30 +1,23 @@
-void bubble(char *items, int count)
-{
-  int i, j;
-  char t;
-
-  for(i = 1; i < count; ++i)
-    for( j = count-1; j >= i; --j) {
-      if(items[j - 1] > items[ j ]) {
-        /* exchange elements */
-        t = items[j - 1];
-        items[j - 1] = items[ j ];
-        items[ j ] = t;
-      }
-    }
-}
-
-int main(void)
-{
-  char s[255];
-
-  //printf("Enter a string:");
-  //gets(s);
-  bubble(s, strlen(s));
-  //printf("The sorted string is: %s.\n", s);
-
-  return 0;
+/*int hello(int y){
+	int x=5;
+	return 2+hello(x);
 }
 
 
+int main(){
+	int a[10];
+	char c[2]={'a','b'};
+	return 0;
+}
 
+
+*/
+func(){
+    int y=2;
+    return 1;
+}
+int main()
+{
+    int x=func(2);
+    return 0;
+}
