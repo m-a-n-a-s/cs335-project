@@ -151,7 +151,7 @@ void print(char *token, char * lexeme, int column_no){
 */
 void yyerror(char *s,...){
 	printf("Line:%d Col:%d %s\n",yylineno,col,s);
-	exit(1);
+	// exit(1);
 }
 // int main(int argc, char *argv[]){
 // 	if(argc!=2){
