@@ -1,7 +1,8 @@
 %{
 #include <stdio.h>
 #include "y.tab.h"
-void yyerror (char *s);
+void yyerror (char *s,...);
+
 int yylex();
 void count();
 void print();
@@ -124,6 +125,11 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext
 
 %%
 
+int yywrap(void){
+	return 1;
+}
+
+
 void count(){
 
 	for (int i = 0; yytext[i] != '\0'; i++){
@@ -143,9 +149,9 @@ void print(char *token, char * lexeme, int column_no){
     printf("%-20s %-20s %-10d %-10d\n", token, lexeme, yylineno, column_no);
 }
 */
-void yyerror(char *s){
-	printf("Line:%d Col:%d ERROR: %s\n",yylineno,col,s);
-	exit(1);
+void yyerror(char *s,...){
+	printf("Line:%d Col:%d %s\n",yylineno,col,s);
+	// exit(1);
 }
 // int main(int argc, char *argv[]){
 // 	if(argc!=2){

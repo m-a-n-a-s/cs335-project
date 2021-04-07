@@ -10,7 +10,7 @@ int main(){
     else{
         int flag = 1;
         int max = (int) sqrt((double)test_var);
-        for(int i=2;i<=max; i++){
+        for(i=2;i<=max; i++){
             if(test_var % i == 0){
                 printf("Not Prime\n");
                 flag = 0;
