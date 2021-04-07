@@ -1,29 +1,30 @@
-// A program to convert binary from decimal
+// A program to convert  from decimal
+
+#include<stdio.h>
 
 int main()
 {
-  int n, c, k;
+  int n,k;
 
-  printf("Enter an integer in decimal number system\n");
-  scanf("%d", &n);
+  n = 69420; // Binary of the number n would be stored in binary array
 
-  printf("%d in binary number system is:\n", n);
+  char binary[32];
 
+  int c;
   for (c = 31; c >= 0; c--)
   {
     k = n >> c;
 
     if (k & 1)
-      printf("1");
+      binary[31-c] = '1';
     else
-      printf("0");
+      binary[31-c] = '0';
   }
 
-  printf("\n");
-
+//   for(int i = 0 ; i < 32 ; i++) printf("%c",binary[i]);
+  
   return 0;
 }
-
 
 
 /* A program to find 
