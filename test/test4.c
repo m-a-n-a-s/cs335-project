@@ -6,8 +6,9 @@ int factorial(int n){
 } 
   
 int main() { 
-    int var;
-    scanf("%d",&var); 
-    printf("Factorial of %d is %d\n", var, factorial(var)); 
+    int var = 5; // Factorial of the number var would be stored in a variable called fact
+    int fact = factorial(var);
+//     scanf("%d",&var); 
+//     printf("Factorial of %d is %d\n", var, factorial(var)); 
     return 0; 
 } 
