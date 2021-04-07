@@ -1,7 +1,8 @@
 #include "typecheck.h"
 #include "symTable.h"
 
-char* primaryExpr(char* identifier){
+char* primaryExpr(char* identifier1){
+    string identifier(identifier1);
     sEntry* n = lookup(identifier);
     if(n){
 	char* s = new char();
