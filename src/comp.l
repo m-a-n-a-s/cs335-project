@@ -1,6 +1,8 @@
 %{
 #include <stdio.h>
 #include <stdarg.h>
+#include <iostream>
+#include "functions.h"
 #include "y.tab.h"
 void yyerror (char *s,...);
 
