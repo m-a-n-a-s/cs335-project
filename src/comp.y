@@ -298,12 +298,12 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&");$$->place = pair<string, sEntry*>("&", lookup("&"));}
-	| '*'	{$$ = term_symb("*");$$->place = pair<string, sEntry*>("unary*", lookup("*"));}
-	| '+'	{$$ = term_symb("+");$$->place = pair<string, sEntry*>("unary+", lookup("+"));}
-	| '-'	{$$ = term_symb("-");$$->place = pair<string, sEntry*>("unary-", lookup("-"));}
-	| '~'	{$$ = term_symb("~");$$->place = pair<string, sEntry*>("~", lookup("~"));}
-	| '!'	{$$ = term_symb("!");$$->place = pair<string, sEntry*>("!", lookup("!"));}
+	: '&'	{$$ = term_symb("&");}
+	| '*'	{$$ = term_symb("*");}
+	| '+'	{$$ = term_symb("+");}
+	| '-'	{$$ = term_symb("-");}
+	| '~'	{$$ = term_symb("~");}
+	| '!'	{$$ = term_symb("!");}
 	;
 
 cast_expression
