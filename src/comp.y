@@ -32,6 +32,20 @@ int structCounter=0;
 string funcArguments;
 string currArguments;
 
+
+string tring(char* a, int size)
+{
+    int i;
+	printf("a:%s size:%d",a,size);
+    string s = "";
+    for (i = 0; i < size; i++) {
+        s = s + a[i];
+    }
+    return s;
+  
+    return s;
+}
+
 %}
 
 %union {
@@ -867,7 +881,9 @@ declarator
 
 direct_declarator
 	: IDENTIFIER {printf("1\n");$$=term_symb($1);printf("2 %s\n",$1);
-				$$->exprType=1;printf("3\n");/* $$->nodeKey=string($1)*/;string s($1);$$->nodeKey=s;printf("4\n");cout<<$$->nodeKey<<endl;
+				$$->exprType=1;printf("3\n");
+				printf("len :%d\n",strlen($1));
+				//$$->nodeKey= tring($1,strlen($1));/*string s($1);$$->nodeKey=s;*/printf("4\n");cout<<$$->nodeKey<<endl;
 				$$->nodeType=typeName;printf("5%s\n",$$->nodeType);
 				char* a =new char();printf("6\n");
                 strcpy(a,typeName.c_str());printf("7\n");
