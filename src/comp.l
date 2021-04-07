@@ -7,6 +7,10 @@ void yyerror (char *s,...);
 int yylex();
 void count();
 void print();
+
+void get_int_info();
+void get_real_info();
+
 static int col=1;
 char lexeme[2048]; 
 char token[2048];
@@ -60,14 +64,15 @@ IS			(u|U|l|L)*
 "while"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"WHILE"); return WHILE; }
 
 {L}({L}|{D})*		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IDENTIFIER"); return IDENTIFIER; }
-0[xX]{H}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-0{D}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-{D}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-L?'(\\.|[^\\'])+'	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");return CONSTANT; }
 
-{D}+{E}{FS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-{D}*"."{D}+({E})?{FS}?	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-{D}+"."{D}*({E})?{FS}?	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
+0[xX]{H}+{IS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT");get_int_info(); return CONSTANT; }
+0{D}+{IS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_int_info();return CONSTANT; }
+{D}+{IS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_int_info();return CONSTANT; }
+L?'(\\.|[^\\'])+'	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");get_int_info();return CONSTANT; }
+
+{D}+{E}{FS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_real_info();return CONSTANT; }
+{D}*"."{D}+({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_real_info();return CONSTANT; }
+{D}+"."{D}*({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_real_info();return CONSTANT; }
 
 L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"STRING_LITERAL"); return STRING_LITERAL; }
 
@@ -130,7 +135,34 @@ int yywrap(void){
 	return 1;
 }
 
+void get_int_info(){
+   int i;
+   yylval.num->is_integer=1;
+   yylval.num->nType = yylval.num->is_unsigned=1;
+   for(i=yyleng-1;;i--){
+       if(yytext[i]=='u'||yytext[i]=='U')
+                yylval.num->is_unsigned =1;
+       else if (yytext[i]=='l'||yytext[i] == 'L')
+                yylval.num->nType++;
+       else
+             break;
 
+   }
+
+
+}
+void get_real_info(){
+   int i=yyleng-1;
+   yylval.num->is_integer=0;
+   sscanf(yytext,"Lf",&yylval.num->rVal);
+       if(yytext[i]=='f'||yytext[i]=='F')
+                yylval.num->nType =N_FLOAT;
+       else if (yytext[i]=='l'||yytext[i] == 'L')
+                yylval.num->nType = N_LONGDOUBLE;
+       else
+               yylval.num->nType =N_DOUBLE;
+
+}
 void count(){
 
 	for (int i = 0; yytext[i] != '\0'; i++){

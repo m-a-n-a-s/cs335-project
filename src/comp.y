@@ -38,6 +38,7 @@ string currArguments;
   int number;     /*integer value*/
   char* str;
   struct node *ptr;     /*node pointer */
+  numb *num;
 };
 
 %token <str> CHAR CONST CASE CONTINUE DEFAULT DO DOUBLE
@@ -47,7 +48,8 @@ string currArguments;
 %token <str> REGISTER RESTRICT RETURN SHORT SIGNED STATIC STRUCT SWITCH TYPEDEF UNION
 %token <str> UNSIGNED VOID VOLATILE WHILE ALIGNAS ALIGNOF ATOMIC BOOL COMPLEX
 %token <str> GENERIC IMAGINARY NORETURN STATIC_ASSERT THREAD_LOCAL FUNC_NAME
-%token <str> AUTO BREAK GOTO TYPEDEF_NAME IDENTIFIER CONSTANT ENUMERATION_CONSTANT
+%token <str> AUTO BREAK GOTO TYPEDEF_NAME IDENTIFIER ENUMERATION_CONSTANT
+%token <num> CONSTANT
 %token <str> STRING_LITERAL
 //%token <num> I_CONSTANT F_CONSTANT
 %left <str> PTR_OP
@@ -102,7 +104,29 @@ primary_expression
 						}
 						
 					}
-	| CONSTANT				{$$ = term_symb($1);
+	| CONSTANT				{$$ = term_symb($1->str);
+								if($1->is_integer==1){
+									long long val = $1->iVal;
+									
+									char * a = constant($1->nType);
+									$$->isInit=1;
+									string as(a);
+									$$->nodeType=as;        
+									$$->rVal = -5;
+									$$->iVal = val;
+									$$->exprType=5;
+
+								}
+								else{
+								   long long val = (int) $1->rVal;
+                                   
+                                   char * a = constant($1->nType);
+                                   $$->isInit =1;
+                                   string as(a);
+                                   $$->nodeType=as;
+                                   $$->iVal = val;
+                                   $$->exprType=5;
+								}
 								//TO ADD SOME THING REMEBBER************************
 							} 
 	| STRING_LITERAL		{$$ = term_symb($1);

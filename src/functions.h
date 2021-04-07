@@ -25,13 +25,27 @@ struct node{
 enum ntype {
     N_INT , N_LONG , N_LONGLONG , N_FLOAT , N_DOUBLE, N_LONGDOUBLE
 };
+// typedef struct{
+//    int nType; /* 0 int , 1 long , 2 long long ,3 float,4 : double , 5:long double */
+//    int is_unsigned;
+//    char * str;
+//    long long int iVal;
+//    long double rVal;
+
+//    int is_integer; // check wheteher I_CONSTANT or F_CONSTANT
+// } numb;
+
 typedef struct{
    int nType; /* 0 int , 1 long , 2 long long ,3 float,4 : double , 5:long double */
    int is_unsigned;
    char * str;
    long long int iVal;
    long double rVal;
+
+   int is_integer; // check wheteher I_CONSTANT or F_CONSTANT
 } numb;
+
+
 typedef struct{
    long long int iVal;
    long double rVal;
