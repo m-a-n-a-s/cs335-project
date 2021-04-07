@@ -67,9 +67,9 @@ IS			(u|U|l|L)*
 
 {L}({L}|{D})*		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IDENTIFIER"); return IDENTIFIER; }
 
-0[xX]{H}+{IS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT");get_int_info(); return CONSTANT; }
-0{D}+{IS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_int_info();return CONSTANT; }
-{D}+{IS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_int_info();return CONSTANT; }
+0[xX]{H}+{IS}?		{sscanf(yytext+2,"%llx",&yylval.num->iVal); count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT");get_int_info(); return CONSTANT; }
+0{D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->iVal);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_int_info();return CONSTANT; }
+{D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->iVal);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_int_info();return CONSTANT; }
 L?'(\\.|[^\\'])+'	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");get_int_info();return CONSTANT; }
 
 {D}+{E}{FS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_real_info();return CONSTANT; }
@@ -156,7 +156,7 @@ void get_int_info(){
 void get_real_info(){
    int i=yyleng-1;
    yylval.num->is_integer=0;
-   sscanf(yytext,"Lf",&yylval.num->rVal);
+   sscanf(yytext,"%Lf",&yylval.num->rVal);
        if(yytext[i]=='f'||yytext[i]=='F')
                 yylval.num->nType =N_FLOAT;
        else if (yytext[i]=='l'||yytext[i] == 'L')
