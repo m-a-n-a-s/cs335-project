@@ -679,7 +679,7 @@ declaration
 declaration_specifiers
 	: storage_class_specifier							{$$ = $1;}
 	| storage_class_specifier declaration_specifiers	{$$ = non_term_symb("declaration_specifiers", NULL, $1, $2);}
-	| type_specifier									{printf("In declaration_specifiers\n"); $$ = $1;}		
+	| type_specifier									{$$ = $1;}		
 	| type_specifier declaration_specifiers				{$$ = non_term_symb("declaration_specifiers", NULL, $1, $2);}
 	| type_qualifier									{$$ = $1;}
 	| type_qualifier declaration_specifiers				{$$ = non_term_symb("declaration_specifiers", NULL, $1, $2);}
@@ -748,7 +748,7 @@ type_specifier
 	| SHORT							{if(typeName==emptyString)typeName = convert_to_string($1);
                    					else typeName = typeName+convert_to_string(" ")+convert_to_string($1);
 									$$ = term_symb($1);}
-	| INT							{printf("Hello in type specifier\n"); if(typeName==convert_to_string(""))typeName = convert_to_string($1);
+	| INT							{if(typeName==convert_to_string(""))typeName = convert_to_string($1);
                    					else typeName = typeName+convert_to_string(" ")+convert_to_string($1);
 									$$ = term_symb($1);}
 	| LONG							{if(typeName==emptyString)typeName = convert_to_string($1);
@@ -872,12 +872,12 @@ declarator
 	;
 
 direct_declarator
-	: IDENTIFIER {printf("1\n");$$=term_symb($1);printf("2 %s\n",$1);
-				$$->exprType=1;printf("3\n"); /*$$->nodeKey=convert_to_string($1);*/string s($1);$$->nodeKey=s;printf("4\n");cout<<$$->nodeKey<<endl;
+	: IDENTIFIER {$$=term_symb($1);
+				$$->exprType=1; $$->nodeKey=convert_to_string($1);
 				$$->nodeType=typeName;
-				char* a =new char();printf("6\n");
-                strcpy(a,typeName.c_str());printf("7\n");
-				$$->size = getSize(a);printf("8\n");}
+				char* a =new char();
+                strcpy(a,typeName.c_str());
+				$$->size = getSize(a);}
 	| '(' declarator ')' {$$ = $2;
 						if($2->exprType==1){ $$->exprType=1;
                                           $$->nodeKey=$2->nodeKey;
@@ -926,7 +926,6 @@ direct_declarator
 							char* a = new char();
 							strcpy(a,($$->nodeType).c_str());
 							$$->size = getSize(a);
-							printf("Hello\n");
 							}
 	;
 E3
@@ -1178,7 +1177,6 @@ int main(int argc, char * argv[]){
         printf("ERROR ::: USAGE: <Parser> <File Name> -o <Output File Name>\n");
         return -1;
     }
-	printf("Hello in main\n");
 	funcName = convert_to_string("GST");
 	currArguments = emptyString;
 	stInitialize();
@@ -1186,7 +1184,6 @@ int main(int argc, char * argv[]){
     yyin = fopen(argv[1], "r");
     ast = fopen(argv[3], "w");
     fprintf(ast, "digraph G {\n\tordering=out;\n");
-	printf("before yyparse\n");
     yyparse();
     fprintf(ast, "}\n");
     fclose(yyin);

@@ -41,7 +41,7 @@ IS			(u|U|l|L)*
 "for"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"FOR"); return FOR; }
 "goto"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"GOTO"); return GOTO; }
 "if"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IF"); return IF; }
-"int"			{ printf("found int\n"); count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"INT"); return INT; }
+"int"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"INT"); return INT; }
 "long"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"LONG"); return LONG; }
 "register"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"REGISTER"); return REGISTER; }
 "return"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"RETURN"); return RETURN; }
@@ -58,7 +58,7 @@ IS			(u|U|l|L)*
 "volatile"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"VOLATILE"); return VOLATILE; }
 "while"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"WHILE"); return WHILE; }
 
-{L}({L}|{D})*		{ printf("found %s\n",yytext);count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IDENTIFIER"); return IDENTIFIER; }
+{L}({L}|{D})*		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IDENTIFIER"); return IDENTIFIER; }
 0[xX]{H}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
 0{D}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
 {D}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
@@ -151,7 +151,7 @@ void print(char *token, char * lexeme, int column_no){
 */
 void yyerror(char *s,...){
 	printf("Line:%d Col:%d %s\n",yylineno,col,s);
-	exit(1);
+	// exit(1);
 }
 // int main(int argc, char *argv[]){
 // 	if(argc!=2){
