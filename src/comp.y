@@ -298,12 +298,12 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&");$$->place = pair<string, sEntry*>("&", lookup("&"));}
-	| '*'	{$$ = term_symb("*");$$->place = pair<string, sEntry*>("unary*", lookup("*"));}
-	| '+'	{$$ = term_symb("+");$$->place = pair<string, sEntry*>("unary+", lookup("+"));}
-	| '-'	{$$ = term_symb("-");$$->place = pair<string, sEntry*>("unary-", lookup("-"));}
-	| '~'	{$$ = term_symb("~");$$->place = pair<string, sEntry*>("~", lookup("~"));}
-	| '!'	{$$ = term_symb("!");$$->place = pair<string, sEntry*>("!", lookup("!"));}
+	: '&'	{$$ = term_symb("&");}
+	| '*'	{$$ = term_symb("*");}
+	| '+'	{$$ = term_symb("+");}
+	| '-'	{$$ = term_symb("-");}
+	| '~'	{$$ = term_symb("~");}
+	| '!'	{$$ = term_symb("!");}
 	;
 
 cast_expression
@@ -867,7 +867,7 @@ declarator
 
 direct_declarator
 	: IDENTIFIER {printf("1\n");$$=term_symb($1);printf("2 %s\n",$1);
-				$$->exprType=1;printf("3\n"); /*$$->nodeKey=string($1);*/string s($1);$$->nodeKey=s;printf("4\n");cout<<$$->nodeKey<<endl;
+				$$->exprType=1;printf("3\n");/* $$->nodeKey=string($1)*/;string s($1);$$->nodeKey=s;printf("4\n");cout<<$$->nodeKey<<endl;
 				$$->nodeType=typeName;printf("5%s\n",$$->nodeType);
 				char* a =new char();printf("6\n");
                 strcpy(a,typeName.c_str());printf("7\n");
