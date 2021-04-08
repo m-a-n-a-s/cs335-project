@@ -157,7 +157,6 @@ void real_extract(){
    int n=yyleng-1;
    yylval.num->is_integer=0;
    //cout<<yylval.num->str<<"\n";
-   //sscanf(yytext,"%Lf",&yylval.num->real_value);
    //cout<<"rael vlaue:"<<yylval.num->real_value<<" "<<yylval.num->str<<"\n";
     if(yytext[n]=='f'||yytext[n]=='F')
             yylval.num->num_type = N_FLOAT;

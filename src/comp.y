@@ -460,7 +460,7 @@ relational_expression
 							char* a = relational_expr($1->node_type,$3->node_type,"<");
 							if(a) { 
 								if(!strcmp(a,"bool")) $$->node_type = "bool";
-								else if(!strcmp(a,"Bool")){
+								else if(!strcmp(a,"bool_warning")){
 									$$->node_type = "bool";
 									yyerror("Warning : comparison between pointer and integer");
 								}
@@ -475,7 +475,7 @@ relational_expression
 							char* a=relational_expr($1->node_type,$3->node_type,">");
 							if(a){ 
 								if(!strcmp(a,"bool")) $$->node_type = "bool";
-								else if(!strcmp(a,"Bool")){
+								else if(!strcmp(a,"bool_warning")){
 									$$->node_type = "bool";
 									yyerror("Warning : comparison between pointer and integer");
 								}
@@ -489,7 +489,7 @@ relational_expression
 							char* a=relational_expr($1->node_type,$3->node_type,"<=");
 							if(a){
 								if(!strcmp(a,"bool")) $$->node_type = "bool";
-								else if(!strcmp(a,"Bool")){
+								else if(!strcmp(a,"bool_warning")){
 									$$->node_type = "bool";
 									yyerror("Warning : comparison between pointer and integer");
 								}
@@ -504,7 +504,7 @@ relational_expression
 							char* a=relational_expr($1->node_type,$3->node_type,">=");
 							if(a){  
 								if(!strcmp(a,"bool")) $$->node_type = "bool";
-								else if(!strcmp(a,"Bool")){
+								else if(!strcmp(a,"bool_warning")){
 									$$->node_type = "bool";
 									yyerror("Warning : comparison between pointer and integer");
 								}	

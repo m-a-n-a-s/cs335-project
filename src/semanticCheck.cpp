@@ -178,11 +178,11 @@ char* unary_expr(string op, string type, int Number){
             return postfix_expr(type, 1);
         }
 	    else  if (op==convert_to_string("+")){
-            if(is_float(type) || is_Intgr(type)|| type==convert_to_string("_Complex")|| type==convert_to_string("_Imaginary") ){;}
+            if(is_float(type) || is_Intgr(type) ){;}
             else return NULL;
 	    }
 	    else if (op==convert_to_string("-")){
-            if(is_float(type) || is_Intgr(type)|| type==convert_to_string("_Complex")|| type==convert_to_string("_Imaginary") ){;}
+            if(is_float(type) || is_Intgr(type)){;}
             else return NULL;
 	    }
 	    if(op == convert_to_string("~")){	
@@ -285,7 +285,7 @@ char* relational_expr(string first_type,string second_type,char * op){
         }  
         else if(second_type[second_type.size()-1]=='*'){
             if(is_Intgr(first_type)||(first_type==convert_to_string("char"))){ 
-                ret_str = "Bool"; 
+                ret_str = "bool_warning"; 
                 return ret_str; 
             }
             else return NULL;
@@ -293,7 +293,7 @@ char* relational_expr(string first_type,string second_type,char * op){
      }
      if(first_type[first_type.size()-1]=='*'){
         if(is_Intgr(second_type)||(second_type==convert_to_string("char"))){ 
-            ret_str = "Bool"; 
+            ret_str = "bool_warning"; 
             return ret_str; 
         }
         else return NULL;
