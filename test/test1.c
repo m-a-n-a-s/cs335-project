@@ -20,10 +20,10 @@ void swap2(long long int* a, long long int *b){
 int main(){
     long long int var1 = 2;
     long long int var2 = 3;
-    printf("Initially var1 = %lld and var2 = %lld\n",var1,var2);
+    //printf("Initially var1 = %lld and var2 = %lld\n",var1,var2);
     swap1(var1, var2);
-    printf("After value swap, var1 = %lld and var2 = %lld\n",var1,var2);
+    //printf("After value swap, var1 = %lld and var2 = %lld\n",var1,var2);
     swap2(&var1, &var2);
-    printf("After pointer swap var1 = %lld and var2 = %lld\n",var1,var2);
+    //printf("After pointer swap var1 = %lld and var2 = %lld\n",var1,var2);
     return 0;
 }

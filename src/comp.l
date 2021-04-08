@@ -1,10 +1,18 @@
 %{
 #include <stdio.h>
+#include <stdarg.h>
+#include <iostream>
+#include "functions.h"
 #include "y.tab.h"
 void yyerror (char *s,...);
+
 int yylex();
 void count();
 void print();
+
+void int_extract();
+void real_extract();
+
 static int col=1;
 char lexeme[2048]; 
 char token[2048];
@@ -58,14 +66,15 @@ IS			(u|U|l|L)*
 "while"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"WHILE"); return WHILE; }
 
 {L}({L}|{D})*		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IDENTIFIER"); return IDENTIFIER; }
-0[xX]{H}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-0{D}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-{D}+{IS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-L?'(\\.|[^\\'])+'	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");return CONSTANT; }
 
-{D}+{E}{FS}?		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-{D}*"."{D}+({E})?{FS}?	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
-{D}+"."{D}*({E})?{FS}?	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); return CONSTANT; }
+0[xX]{H}+{IS}?		{sscanf(yytext+2,"%llx",&yylval.num->integer_value); count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT");int_extract(); return CONSTANT; }
+0{D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->integer_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); int_extract();return CONSTANT; }
+{D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->integer_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); int_extract();return CONSTANT; }
+L?'(\\.|[^\\'])+'	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");int_extract();return CONSTANT; }
+
+{D}+{E}{FS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
+{D}*"."{D}+({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
+{D}+"."{D}*({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
 
 L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"STRING_LITERAL"); return STRING_LITERAL; }
 
@@ -124,6 +133,37 @@ L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext
 
 %%
 
+int yywrap(void){
+	return 1;
+}
+
+void int_extract(){
+   yylval.num->is_integer = 1;
+   yylval.num->num_type = yylval.num->unsigned_flag=1;
+   for(int i=yyleng-1;;i--){
+       if(yytext[i]=='u'||yytext[i]=='U')
+                yylval.num->unsigned_flag = 1;
+       else if (yytext[i]=='l'||yytext[i] == 'L')
+                yylval.num->num_type++;
+       else
+             break;
+
+   }
+
+
+}
+void real_extract(){
+   int n=yyleng-1;
+   yylval.num->is_integer=0;
+   sscanf(yytext,"%Lf",&yylval.num->real_value);
+    if(yytext[n]=='f'||yytext[n]=='F')
+            yylval.num->num_type = N_FLOAT;
+    else if (yytext[n]=='l'||yytext[n] == 'L')
+            yylval.num->num_type = N_LONGDOUBLE;
+    else
+            yylval.num->num_type =N_DOUBLE;
+
+}
 void count(){
 
 	for (int i = 0; yytext[i] != '\0'; i++){
@@ -143,9 +183,17 @@ void print(char *token, char * lexeme, int column_no){
     printf("%-20s %-20s %-10d %-10d\n", token, lexeme, yylineno, column_no);
 }
 */
-void yyerror(char *s){
-	printf("Line:%d Col:%d %s\n",yylineno,col,s);
-	exit(1);
+void yyerror(char *s,...){
+	va_list args;
+  	char buffer[1024];
+
+	va_start(args,s);
+	vsnprintf(buffer,1023,s,args);
+	va_end(args);
+
+	fprintf(stderr,"Line:%d Col:%d:: %s\n",yylineno,col,buffer);
+	//printf("Line:%d Col:%d %s\n",yylineno,col,s);
+	// exit(1);
 }
 // int main(int argc, char *argv[]){
 // 	if(argc!=2){
