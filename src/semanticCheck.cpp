@@ -237,27 +237,13 @@ char* additive_expr(string first_type,string second_type,char op){
 			return ret_str;
 		} 
 	}
-	else if(is_Intgr(first_type)||is_float(first_type)||is_Intgr(second_type)||is_float(second_type)){
-		if(first_type==convert_to_string("_Complex")||second_type==convert_to_string("_Complex")){ ret_str = "_Complex"; return ret_str;}
-		if(first_type==convert_to_string("_Imaginary")||second_type==convert_to_string("_Imaginary")){ ret_str = "_Imaginary"; return ret_str;}
-	}
-        if(first_type==convert_to_string("_Complex")&&second_type==convert_to_string("_Complex")) {
-		ret_str = "_Complex";return ret_str;
-	}
-        else if(first_type==convert_to_string("_Imaginary")&&second_type==convert_to_string("_Imaginary")){
-		ret_str = "_Imaginary";return ret_str;
-	}
-	else if(first_type==convert_to_string("_Imaginary")&&second_type==convert_to_string("_Complex")) {
-		ret_str = "_Complex";return ret_str;
-	}
-	else if(first_type==convert_to_string("_Complex")&&second_type==convert_to_string("_Imaginary")) {
-		ret_str = "_Complex";return ret_str;
-	}
 	else if(first_type==convert_to_string("char")&&is_Intgr(second_type)) {
-		ret_str = "char";return ret_str;
+		ret_str = "char";
+        return ret_str;
 	}
     else if(second_type==convert_to_string("char")&&is_Intgr(first_type)){
-            ret_str = "char";return ret_str;
+        ret_str = "char";
+        return ret_str;
     }
     else if((first_type[first_type.size()-1]=='*')&&is_Intgr(second_type)){
         strcpy(ret_str, first_type.c_str());

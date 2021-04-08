@@ -64,7 +64,7 @@ int structCounter=0;
 %right <str> SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
 %right <str> XOR_ASSIGN OR_ASSIGN TYPE_NAME
 %token <str> ELLIPSIS
-%type <str> assignment_operator E1 E2 E3 E5
+%type <str> assignment_operator E1 E2 E3 E5 X1
 
 %start translation_unit
 
@@ -866,21 +866,21 @@ declarator
 								strcpy(a,($$->node_type).c_str());$$->size = get_size(a);}
 	| direct_declarator {$$ = $1;
 						if($1->expr_type==2){ func_name=$1->node_key; 
-							if($1->node_type==""){
-								
-								yyerror("Error :return type of %s defaults to int",$1->token);
-								func_type="int";
-								$$->node_type=func_type;
-							}
-							else func_type = $1->node_type;
+							func_type = $1->node_type;
 						}
 						}
 	;
 
 direct_declarator
 	: IDENTIFIER {$$=term_symb($1);
+				//cout<<$1<<endl;
 				$$->expr_type=1;string stmp($1);$$->node_key=stmp;
-				$$->node_type=type_name;
+				if(type_name=="spec_less_func"){
+					yyerror("Warning :return type of %s defaults to int",$1);
+					type_name="int";
+					$$->node_type=type_name;
+				}
+				else $$->node_type=type_name;
 				char* a =new char();
                 strcpy(a,type_name.c_str());
 				$$->size = get_size(a);}
@@ -1165,11 +1165,22 @@ function_definition
               update_table(s);
               $$ = non_term_symb_2("function_definition", $1, $2, $4);
             }
-	| declarator declaration_list compound_statement { $$ = non_term_symb_2("function_definition",$1,$2,$3);
-														//DOUBTFULL
+	| X1 declarator E2 declaration_list compound_statement { $$ = non_term_symb_2("function_definition",$2,$4,$5);
+															type_name="";
+															string s($3);string u =s+".csv";
+															print_tables(curr,u);
+															symbol_count=0;
+															update_table(s);
+															//DOUBTFULL
 													}
-	| declarator compound_statement { $$ = non_term_symb_2("function_definition", $1,NULL,$2);
-									//DOUBTFULL
+	| X1 declarator E2 compound_statement { $$ = non_term_symb_2("function_definition", $2,NULL,$4);
+											type_name="";
+											string s($3);string u =s+".csv";
+											print_tables(curr,u);
+											symbol_count=0;
+											update_table(s);
+															
+									        //DOUBTFULL
 									}
 	;
 
@@ -1184,6 +1195,12 @@ E2
                                          $$ = y;
        }
     ;
+
+X1 : %empty {
+		type_name="spec_less_func";
+	}
+	;
+
 
 %%
 
