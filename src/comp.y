@@ -20,9 +20,9 @@ int blockSym=0;
 int yylex(void);
 void yyerror(char *s,...);
 
-#include "typecheck.h"
+#include "semanticCheck.h"
 #include "functions.h"
-#include "symTable.h"
+#include "symbolTable.h"
 
 extern int yylineno;
 string file_name;
@@ -42,6 +42,8 @@ int structCounter=0;
   struct node *ptr;     /*node pointer */
   number_types *num;
 };
+%nonassoc SR
+%nonassoc CHAR CONST DOUBLE ENUM EXTERN FLOAT INT LONG REGISTER SHORT SIGNED STATIC STRUCT TYPEDEF UNION UNSIGNED VOID VOLATILE AUTO
 
 %token <str> CHAR CONST CASE CONTINUE DEFAULT DO DOUBLE
 %token <str> ELSE ENUM EXTERN FLOAT FOR IF INLINE INT LONG
@@ -62,7 +64,7 @@ int structCounter=0;
 %right <str> SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
 %right <str> XOR_ASSIGN OR_ASSIGN TYPE_NAME
 %token <str> ELLIPSIS
-%type <str> assignment_operator E1 E2 E3 E5
+%type <str> assignment_operator M1 M2 M3 M4 X1
 
 %start translation_unit
 
@@ -103,24 +105,51 @@ primary_expression
 							}
 							}
 	| CONSTANT				{$$ = term_symb($1->str);
-							if($1->is_integer==1){
-								long long val = $1->integer_value;
-								char * a = constant($1->num_type);
-								$$->init_flag=1;
-								string as(a);
-								$$->node_type=as;
-								$$->integer_value = val;
-								$$->real_value = -5;
-								$$->expr_type=5;
-							}else{
-								long long val = (int) $1->real_value;
-								
-								char * a = constant($1->num_type);
-								$$->init_flag =1;
-								string as(a);
-								$$->node_type=as;
-								$$->integer_value = val;
-								$$->expr_type=5;
+							//if($1->is_integer==1){
+							//	long long val = $1->integer_value;
+							//	char * a = constant($1->num_type);
+							//	$$->init_flag=1;
+							//	string as(a);
+							//	$$->node_type=as;
+							//	$$->integer_value = val;
+							//	$$->real_value = -5;
+							//	$$->expr_type=5;
+							//}else{
+							//	long long val = (int) $1->real_value;
+							//	
+							//	char * a = constant($1->num_type);
+							//	$$->init_flag =1;
+							//	string as(a);
+							//	$$->node_type=as;
+							//	$$->integer_value = val;
+							//	$$->expr_type=5;
+							//}
+
+							switch ($1->is_integer)
+							{
+								case 1: 
+									{
+										long long val = $1->integer_value;
+										char * a = constant($1->num_type);
+										$$->init_flag=1;
+										string as(a);
+										$$->node_type=as;
+										$$->integer_value = val;
+										$$->real_value = -5;
+										$$->expr_type=5;
+									}
+									break;
+								default:
+									{
+										long long val = (int) $1->real_value;
+										char * a = constant($1->num_type);
+										$$->init_flag =1;
+										string as(a);
+										$$->node_type=as;
+										$$->integer_value = val;
+										$$->expr_type=5;
+									}
+									break;
 							}
 								//TO ADD SOME THING REMEBBER************************
 							} 
@@ -136,7 +165,7 @@ postfix_expression
 : primary_expression			{$$ = $1;}
 
 | postfix_expression '[' expression ']'	{$$ = non_term_symb("[ ]", NULL, $1, $3);
-							if($1->init_flag==1&&$3->init_flag==1) $$->init_flag=1;
+							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							char *s=postfix_expr($1->node_type,1);
 							if(s&&is_Intgr($3->node_type)){
 								string as(s);
@@ -174,20 +203,20 @@ postfix_expression
 									string temp1 = currArguments;
 									string temp2 = funcArgs;
 									string typeA,typeB;
-									//string delim = ",";
+									string delim = ",";
 									unsigned f1=1;
 									unsigned f2=1;
 									int argNo = 0;
 									while(f1!=-1 && f2!=-1){
-										f1 = temp1.find_first_of(",");
-										f2 = temp2.find_first_of(",");
+										f1 = temp1.find_first_of(delim);
+										f2 = temp2.find_first_of(delim);
 										argNo++;
 										if(f1==-1) typeA = temp1; else{ typeA = temp1.substr(0,f1); temp1 = temp1.substr(f1+1);}
 										if(f2==-1) typeB = temp2 ; else{ typeB = temp2.substr(0,f2); temp2 = temp2.substr(f2+1); }
 										if(typeB=="...") break;
 										a = validAssign(typeA,typeB);
 										if(a){
-											if(!strcmp(a,"warning")) { yyerror("Warning : Passing argumnet %d of \'%s\' from incompatible pointer type.\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str()); }
+											if(!strcmp(a,"warning")) { yyerror("Warning : Passing argument %d of \'%s\' from incompatible pointer type.\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str()); }
 										}else{
 											yyerror("Error : Incompatible type for argument %d of \'%s\' .\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
 										}
@@ -213,9 +242,17 @@ postfix_expression
 	| postfix_expression '.' IDENTIFIER			{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));
 												string as($3);
 												int k = structLookup($1->node_type, as);
-												if(k==1) yyerror("Error : \'.\' is an invalid operator on \'%s\'", $1->node_key.c_str() );
-												else if(k==2) yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->node_key.c_str() );
-												else {string stmp=struct_membr_type($1->node_type, as);$$->node_type=stmp;}
+												
+												//if(k==1) yyerror("Error : \'.\' is an invalid operator on \'%s\'", $1->node_key.c_str() );
+												//else if(k==2) yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->node_key.c_str() );
+												//else {string stmp=struct_membr_type($1->node_type, as);$$->node_type=stmp;}
+
+												switch(k){
+													case 1: yyerror("Error : \'.\' is an invalid operator on \'%s\'", $1->node_key.c_str() );break;
+													case 2: yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->node_key.c_str() );break;
+													default: {string stmp=struct_membr_type($1->node_type, as);$$->node_type=stmp;}break;
+												}
+
 												string xtmp = $1->node_key+ "." + as; $$->node_key=xtmp;
 												}
 
@@ -223,12 +260,20 @@ postfix_expression
 												string as($3);
 												string as1 = ($1->node_type).substr(0,($1->node_type).length()-1);
 												int k = structLookup(as1, as);
-												cout<<k<<endl;
-												if(k==1){ yyerror("Error : \'%s\' is an invalid operator on \'%s\'", $2, $1->node_key.c_str() );
+												//cout<<k<<endl;
+
+												//if(k==1){ yyerror("Error : \'%s\' is an invalid operator on \'%s\'", $2, $1->node_key.c_str() );
+												//}
+												//else if(k==2){ yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->node_key.c_str() );
+												//}
+												//else {string stmp = struct_membr_type(as1, as);$$->node_type=stmp;}
+
+												switch(k){
+													case 1: yyerror("Error : \'%s\' is an invalid operator on \'%s\'", $2, $1->node_key.c_str() );break;
+													case 2: yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->node_key.c_str() );break;
+													default: {string stmp = struct_membr_type(as1, as);$$->node_type=stmp;}break;
 												}
-												else if(k==2){ yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->node_key.c_str() );
-												}
-												else {string stmp = struct_membr_type(as1, as);$$->node_type=stmp;}
+
 												string xtmp = $1->node_key+ "->" + as; $$->node_key=xtmp;
 												}
 
@@ -311,12 +356,12 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&");}
-	| '*'	{$$ = term_symb("*");}
-	| '+'	{$$ = term_symb("+");}
-	| '-'	{$$ = term_symb("-");}
-	| '~'	{$$ = term_symb("~");}
-	| '!'	{$$ = term_symb("!");}
+	: '&'	{$$ = term_symb("&");$$->name="&";}
+	| '*'	{$$ = term_symb("*");$$->name="*";}
+	| '+'	{$$ = term_symb("+");$$->name="+";}
+	| '-'	{$$ = term_symb("-");$$->name="-";}
+	| '~'	{$$ = term_symb("~");$$->name="~";}
+	| '!'	{$$ = term_symb("!");$$->name="!";}
 	;
 
 cast_expression
@@ -387,12 +432,13 @@ additive_expression
 	| additive_expression '+' multiplicative_expression	{$$ = non_term_symb("+", NULL, $1, $3);
 								$$->integer_value = $1->integer_value + $3->integer_value;
 								char *a = additive_expr($1->node_type,$3->node_type,'+');
-								char *q=new char();
+								const char *q=new char();
 								string p;
 								if(a){
 									string as(a);
 									p = "+"+as;
-									strcpy(q,p.c_str());
+									//strcpy(q,p.c_str());
+									q = p.c_str();
 								}
 								else q = "+";
 								//$$=non_term_symb(q,NULL,$1,$3);
@@ -636,7 +682,7 @@ assignment_expression
 												}
 											
 											}
-										else{ yyerror("Error : Incompatible types when assigning type \'%s\' to \'%s\' ",($1->node_type).c_str(),($3->node_type).c_str()); }
+									else{ yyerror("Error : Incompatible types when assigning type \'%s\' to \'%s\' ",($1->node_type).c_str(),($3->node_type).c_str()); }
 									if($1->expr_type==3){ if($3->init_flag==1) update_init_flag($1->node_key); }
 									}
 	;
@@ -687,10 +733,12 @@ init_declarator
 	: declarator{
 		$$ = $1;
 		if($1->expr_type==1){ 
-			char *t=new char();
-        	strcpy(t,($1->node_type).c_str());
-        	char *key =new char();
-        	strcpy(key,($1->node_key).c_str());
+			const char *t=new char();
+        	//strcpy(t,($1->node_type).c_str());
+			t = ($1->node_type).c_str();
+        	const char *key =new char();
+        	//strcpy(key,($1->node_key).c_str());
+			key = ($1->node_key).c_str();
         	if(scopeLookup($1->node_key)){
                 yyerror("Error : redeclaration of \'%s\'",key);
         	}else if($1->node_type=="void"){
@@ -705,10 +753,12 @@ init_declarator
 		
 		$$ = non_term_symb("=", NULL, $1, $3);
 		if($1->expr_type==1||$1->expr_type==15){ 
-			char *t=new char();
-            strcpy(t,($1->node_type).c_str());
-            char *key =new char();
-            strcpy(key,($1->node_key).c_str());
+			const char *t=new char();
+            //strcpy(t,($1->node_type).c_str());
+			t = ($1->node_type).c_str();
+            const char *key =new char();
+            //strcpy(key,($1->node_key).c_str());
+			key = ($1->node_key).c_str();
         if(scopeLookup($1->node_key)){
 			yyerror("Error : Redeclaration of \'%s\'",key);
             }else if($1->node_type=="void"){
@@ -770,14 +820,14 @@ type_specifier
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER E5 '{' struct_declaration_list '}'	{string as($2);
+	: struct_or_union IDENTIFIER M4 '{' struct_declaration_list '}'	{string as($2);
 									$$ = non_term_symb("struct_or_union_specifier", $2, $1, $5);
 									if(end_struct(as)){
 									string stmp= "STRUCT_"+as; $$->node_type=stmp;}
 									else yyerror("Error : struct \'%s\' is already defined\n", $2);
 									}
 
-	| struct_or_union E5 '{' struct_declaration_list '}'				{$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $4);
+	| struct_or_union M4 '{' struct_declaration_list '}'				{$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $4);
 											structCounter++;
 											string as = to_string(structCounter);
 											if(end_struct(as)){
@@ -793,7 +843,7 @@ struct_or_union_specifier
 													}
 	;
 
-E5
+M4
   : %empty {
            make_struct_table();
   };
@@ -860,57 +910,88 @@ declarator
 									$$->node_key = $2->node_key;
 									$$->expr_type=1;}
 								if($2->expr_type==2){ func_name = $2->node_key; func_type = $2->node_type; }
-								char* a = new char();
-								strcpy(a,($$->node_type).c_str());$$->size = get_size(a);}
+								const char* a = new char();
+								//strcpy(a,($$->node_type).c_str());
+								a = ($$->node_type).c_str();
+								$$->size = get_size(a);}
 	| direct_declarator {$$ = $1;
-						if($1->expr_type==2){ func_name=$1->node_key; func_type = $1->node_type;}}
+						if($1->expr_type==2){ func_name=$1->node_key; 
+							func_type = $1->node_type;
+						}
+						}
 	;
 
 direct_declarator
 	: IDENTIFIER {$$=term_symb($1);
+				//cout<<$1<<endl;
 				$$->expr_type=1;string stmp($1);$$->node_key=stmp;
-				$$->node_type=type_name;
-				char* a =new char();
-                strcpy(a,type_name.c_str());
+				if(type_name=="spec_less_func"){
+					yyerror("Warning :return type of %s defaults to int",$1);
+					type_name="int";
+					$$->node_type=type_name;
+				}
+				else $$->node_type=type_name;
+				const char* a =new char();
+                //strcpy(a,type_name.c_str());
+				a = type_name.c_str();
 				$$->size = get_size(a);}
 	| '(' declarator ')' {$$ = $2;
 						if($2->expr_type==1){ $$->expr_type=1;
                                           $$->node_key=$2->node_key;
                                           $$->node_type=$2->node_type;}
 						}
-	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);}
+	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);
+														//cout<<"hello\n";
+														 if($1->expr_type==1){ $$->expr_type=1;
+																$$->node_key=$1->node_key;
+																string stmp=$1->node_type+"*";
+																$$->node_type=stmp;
+														}
+														if($3->integer_value){ $$->size = $1->size * $3->integer_value; }
+														else { const char* a = new char();
+																//strcpy(a,($$->node_type).c_str());
+																a = ($$->node_type).c_str();
+																$$->size = get_size(a); 
+															}
+
+													}
 										//DOUBTFULL}
 	| direct_declarator '[' ']'    {$$ = square("direct_declarator", $1);
 				     	if($1->expr_type==1){ $$->expr_type=1;
                                      	$$->node_key=$1->node_key;
                                      	string stmp=$1->node_type+"*";$$->node_type=stmp;}
-					char* a = new char();
-					strcpy(a,($$->node_type).c_str());
+					const char* a = new char();
+					//strcpy(a,($$->node_type).c_str());
+					a = ($$->node_type).c_str();
 					$$->size = get_size(a);
-					strcpy(a,($1->node_type).c_str());
+					const char* b = new char();
+					//strcpy(a,($1->node_type).c_str());
+					b = ($1->node_type).c_str();
 					$$->expr_type=15;
-					$$->integer_value=get_size(a);
+					$$->integer_value=get_size(b);
 					}
 
-	| direct_declarator '(' E3 parameter_type_list ')' {$$ = non_term_symb("direct_declarator", NULL, $1, $4);
+	| direct_declarator '(' M3 parameter_type_list ')' {$$ = non_term_symb("direct_declarator", NULL, $1, $4);
 							if($1->expr_type==1){ $$->node_key=$1->node_key;
 							$$->expr_type=2;
 							$$->node_type=$1->node_type;
 							insert_args($1->node_key,funcArguments);
 							funcArguments="";
-							char* a = new char();
-							strcpy(a,($$->node_type).c_str());
+							const char* a = new char();
+							//strcpy(a,($$->node_type).c_str());
+							a = ($$->node_type).c_str();
 							$$->size = get_size(a);
 							}
 							}
 
-	| direct_declarator '(' E3 identifier_list ')' 	{$$ = non_term_symb("direct_declarator", NULL, $1, $4);
-							char* a = new char();
-							strcpy(a,($$->node_type).c_str());
+	| direct_declarator '(' M3 identifier_list ')' 	{$$ = non_term_symb("direct_declarator", NULL, $1, $4);
+							const char* a = new char();
+							//strcpy(a,($$->node_type).c_str());
+							a = ($$->node_type).c_str();
 							$$->size = get_size(a);
 							}
 
-	| direct_declarator '(' E3 ')' 			{$$ = parentheses("direct_declarator", $1);
+	| direct_declarator '(' M3 ')' 			{$$ = parentheses("direct_declarator", $1);
 							if($1->expr_type==1){
 								$$->node_key=$1->node_key;
 								insert_args($1->node_key,"");
@@ -918,12 +999,12 @@ direct_declarator
 								funcArguments = "";
 							}
 							$$->node_type=$1->node_type;
-							char* a = new char();
-							strcpy(a,($$->node_type).c_str());
-							
+							const char* a = new char();
+							//strcpy(a,($$->node_type).c_str());
+							a = ($$->node_type).c_str();
 							}
 	;
-E3
+M3
    :%empty                  {   type_name ="";
                           funcArguments = "";
                            paramTable();  }
@@ -957,10 +1038,13 @@ parameter_declaration
 	: declaration_specifiers declarator {type_name="";
 			
           //paramTable();
-         if($2->expr_type==1){ char *t=new char();
-                     strcpy(t,($2->node_type).c_str());
-                     char *key =new char();
-                     strcpy(key,($2->node_key).c_str());
+         if($2->expr_type==1){
+			 		 const char *t=new char();
+                     //strcpy(t,($2->node_type).c_str());
+					 t = ($2->node_type).c_str();
+                     const char *key =new char();
+                     //strcpy(key,($2->node_key).c_str());
+					 key = ($2->node_key).c_str();
                   if(scopeLookup($2->node_key)){ yyerror("Error : redeclaration of %s",key);}
                    else {  insert_symbol(*curr,key,t,$2->size,0,1);}
                 if(funcArguments=="")funcArguments=($2->node_type);
@@ -1041,7 +1125,7 @@ labeled_statement
 
 compound_statement
 	: '{' '}' {func_flag=0;$$ = term_symb("{ }");}
-	| E1  statement_list '}'  {if(blockSym){ string s($1);
+	| M1  statement_list '}'  {if(blockSym){ string s($1);
                                     s=s+".csv";
                                     string u($1);
                                     //print_tables(curr,s);
@@ -1049,7 +1133,7 @@ compound_statement
 									
                                  } $$ = $2;
                                }
-	| E1  declaration_list '}'  {if(blockSym){ string s($1);
+	| M1  declaration_list '}'  {if(blockSym){ string s($1);
                                     s=s+".csv";
                                     string u($1);
                                     //print_tables(curr,s);
@@ -1060,8 +1144,8 @@ compound_statement
 	| '{' declaration_list statement_list '}' {$$ = non_term_symb("compound_statement",NULL, $2,$3);}
 	;
 
-E1
-    :  '{'       { if(func_flag==0) {symbol_count++;
+M1
+    :  '{'  %prec SR      { if(func_flag==0) {symbol_count++;
                         file_name = /*string("symTableFunc")+to_string(func_symb)*/func_name+"Block"+to_string(symbol_count);
                         //scope=S_BLOCK;
                         //create_table(file_name,scope,string("12345"));
@@ -1124,7 +1208,7 @@ external_declaration
 
 function_definition
 
-	: declaration_specifiers declarator E2 declaration_list compound_statement
+	: declaration_specifiers declarator M2 declaration_list compound_statement
          {      type_name="";
                 string s($3);
                 string u = s+".csv";
@@ -1133,7 +1217,7 @@ function_definition
                update_table(s);
                 $$ = non_term_symb_4("function_definition", $1, $2, $4, $5, NULL);
          }
-	| declaration_specifiers declarator E2 compound_statement  {
+	| declaration_specifiers declarator M2 compound_statement  {
               type_name="";
               string s($3);string u =s+".csv";
               print_tables(curr,u);
@@ -1141,15 +1225,26 @@ function_definition
               update_table(s);
               $$ = non_term_symb_2("function_definition", $1, $2, $4);
             }
-	| declarator declaration_list compound_statement { $$ = non_term_symb_2("function_definition",$1,$2,$3);
-														//DOUBTFULL
+	| X1 declarator M2 declaration_list compound_statement { $$ = non_term_symb_2("function_definition",$2,$4,$5);
+															type_name="";
+															string s($3);string u =s+".csv";
+															print_tables(curr,u);
+															symbol_count=0;
+															update_table(s);
+															//DOUBTFULL
 													}
-	| declarator compound_statement { $$ = non_term_symb_2("function_definition", $1,NULL,$2);
-									//DOUBTFULL
+	| X1 declarator M2 compound_statement { $$ = non_term_symb_2("function_definition", $2,NULL,$4);
+											type_name="";
+											string s($3);string u =s+".csv";
+											print_tables(curr,u);
+											symbol_count=0;
+											update_table(s);
+															
+									        //DOUBTFULL
 									}
 	;
 
-E2
+M2
     : %empty                 { type_name="";scope = S_FUNC;
                                          func_flag = 1;
                                          func_symb++;
@@ -1160,6 +1255,12 @@ E2
                                          $$ = y;
        }
     ;
+
+X1 : %empty {
+		type_name="spec_less_func";
+	}
+	;
+
 
 %%
 
