@@ -910,9 +910,8 @@ declarator
 									$$->node_key = $2->node_key;
 									$$->expr_type=1;}
 								if($2->expr_type==2){ func_name = $2->node_key; func_type = $2->node_type; }
-								const char* a = new char();
-								//strcpy(a,($$->node_type).c_str());
-								a = ($$->node_type).c_str();
+								char* a = new char();
+								strcpy(a,($$->node_type).c_str());
 								$$->size = get_size(a);}
 	| direct_declarator {$$ = $1;
 						if($1->expr_type==2){ func_name=$1->node_key; 
@@ -931,9 +930,8 @@ direct_declarator
 					$$->node_type=type_name;
 				}
 				else $$->node_type=type_name;
-				const char* a =new char();
-                //strcpy(a,type_name.c_str());
-				a = type_name.c_str();
+				char* a =new char();
+                strcpy(a,type_name.c_str());
 				$$->size = get_size(a);}
 	| '(' declarator ')' {$$ = $2;
 						if($2->expr_type==1){ $$->expr_type=1;
@@ -948,9 +946,8 @@ direct_declarator
 																$$->node_type=stmp;
 														}
 														if($3->integer_value){ $$->size = $1->size * $3->integer_value; }
-														else { const char* a = new char();
-																//strcpy(a,($$->node_type).c_str());
-																a = ($$->node_type).c_str();
+														else { char* a = new char();
+																strcpy(a,($$->node_type).c_str());
 																$$->size = get_size(a); 
 															}
 
@@ -960,15 +957,12 @@ direct_declarator
 				     	if($1->expr_type==1){ $$->expr_type=1;
                                      	$$->node_key=$1->node_key;
                                      	string stmp=$1->node_type+"*";$$->node_type=stmp;}
-					const char* a = new char();
-					//strcpy(a,($$->node_type).c_str());
-					a = ($$->node_type).c_str();
+					char* a = new char();
+					strcpy(a,($$->node_type).c_str());
 					$$->size = get_size(a);
-					const char* b = new char();
-					//strcpy(a,($1->node_type).c_str());
-					b = ($1->node_type).c_str();
+					strcpy(a,($1->node_type).c_str());
 					$$->expr_type=15;
-					$$->integer_value=get_size(b);
+					$$->integer_value=get_size(a);
 					}
 
 	| direct_declarator '(' M3 parameter_type_list ')' {$$ = non_term_symb("direct_declarator", NULL, $1, $4);
@@ -977,17 +971,15 @@ direct_declarator
 							$$->node_type=$1->node_type;
 							insert_args($1->node_key,funcArguments);
 							funcArguments="";
-							const char* a = new char();
-							//strcpy(a,($$->node_type).c_str());
-							a = ($$->node_type).c_str();
+							char* a = new char();
+							strcpy(a,($$->node_type).c_str());
 							$$->size = get_size(a);
 							}
 							}
 
 	| direct_declarator '(' M3 identifier_list ')' 	{$$ = non_term_symb("direct_declarator", NULL, $1, $4);
-							const char* a = new char();
-							//strcpy(a,($$->node_type).c_str());
-							a = ($$->node_type).c_str();
+							char* a = new char();
+							strcpy(a,($$->node_type).c_str());
 							$$->size = get_size(a);
 							}
 
