@@ -1,5 +1,15 @@
 #include "symbolTable.h"
 
+string convert_to_string(char* str){
+   int i;
+   string s = "";
+   for (i = 0; i < strlen(str); i++) {
+      s = s + str[i];
+   }
+   return s;
+}
+
+
 map<string , symbol_table*> to_struct_table;
 map<string , string> argsMap;
 map<symbol_table *, symbol_table*> Parent;
@@ -32,7 +42,7 @@ void make_struct_table(){
 void paramTable(){
       offset_num++;
       offset_nxt[offset_num]=offset_g[offset_gnum];
-      create_table(string("Next"),S_FUNC,string(""));
+      create_table("Next",S_FUNC,"");
       next_flag=1;
 }
 
@@ -56,9 +66,9 @@ bool struct_flag(string struct_name){
 
 bool end_struct(string struct_name){
    if(to_struct_table.count(struct_name)) return false;
-   to_struct_table.insert(pair<string, symbol_table*>(string("STRUCT_")+struct_name, struct_table)); 
+   to_struct_table.insert(pair<string, symbol_table*>("STRUCT_"+struct_name, struct_table)); 
    Parent.insert(pair<symbol_table*, symbol_table*>(struct_table, NULL));
-   struct_size.insert(pair<string, int>(string("STRUCT_")+struct_name, structOffset));
+   struct_size.insert(pair<string, int>("STRUCT_"+struct_name, structOffset));
    struct_name = "struct_" + struct_name + ".csv";
    print_tables(struct_table, struct_name);
    return true;
@@ -97,9 +107,9 @@ void table_initialize(){
     curr = &global_table;
     next_flag = 0;
     addKeywords();
-    argsMap.insert(pair<string,string>(string("printf"),string("char *,...")));
-   //  argsMap.insert(pair<string,string>(string("prints"),string("char*")));
-    argsMap.insert(pair<string,string>(string("scanf"),string("")));
+    argsMap.insert(pair<string,string>("printf","char *,..."));
+   //  argsMap.insert(pair<string,string>("prints","char*"));
+    argsMap.insert(pair<string,string>("scanf","char *,..."));
 
 }
 
@@ -122,7 +132,7 @@ Entry* add_entry(string type,ull size,ll offset,int init_flag){
 string get_sym_type(string k){
     Entry* temp = lookup(k);
     if(temp){ string a = temp->type;return a;}
-    else return string();
+    else return "";
 }
 
 void insert_symbol(symbol_table& table,string k,string type,ull size,ll offset, int init_flag){
@@ -160,10 +170,10 @@ void fprintStruct(Entry *a, FILE* file){
 
 void create_table(string name,int type,string func_type){
   string f ;
-  if(func_type!="12345") f =string("FUNC_")+func_type; else f = string("Block");
+  if(func_type!="12345") f =convert_to_string("FUNC_")+func_type; else f = convert_to_string("Block");
   if(next_flag==1){ insert_symbol(*Parent[curr],name,f,0,10,1);
                   offset_num--;
-                  (*Parent[curr]).erase(string("Next"));
+                  (*Parent[curr]).erase(convert_to_string("Next"));
        }
   else {
    blk_num++;
@@ -215,7 +225,7 @@ Entry* scopeLookup(string a){
 
 ull get_size (char* id){
   // integer
-  if(struct_size.count(id)) return struct_size[string(id)];
+  if(struct_size.count(id)) return struct_size[convert_to_string(id)];
   if(!strcmp(id, "int")) return sizeof(int);
   if(!strcmp(id, "long int")) return sizeof(long int);
   if(!strcmp(id, "long long")) return sizeof(long long);
@@ -284,7 +294,7 @@ void print_tables(symbol_table* a, string filename) {
 }
 void addKeywords(){
 
-//-------------------inserting keywords-------------------------------------------
+// //-------------------inserting keywords-------------------------------------------
 //   { string *keyword = new string(); *keyword = "AUTO"; insert_symbol(*curr,"auto","Keyword",8,0,1); } // auto keyword
 //   { string *keyword = new string(); *keyword = "BREAK"; insert_symbol(*curr,"break","Keyword",8,0,1); } // break keyword
 //   { string *keyword = new string(); *keyword = "CASE"; insert_symbol(*curr,"case","Keyword",8,0,1); } // case keyword

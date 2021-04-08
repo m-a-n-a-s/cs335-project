@@ -13,6 +13,7 @@ enum symbol_tab_types{
 	S_FILE,S_BLOCK,S_FUNC,S_PROTO
 };
 
+
 // entries of symbol table
 typedef struct table_entry{
     ull size;
@@ -22,6 +23,9 @@ typedef struct table_entry{
 } Entry;
 
 typedef unordered_map<string,Entry *> symbol_table;
+
+
+string convert_to_string(char *str);
 
 extern int blk_num;
 extern int offset_gnum;

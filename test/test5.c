@@ -2,9 +2,9 @@
 
 int main()
 {
-  int n,k;
+  int n,k=1;
 
-  n = 69420; // Binary of the number n would be stored in binary array
+  //n = 69420; // Binary of the number n would be stored in binary array
 
   char binary[32];
 

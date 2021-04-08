@@ -189,7 +189,7 @@ postfix_expression
 										if(typeB=="...") break;
 										a = validAssign(typeA,typeB);
 										if(a){
-											if(!strcmp(a,"warning")) { yyerror("Warning : Passing argumnet %d of \'%s\' from incompatible pointer type.\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str()); }
+											if(!strcmp(a,"warning")) { yyerror("Warning : Passing argument %d of \'%s\' from incompatible pointer type.\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str()); }
 										}else{
 											yyerror("Error : Incompatible type for argument %d of \'%s\' .\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
 										}
@@ -313,12 +313,12 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&");}
-	| '*'	{$$ = term_symb("*");}
-	| '+'	{$$ = term_symb("+");}
-	| '-'	{$$ = term_symb("-");}
-	| '~'	{$$ = term_symb("~");}
-	| '!'	{$$ = term_symb("!");}
+	: '&'	{$$ = term_symb("&");$$->name="&";}
+	| '*'	{$$ = term_symb("*");$$->name="*";}
+	| '+'	{$$ = term_symb("+");$$->name="+";}
+	| '-'	{$$ = term_symb("-");$$->name="-";}
+	| '~'	{$$ = term_symb("~");$$->name="~";}
+	| '!'	{$$ = term_symb("!");$$->name="!";}
 	;
 
 cast_expression
@@ -893,7 +893,7 @@ direct_declarator
 														//cout<<"hello\n";
 														 if($1->expr_type==1){ $$->expr_type=1;
 																$$->node_key=$1->node_key;
-																string stmp=$1->node_type+string("*");
+																string stmp=$1->node_type+"*";
 																$$->node_type=stmp;
 														}
 														if($3->integer_value){ $$->size = $1->size * $3->integer_value; }
