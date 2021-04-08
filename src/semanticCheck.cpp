@@ -14,11 +14,12 @@
 
 char* constant(int type){
     switch(type){
-        case 1: return "long";
-        case 2: return "long long";
-        case 3: return "float";
-        case 4: return "double";
-        case 5: return "long double";
+        case 1: return "int";
+        case 2: return "long";
+        case 3: return "long long";
+        case 4: return "float";
+        case 5: return "double";
+        case 6: return "long double";
         default: return "default";
     }
 }
@@ -115,13 +116,13 @@ char* postfix_expr(string type, int Number){
                     return NULL;
                 }
                 }
-        case 2: {if(type[type.size()-1]=='*'){
-                    type_new[type.size()-1]='\0';	
+        case 2: {string tmp = type.substr(0,5);
+                if(tmp==convert_to_string("FUNC_")){
+                    type_new += 5;
                     return type_new;
                 }
-                else{
+                else 
                     return NULL;
-                }
                 }
         case 3: {string tmp = type.substr(0,5);
                 if(tmp==convert_to_string("FUNC_")){

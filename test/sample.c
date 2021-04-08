@@ -18,6 +18,6 @@ func(){
 }
 int main()
 {
-    int x=func(2);
+    int x = func();
     return 0;
 }
