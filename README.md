@@ -13,7 +13,7 @@ To run and make the dot script -
 $./bin/compiler <file> -o ast.dot
 ```
 Where \<file\> is the path of the code you want to run the executable on.<br /> 
-5 sample test files have been included in test folder.
+6 sample test files have been included in test folder.
 
 To visualize the tree -
 ```
