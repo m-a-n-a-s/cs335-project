@@ -40,6 +40,8 @@ string currArguments;
   struct node *ptr;     /*node pointer */
   numb *num;
 };
+%nonassoc SR
+%nonassoc CHAR CONST DOUBLE ENUM EXTERN FLOAT INT LONG REGISTER SHORT SIGNED STATIC STRUCT TYPEDEF UNION UNSIGNED VOID VOLATILE AUTO
 
 %token <str> CHAR CONST CASE CONTINUE DEFAULT DO DOUBLE
 %token <str> ELSE ENUM EXTERN FLOAT FOR IF INLINE INT LONG
@@ -1115,7 +1117,7 @@ compound_statement
 	;
 
 E1
-    :  '{'       { if(isFunc==0) {symNumber++;
+    :  '{'  %prec SR     { if(isFunc==0) {symNumber++;
                         symFileName = /*string("symTableFunc")+to_string(funcSym)*/funcName+"Block"+to_string(symNumber);
                         //scope=S_BLOCK;
                         //makeSymTable(symFileName,scope,string("12345"));
