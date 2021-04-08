@@ -46,9 +46,9 @@ void paramTable(){
       next_flag=1;
 }
 
-bool insert_sym_struct(string k, string type, ull size, ull offset, int init_flag ){
-           if((*struct_table).count(k)) return false;
-           insert_symbol(*struct_table, k, type, size, -10, init_flag);
+bool insert_sym_struct(string key, string type, ull size, ull offset, int init_flag ){
+           if((*struct_table).find(key) != (*struct_table).end()) return false;
+           insert_symbol(*struct_table, key, type, size, -10, init_flag);
            structOffset += size;
            return true;
 }
@@ -61,11 +61,11 @@ string struct_membr_type(string struct_name, string idT){
 }
 
 bool struct_flag(string struct_name){
-   if(to_struct_table.count(struct_name)) return true;
+   if(to_struct_table.find(struct_name) != to_struct_table.end()) return true;
 }
 
 bool end_struct(string struct_name){
-   if(to_struct_table.count(struct_name)) return false;
+   if(to_struct_table.find(struct_name) != to_struct_table.end()) return false;
    to_struct_table.insert(pair<string, symbol_table*>("STRUCT_"+struct_name, struct_table)); 
    Parent.insert(pair<symbol_table*, symbol_table*>(struct_table, NULL));
    struct_size.insert(pair<string, int>("STRUCT_"+struct_name, structOffset));
@@ -129,17 +129,17 @@ Entry* add_entry(string type,ull size,ll offset,int init_flag){
     return mynew;
 }
 
-string get_sym_type(string k){
-    Entry* temp = lookup(k);
+string get_sym_type(string key){
+    Entry* temp = lookup(key);
     if(temp){ string a = temp->type;return a;}
     else return "";
 }
 
-void insert_symbol(symbol_table& table,string k,string type,ull size,ll offset, int init_flag){
+void insert_symbol(symbol_table& table,string key,string type,ull size,ll offset, int init_flag){
    blk_size[blk_num] = blk_size[blk_num] + size;
-   if(offset==10){ table.insert (pair<string,Entry *>(k,add_entry(type,size,offset_nxt[offset_num],init_flag))); }
-   else if(offset==-10){ table.insert (pair<string,Entry *>(k,add_entry(type,size,structOffset,init_flag))); }
-   else { table.insert (pair<string,Entry *>(k,add_entry(type,size,offset_g[offset_gnum],init_flag))); }
+   if(offset==10){ table.insert (pair<string,Entry *>(key,add_entry(type,size,offset_nxt[offset_num],init_flag))); }
+   else if(offset==-10){ table.insert (pair<string,Entry *>(key,add_entry(type,size,structOffset,init_flag))); }
+   else { table.insert (pair<string,Entry *>(key,add_entry(type,size,offset_g[offset_gnum],init_flag))); }
    offset_g[offset_gnum] = offset_g[offset_gnum] + size;
    return;
 }
@@ -187,16 +187,16 @@ void create_table(string name,int type,string func_type){
     next_flag=0;
 }
 
-string func_args_list(string k){
-      string a = argsMap[k];
+string func_args_list(string key){
+      string a = argsMap[key];
       return a;
 }
 
-void update_table(string k){
+void update_table(string key){
     curr = Parent[curr];
     offset_gnum--;
     offset_g[offset_gnum] += offset_g[offset_gnum+1];
-    update_table_size(k);
+    update_table_size(key);
     blk_size[blk_num-1] = blk_size[blk_num]+blk_size[blk_num-1];
     blk_size[blk_num] = 0;
     blk_num--;
@@ -206,7 +206,7 @@ Entry* lookup(string a){
    symbol_table * tmp;
    tmp = curr;
    while (1){
-      if ((*tmp).count(a)){
+      if ((*tmp).find(a) != (*tmp).end()){
          return (*tmp)[a];
       }
       if(Parent[tmp]!=NULL) tmp= Parent[tmp];
@@ -217,7 +217,7 @@ Entry* lookup(string a){
 Entry* scopeLookup(string a){
    symbol_table * tmp;
    tmp = curr;
-      if ((*tmp).count(a)){
+      if ((*tmp).find(a) != (*tmp).end()){
          return (*tmp)[a];
       }
    return NULL;
@@ -225,7 +225,7 @@ Entry* scopeLookup(string a){
 
 ull get_size (char* id){
   // integer
-  if(struct_size.count(id)) return struct_size[convert_to_string(id)];
+  if(struct_size.find(id) != struct_size.end()) return struct_size[convert_to_string(id)];
   if(!strcmp(id, "int")) return sizeof(int);
   if(!strcmp(id, "long int")) return sizeof(long int);
   if(!strcmp(id, "long long")) return sizeof(long long);
@@ -256,14 +256,14 @@ ull get_size (char* id){
 
 }
 
-void update_init_flag(string k){
-   Entry *temp = lookup(k);
+void update_init_flag(string key){
+   Entry *temp = lookup(key);
    if(temp){
        temp->init_flag =1;
    }
 }
-void update_table_size(string k){
-   Entry *temp = lookup(k);
+void update_table_size(string key){
+   Entry *temp = lookup(key);
    if(temp){
        temp->size = blk_size[blk_num];
    }
