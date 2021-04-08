@@ -11,7 +11,7 @@
 
 # clean:
 # 	rm -r bin
-CC=g++ -ggdb3 -std=c++11 -w
+CC=g++ -w
 BIN=./bin
 SOURCE=./src
 INPUT=./test
@@ -21,10 +21,6 @@ OBJ=$(BUILD)/functions.o     \
 		$(BUILD)/symbolTable.o  
 
 all: $(BIN)/compiler
-
-# $(BIN)/compile: $(SOURCE)/compile $(BIN)/compiler
-# 	@mkdir -p $(BIN)
-# 	cp $< $@
 
 $(BIN)/compiler: $(BUILD)/y.tab.c $(BUILD)/lex.yy.c $(OBJ)
 	@mkdir -p $(BIN)
@@ -41,9 +37,6 @@ $(BUILD)/lex.yy.c: $(SOURCE)/comp.l
 $(BUILD)/%.o: $(SOURCE)/%.cpp
 	@mkdir -p $(BUILD)
 	$(CC) -c $^ -o $@ -I$(BUILD) -I$(SOURCE)
-
-%.png: %.gv
-	dot -Tpng $? -o $@
 
 clean : 
 	rm -rf $(BIN)  $(BUILD)
