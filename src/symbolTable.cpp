@@ -21,45 +21,43 @@ int blk_num ;
 int offset_gnum;
 int offset_num;
 long int blk_size[100];
-long long global_offset[100];
+long long offset_g[100];
 long long offset_nxt[100];
 int count_struct;
 int structOffset;
 int next_flag;
-int isIntflag;
-int isRealflag;
+
 symbol_table *curr;
 symbol_table global_table;
 symbol_table *struct_table;
 symbol_table *struct_table_temp;
 
 void make_struct_table(){
-   // Create a new struct table
-   count_struct++;
-   isIntflag = isRealflag = 0;
    symbol_table* myStruct = new symbol_table;
+   count_struct++;
    struct_table = myStruct;
    structOffset = 0;  
 }
 
 void paramTable(){
-   offset_nxt[++offset_num]=global_offset[offset_gnum];
-   next_flag=1;
-   create_table("Next",S_FUNC,"");
+      offset_num++;
+      offset_nxt[offset_num]=offset_g[offset_gnum];
+      create_table("Next",S_FUNC,"");
+      next_flag=1;
 }
 
 bool insert_sym_struct(string key, string type, ull size, ull offset, int init_flag ){
-   if((*struct_table).find(key) != (*struct_table).end()) return false;
-   insert_symbol(*struct_table, key, type, size, -10, init_flag);
-   structOffset += size;
-   return true;
+           if((*struct_table).find(key) != (*struct_table).end()) return false;
+           insert_symbol(*struct_table, key, type, size, -10, init_flag);
+           structOffset += size;
+           return true;
 }
 
 
 string struct_membr_type(string struct_name, string idT){
    struct_table_temp = to_struct_table[struct_name];
-   Entry* temp = (*struct_table_temp)[idT];
-   return temp->type;
+   Entry* aT = (*struct_table_temp)[idT];
+   return aT->type;
 }
 
 bool struct_flag(string struct_name){
@@ -83,7 +81,7 @@ void table_initialize(){
         blk_size[blk_num]=0;
     }
     offset_gnum=0;
-    global_offset[offset_gnum]=0;
+    offset_g[offset_gnum]=0;
     offset_num=0;
     count_struct=0;
     blk_num=0;
@@ -96,6 +94,7 @@ void table_initialize(){
     insert_symbol(*curr,"printf","FUNC_void",8,0,1);
     insert_symbol(*curr,"scanf","FUNC_int",8,0,1);
     argsMap.insert(pair<string,string>("printf","char *,..."));
+   //  argsMap.insert(pair<string,string>("prints","char*"));
     argsMap.insert(pair<string,string>("scanf","char *,..."));
 
 }
@@ -126,8 +125,8 @@ void insert_symbol(symbol_table& table,string key,string type,ull size,ll offset
    blk_size[blk_num] = blk_size[blk_num] + size;
    if(offset==10){ table.insert (pair<string,Entry *>(key,add_entry(type,size,offset_nxt[offset_num],init_flag))); }
    else if(offset==-10){ table.insert (pair<string,Entry *>(key,add_entry(type,size,structOffset,init_flag))); }
-   else { table.insert (pair<string,Entry *>(key,add_entry(type,size,global_offset[offset_gnum],init_flag))); }
-   global_offset[offset_gnum] = global_offset[offset_gnum] + size;
+   else { table.insert (pair<string,Entry *>(key,add_entry(type,size,offset_g[offset_gnum],init_flag))); }
+   offset_g[offset_gnum] = offset_g[offset_gnum] + size;
    return;
 }
 
@@ -150,7 +149,7 @@ void create_table(string name,int type,string func_type){
    symbol_table* myTable = new symbol_table;
     insert_symbol(*curr,name,f,0,0,1);
     offset_gnum++;
-    global_offset[offset_gnum]=0;
+    offset_g[offset_gnum]=0;
     Parent.insert(pair<symbol_table*, symbol_table*>(myTable,curr));
     symTable_type.insert(pair<symbol_table*, int>(myTable,type));
     curr = myTable; }
@@ -165,7 +164,7 @@ string func_args_list(string key){
 void update_table(string key){
     curr = Parent[curr];
     offset_gnum--;
-    global_offset[offset_gnum] += global_offset[offset_gnum+1];
+    offset_g[offset_gnum] += offset_g[offset_gnum+1];
     update_table_size(key);
     blk_size[blk_num-1] = blk_size[blk_num]+blk_size[blk_num-1];
     blk_size[blk_num] = 0;
