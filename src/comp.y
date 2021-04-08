@@ -92,9 +92,9 @@ primary_expression
 	: IDENTIFIER			{$$ = term_symb($1);
 							char *c=primary_expr($1);
 							if(c){
-								string as(c);
+								string tmp_str(c);
 								$$->init_flag = lookup($1)->init_flag;
-								$$->node_type = as;
+								$$->node_type = tmp_str;
 								string key($1);
 								$$->node_key = key;
 								$$->expr_type = 3;
@@ -109,8 +109,8 @@ primary_expression
 								long long val = $1->integer_value;
 								char * a = constant($1->num_type);
 								$$->init_flag=1;
-								string as(a);
-								$$->node_type=as;
+								string tmp_str(a);
+								$$->node_type=tmp_str;
 								$$->integer_value = val;
 								$$->real_value = -5;
 								$$->expr_type=5;
@@ -119,8 +119,8 @@ primary_expression
 								
 								char * a = constant($1->num_type);
 								$$->init_flag =1;
-								string as(a);
-								$$->node_type=as;
+								string tmp_str(a);
+								$$->node_type=tmp_str;
 								$$->integer_value = val;
 								$$->expr_type=5;
 							}
@@ -142,12 +142,12 @@ postfix_expression
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							char *s=postfix_expr($1->node_type,1);
 							if(s&&is_Intgr($3->node_type)){
-								string as(s);
-								$$->node_type=as;
+								string tmp_str(s);
+								$$->node_type=tmp_str;
 							}else if(!is_Intgr($3->node_type)){
 								yyerror("Error : array index not a int");
 							}else{
-								yyerror("Error : array indexed with more indeces than its dimension");
+								yyerror("Error : array indexed with more indices than its dimension");
 							}
 							}																
 															
@@ -155,11 +155,13 @@ postfix_expression
 							$$->init_flag=1;
 							char* s = postfix_expr($1->node_type, 2);
 							if(s){
-								string as(s);
-								$$->node_type =as;
+								string tmp_str(s);
+								$$->node_type =tmp_str;
 								if($1->expr_type==3){
 									string funcArgs = func_args_list($1->node_key);
-									if(!(funcArgs=="")) yyerror("Error : \'%s\' function call requires arguments to be passed \n     \'%s %s\( %s \)\'",($1->node_key).c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
+									if(!(funcArgs=="")){//yyerror("Error : \'%s\' Invalid function call. Usage    \'%s %s\( %s \)\'",($1->node_key).c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
+										yyerror("Error : \'%s\' invalid function call.",($1->node_key).c_str());
+									}
 								}
 							}else yyerror("Error : Invalid Function call");															
 							currArguments="";
@@ -169,8 +171,8 @@ postfix_expression
 							if($3->init_flag==1) $$->init_flag=1;
 							char* s = postfix_expr($1->node_type, 3);
 							if(s){
-								string as(s);
-								$$->node_type =as;
+								string tmp_str(s);
+								$$->node_type =tmp_str;
 								if($1->expr_type==3){
 									string funcArgs = func_args_list($1->node_key);
 									char* a =new char();
@@ -192,7 +194,7 @@ postfix_expression
 										if(a){
 											if(!strcmp(a,"warning")) { yyerror("Warning : Passing argument %d of \'%s\' from incompatible pointer type.\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str()); }
 										}else{
-											yyerror("Error : Incompatible type for argument %d of \'%s\' .\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
+											yyerror("Error : Incompatible argument type %d of \'%s\' .\n Expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
 										}
 										if((f1!=-1)&&(f2!=-1)){
 											continue;
@@ -214,43 +216,43 @@ postfix_expression
 								currArguments="";
 							}
 	| postfix_expression '.' IDENTIFIER			{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));
-												string as($3);
-												int k = structLookup($1->node_type, as);
+												string tmp_str($3);
+												int k = structLookup($1->node_type, tmp_str);
 												
 
 												switch(k){
-													case 1: yyerror("Error : \'.\' is an invalid operator on \'%s\'", $1->node_key.c_str() );break;
-													case 2: yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->node_key.c_str() );break;
-													default: {string stmp=struct_membr_type($1->node_type, as);$$->node_type=stmp;}break;
+													case 1: yyerror("Error : Invalid operator \'.\' on \'%s\'", $1->node_key.c_str() );break;
+													case 2: yyerror("Error : \'%s\' does not have member \'%s\'", $1->node_key.c_str() ,$3);break;
+													default: {string stmp=struct_membr_type($1->node_type, tmp_str);$$->node_type=stmp;}break;
 												}
 
-												string xtmp = $1->node_key+ "." + as; $$->node_key=xtmp;
+												string xtmp = $1->node_key+ "." + tmp_str; $$->node_key=xtmp;
 												}
 
 	| postfix_expression PTR_OP IDENTIFIER		{$$ = non_term_symb("->", NULL, $1, term_symb($3));
-												string as($3);
+												string tmp_str($3);
 												string as1 = ($1->node_type).substr(0,($1->node_type).length()-1);
-												int k = structLookup(as1, as);
+												int k = structLookup(as1, tmp_str);
 												
 
 												switch(k){
-													case 1: yyerror("Error : \'%s\' is an invalid operator on \'%s\'", $2, $1->node_key.c_str() );break;
-													case 2: yyerror("Error : \'%s\' is not a member of struct \'%s\'", $3,$1->node_key.c_str() );break;
-													default: {string stmp = struct_membr_type(as1, as);$$->node_type=stmp;}break;
+													case 1: yyerror("Error :Invalid operator  \'%s\' on \'%s\'", $2, $1->node_key.c_str() );break;
+													case 2: yyerror("Error : \'%s\' does not have member \'%s\'", $1->node_key.c_str() ,$3);break;
+													default: {string stmp = struct_membr_type(as1, tmp_str);$$->node_type=stmp;}break;
 												}
 
-												string xtmp = $1->node_key+ "->" + as; $$->node_key=xtmp;
+												string xtmp = $1->node_key+ "->" + tmp_str; $$->node_key=xtmp;
 												}
 
 	| postfix_expression INC_OP					{$$=  non_term_symb("++", NULL,$1, NULL);
 												if($1->init_flag==1) $$->init_flag=1;
 												char* s = postfix_expr($1->node_type, 6);
 												if(s){
-													string as(s);
-													$$->node_type =as;
+													string tmp_str(s);
+													$$->node_type =tmp_str;
 													$$->integer_value = $1->integer_value +1;
 												}else {
-													yyerror("Error : Increment not defined for this type");
+													yyerror("Error : \'%s\' not defined for this type",$2);
 												}
 												}
 
@@ -258,11 +260,11 @@ postfix_expression
 												if($1->init_flag==1) $$->init_flag =1;
 												char* s = postfix_expr($1->node_type, 7);
 												if(s){
-													string as(s);
-													$$->node_type =as;
+													string tmp_str(s);
+													$$->node_type =tmp_str;
 												    $$->integer_value = $1->integer_value -1;
 												}else {
-													yyerror("Error : Decrement not defined for this type");
+													yyerror("Error : \'%s\' not defined for this type",$2);
 												}
 												}
 	;
@@ -271,8 +273,8 @@ argument_expression_list
 	: assignment_expression									{$$ = $1;if($1->init_flag==1)$$->init_flag = 1; currArguments = $1->node_type;}
 	| argument_expression_list ',' assignment_expression	{$$ = non_term_symb($2,NULL,$1, $3);
 								char* a =  argument_expr($1->node_type, $3->node_type, 2);
-								string as(a);
-								$$->node_type = as;
+								string tmp_str(a);
+								$$->node_type = tmp_str;
 								if($1->init_flag == 1 && $3->init_flag==1) $$->init_flag=1;
 								currArguments = currArguments +","+ $3->node_type;
 								}
@@ -284,12 +286,12 @@ unary_expression
 							if($2->init_flag == 1 ) $$->init_flag=1;
 							char* s = postfix_expr($2->node_type, 6);
 							if(s){
-								string as(s);
-								$$->node_type =as;
+								string tmp_str(s);
+								$$->node_type =tmp_str;
 								$$->integer_value = $2->integer_value +1;
 							}
 							else {
-								yyerror("Error : Increment not defined for this type");
+								yyerror("Error : \'%s\' not defined for this type",$1);
 							}
 							}
 	| DEC_OP unary_expression			{$$ = non_term_symb("--", NULL, NULL, $2);
@@ -297,11 +299,11 @@ unary_expression
 							if($2->init_flag == 1 ) $$->init_flag=1;
 							char* s = postfix_expr($2->node_type, 7);
 							if(s){
-								string as(s);
-								$$->node_type =as;
+								string tmp_str(s);
+								$$->node_type =tmp_str;
 							}
 							else {
-								yyerror("Error : Decrement not defined for this type");
+								yyerror("Error : \'%s\' not defined for this type",$1);
 							}			
 							}
 	| unary_operator cast_expression	{$$ = non_term_symb("unary_expression", NULL, $1, $2);
@@ -309,11 +311,11 @@ unary_expression
 						if( $2->init_flag==1) $$->init_flag=1;
 						char* a= unary_expr($1->name, $2->node_type, 1);
 						if(a){
-							string as(a);
-							$$->node_type= as;
+							string tmp_str(a);
+							$$->node_type= tmp_str;
 						}
 						else{
-							yyerror("Error : Type inconsistent with operator %s", $1->name.c_str());
+							yyerror("Error : Inconsistent type  with operator %s", $1->name.c_str());
 						}
 						}
 	| SIZEOF unary_expression			{$$ = non_term_symb($1, NULL, NULL, $2);$$->node_type = "int";$$->init_flag=1;}
@@ -356,7 +358,7 @@ multiplicative_expression
 			}
 			else{
 				//$$=non_term_symb("*",NULL,$1,$3);
-				yyerror("Error : Incompatible type for * operator");
+				yyerror("Error : Incompatible type for \'*\'");
 			}
 			if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 		}
@@ -378,7 +380,7 @@ multiplicative_expression
 														}
 														else{
 															//$$=non_term_symb("/",NULL,$1,$3);
-															yyerror("Error : Incompatible type for / operator");
+															yyerror("Error : Incompatible type for \'/\'");
 														}
 														if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 													}
@@ -387,7 +389,7 @@ multiplicative_expression
 							if($3->integer_value != 0) $$->integer_value = $1->integer_value % $3->integer_value;
 							char* a=multilplicative_expr($1->node_type, $3->node_type, '/');
 							if(!strcmp(a,"int")) $$->node_type= "long long";
-							else yyerror("Error : Incompatible type for % operator");
+							else yyerror("Error : Incompatible type for \'%\'");
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
 	;
@@ -400,21 +402,21 @@ additive_expression
 								const char *q=new char();
 								string p;
 								if(a){
-									string as(a);
-									p = "+"+as;
+									string tmp_str(a);
+									p = "+"+tmp_str;
 									q = p.c_str();
 								}
 								else q = "+";
 								//$$=non_term_symb(q,NULL,$1,$3);
 								if(a){ 
-									string as(a);
+									string tmp_str(a);
 									if(!strcmp(a,"int")) $$->node_type="long long";
 									else if(!strcmp(a,"real")) $$->node_type="long double";
-									else $$->node_type=as; // for imaginary and complex returns
+									else $$->node_type=tmp_str; // for imaginary and complex returns
 				
 								}
 								else {
-									yyerror("Error : Incompatible type for + operator");
+									yyerror("Error : Incompatible type for \'+\'");
 								}
 								if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 								}
@@ -424,20 +426,20 @@ additive_expression
 								char *a = additive_expr($1->node_type,$3->node_type,'-');
 								char *q = new char();
 								string p;
-								if(a){ string as(a);
-									p ="-"+as;
+								if(a){ string tmp_str(a);
+									p ="-"+tmp_str;
 									strcpy(q,p.c_str());
 								}
 								//$$=non_term_symb(q,NULL,$1,$3);
 								if(a){ 
-									string as(a);
+									string tmp_str(a);
 									if(!strcmp(a,"int")) $$->node_type="long long";
 									else if(!strcmp(a,"real")) $$->node_type="long double";
-									else $$->node_type=as;   // for imaginary and complex returns
+									else $$->node_type=tmp_str;   // for imaginary and complex returns
 									
 								}
 								else {
-									yyerror("Error : Incompatible type for - operator");
+									yyerror("Error : Incompatible type for \'-\'");
 								}
 								if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 								}
@@ -448,7 +450,7 @@ shift_expression
 	| shift_expression LEFT_OP additive_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
 							char* a = shift_expr($1->node_type,$3->node_type);                        
 							if(a) $$->node_type = $1->node_type;
-							else yyerror("Error : Invalid operands to binary <<");
+							else yyerror("Error : Invalid operands to <<");
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
 
@@ -456,7 +458,7 @@ shift_expression
 														//$$ = non_term_symb_2(">>", $1, NULL, $3);
 														char* a = shift_expr($1->node_type,$3->node_type);
 														if(a){$$->node_type = $1->node_type;}
-														else{yyerror("Error : Invalid operands to binary >>");}
+														else{yyerror("Error : Invalid operands to >>");}
 
 														if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 													}
@@ -470,11 +472,11 @@ relational_expression
 								if(!strcmp(a,"bool")) $$->node_type = "bool";
 								else if(!strcmp(a,"bool_warning")){
 									$$->node_type = "bool";
-									yyerror("Warning : comparison between pointer and integer");
+									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
 							}	
 							else {
-								yyerror("Error : invalid operands to binary <");
+								yyerror("Error : invalid operands to <");
 							}
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
@@ -485,10 +487,10 @@ relational_expression
 								if(!strcmp(a,"bool")) $$->node_type = "bool";
 								else if(!strcmp(a,"bool_warning")){
 									$$->node_type = "bool";
-									yyerror("Warning : comparison between pointer and integer");
+									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
 							}else {
-								yyerror("Error : invalid operands to binary >");
+								yyerror("Error : invalid operands to >");
 							}
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
@@ -499,11 +501,11 @@ relational_expression
 								if(!strcmp(a,"bool")) $$->node_type = "bool";
 								else if(!strcmp(a,"bool_warning")){
 									$$->node_type = "bool";
-									yyerror("Warning : comparison between pointer and integer");
+									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
 								
 							}else {
-								yyerror("Error : invalid operands to binary <=");
+								yyerror("Error : invalid operands to <=");
 							}
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
@@ -514,10 +516,10 @@ relational_expression
 								if(!strcmp(a,"bool")) $$->node_type = "bool";
 								else if(!strcmp(a,"bool_warning")){
 									$$->node_type = "bool";
-									yyerror("Warning : comparison between pointer and integer");
+									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}	
 							}else {
-								yyerror("Error : invalid operands to binary >=");
+								yyerror("Error : invalid operands to >=");
 							}
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
@@ -528,22 +530,22 @@ equality_expression
   | equality_expression EQ_OP relational_expression {$$ = non_term_symb_2("==", $1, NULL, $3);
 						    char* a = equality_expr($1->node_type,$3->node_type);
 						    if(a){ if(!strcmp(a,"true")){
-							    yyerror("Warning : Comparision between pointer and Integer");
+							    yyerror("Warning : Invalid Comparison : pointer and Integer");
 							    }
 							    $$->node_type = "bool";
 						    }
-						   else{ yyerror("Error :Invalid operands to binary =="); }
+						   else{ yyerror("Error :Invalid operands to =="); }
 						   if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
                                                    }
 
   | equality_expression NE_OP relational_expression {$$ = non_term_symb_2("!=", $1, NULL, $3);
 						    char* a = equality_expr($1->node_type,$3->node_type);
 						    if(a){   if(!strcmp(a,"true")){
-							    yyerror("Warning : Comparision between pointer and Integer");
+							    yyerror("Warning : Invalid Comparison : pointer and Integer");
 							    }
 							    $$->node_type = "bool";
 						    }
-						   else{ yyerror("Error :Invalid operands to binary !="); }
+						   else{ yyerror("Error :Invalid operands to !="); }
 						   if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
                                                    }
   ;
@@ -558,7 +560,7 @@ and_expression
                   else{   $$->node_type = "long long";}
                }
                else {
-                 yyerror("Error :Invalid operands to the binary &");
+                 yyerror("Error :Invalid operands to the &");
                }
                  if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
           }
@@ -574,7 +576,7 @@ exclusive_or_expression
                   else{   $$->node_type = "long long";}
                }
                else {
-                 yyerror("Error :Invalid operands to the binary ^");
+                 yyerror("Error :Invalid operands to the ^");
                }
                  if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 
@@ -591,7 +593,7 @@ inclusive_or_expression
 						
 								}
 								else {
-									yyerror("Error :Invalid operands to the binary |");
+									yyerror("Error :Invalid operands to the |");
 								}
 									if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							
@@ -623,12 +625,12 @@ conditional_expression
 										$$->real_value = -11;
 										char* a = conditional_expr($3->node_type,$5->node_type);
 										if(a){
-											string as(a);
+											string tmp_str(a);
 											$$->node_type = "int";
 										}
 										else{
 
-											yyerror("Error :Type mismatch in conditional expression");
+											yyerror("Error :Type Error in ternary statement");
 										}
 										if($1->init_flag==1 && $3->init_flag==1 && $5->init_flag==1) $$->init_flag=1;																		
 										}
@@ -642,7 +644,7 @@ assignment_expression
 											if(!strcmp(a,"true")){ $$->node_type = $1->node_type;
 											}
 											if(!strcmp(a,"warning")){ $$->node_type = $1->node_type;
-												yyerror("Warning : Assignment with incompatible pointer type");
+												yyerror("Warning : Incompatible pointer type assignment");
 												}
 											
 											}
@@ -702,9 +704,9 @@ init_declarator
         	const char *key =new char();
 			key = ($1->node_key).c_str();
         	if(scopeLookup($1->node_key)){
-                yyerror("Error : redeclaration of \'%s\'",key);
+                yyerror("Error : \'%s\' already declared",key);
         	}else if($1->node_type=="void"){
-        	    yyerror("Error : Variable or field \'%s\' declared void",key);
+        	    yyerror("Error : void declaration \'%s\'",key);
         	}else {  
 				insert_symbol(*curr,key,t,$1->size,0,0);
 			}
@@ -719,9 +721,9 @@ init_declarator
             const char *key =new char();
 			key = ($1->node_key).c_str();
         if(scopeLookup($1->node_key)){
-			yyerror("Error : Redeclaration of \'%s\'",key);
+			yyerror("Error : \'%s\' already declared",key);
             }else if($1->node_type=="void"){
-                 yyerror("Error : Variable or field \'%s\' declared void",key);
+                 yyerror("Error : void declaration \'%s\'",key);
             }
             else { 
 				if($$->expr_type==15) { 
@@ -772,33 +774,33 @@ type_specifier
 	| struct_or_union_specifier		{if(type_name=="")type_name = $$->node_type;
                    					else type_name = type_name+" "+$$->node_type;
 									$$ = $1;}
-	| enum_specifier				{$$ = $1; yyerror("Error : not implemented Enum specifier");}
+	| enum_specifier				{$$ = $1; yyerror("Implemention Error : Enum specifier not implemented. Sorry!!");}
 	| TYPE_NAME						{if(type_name==""){string stmp($1); type_name = stmp;}
                    					else {string stmp($1);type_name = type_name+" "+stmp;}
 									$$ = term_symb($1);}
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER M4 '{' struct_declaration_list '}'	{string as($2);
+	: struct_or_union IDENTIFIER M4 '{' struct_declaration_list '}'	{string tmp_str($2);
 									$$ = non_term_symb("struct_or_union_specifier", $2, $1, $5);
-									if(end_struct(as)){
-									string stmp= "STRUCT_"+as; $$->node_type=stmp;}
+									if(end_struct(tmp_str)){
+									string stmp= "STRUCT_"+tmp_str; $$->node_type=stmp;}
 									else yyerror("Error : struct \'%s\' is already defined\n", $2);
 									}
 
 	| struct_or_union M4 '{' struct_declaration_list '}'				{$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $4);
 											structCounter++;
-											string as = to_string(structCounter);
-											if(end_struct(as)){
-											string stmp= "STRUCT_"+as; $$->node_type=stmp;}
+											string tmp_str = to_string(structCounter);
+											if(end_struct(tmp_str)){
+											string stmp= "STRUCT_"+tmp_str; $$->node_type=stmp;}
 											else yyerror("Error : struct \'%s\' is already defined\n", $2);
 											}
 
 	| struct_or_union IDENTIFIER									{$$ = non_term_symb("struct_or_union_specifier", $2, $1, NULL);
-													string as($2);
-													as = "STRUCT_" + as;
-													if(struct_flag(as)) $$->node_type = as;
-													else yyerror("Error : No struct \'%s\' is defined",$2);
+													string tmp_str($2);
+													tmp_str = "STRUCT_" + tmp_str;
+													if(struct_flag(tmp_str)) $$->node_type = tmp_str;
+													else yyerror("Error : struct \'%s\' is not defined",$2);
 													}
 	;
 
@@ -838,7 +840,7 @@ struct_declarator
 				if(!insert_sym_struct($1->node_key, $1->node_type, $1->size, 0, 0)) yyerror(" : \'%s\' is already declared in the same struct", $1->node_key.c_str());}
 	| ':' constant_expression {$$ = $2;}
 	| declarator ':' constant_expression {$$ = non_term_symb("struct_declarator", NULL, $1, $3);
-										if(!insert_sym_struct($1->node_key, $1->node_type, $1->size, 0, 1)) yyerror("Error : \'%s\' is already declared in the same struct", $1->node_key.c_str());}
+										if(!insert_sym_struct($1->node_key, $1->node_type, $1->size, 0, 1)) yyerror("Error : \'%s\' redeclared in the struct", $1->node_key.c_str());}
 	;
 
 enum_specifier
@@ -884,7 +886,7 @@ direct_declarator
 				//cout<<$1<<endl;
 				$$->expr_type=1;string stmp($1);$$->node_key=stmp;
 				if(type_name=="spec_less_func"){
-					yyerror("Warning :return type of %s defaults to int",$1);
+					yyerror("Warning :return type of \'%s\' defaults to int",$1);
 					type_name="int";
 					$$->node_type=type_name;
 				}
@@ -992,7 +994,7 @@ parameter_declaration
 					 t = ($2->node_type).c_str();
                      const char *key =new char();
 					 key = ($2->node_key).c_str();
-                  if(scopeLookup($2->node_key)){ yyerror("Error : redeclaration of %s",key);}
+                  if(scopeLookup($2->node_key)){ yyerror("Error : %s is already declared",key);}
                    else {  insert_symbol(*curr,key,t,$2->size,0,1);}
                 if(funcArguments=="")funcArguments=($2->node_type);
                else funcArguments= funcArguments+","+($2->node_type);
@@ -1047,7 +1049,7 @@ initializer_list
                if(a){
                     if(!strcmp(a,"true")){ ; }
                     if(!strcmp(a,"warning")){ ;
-                         yyerror("Warning : Assignment with incompatible pointer type");
+                         yyerror("Warning : Incompatible pointer type assignment");
                          }
                      }
                 else{ yyerror("Error : Incompatible types when initializing type \'%s\' to \'%s\' ",($1->node_type).c_str(),($3->node_type).c_str()); }

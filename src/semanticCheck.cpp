@@ -177,21 +177,16 @@ char* unary_expr(string op, string type, int Number){
         else if (op == convert_to_string("*")){
             return postfix_expr(type, 1);
         }
-	    else  if (op==convert_to_string("+")){
-            if(is_float(type) || is_Intgr(type) ){;}
-            else return NULL;
+	    else  if (op==convert_to_string("+")||op==convert_to_string("-")){
+            if(!is_float(type) && !is_Intgr(type) ){return NULL;}
+            
 	    }
-	    else if (op==convert_to_string("-")){
-            if(is_float(type) || is_Intgr(type)){;}
-            else return NULL;
-	    }
+	    
 	    if(op == convert_to_string("~")){	
-            if(is_Intgr(type)|| type =="bool") {;}
-            else return NULL;
+            if(!is_Intgr(type)&& (type !="bool")) {return NULL;}
         }
         else if(op == convert_to_string("!")){	
-            if(type =="bool") {;}
-            else return NULL;
+            if(type !="bool") {return NULL;}
         }    
 	    strcpy(ret_str, type.c_str());
     }
