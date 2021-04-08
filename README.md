@@ -10,7 +10,7 @@ $make
 This will make an executable named parser in bin folder.<br /> 
 To run and make the dot script -
 ```
-$./bin/parser <file> -o ast.dot
+$./bin/compiler <file> -o ast.dot
 ```
 Where \<file\> is the path of the code you want to run the executable on.<br /> 
 5 sample test files have been included in test folder.
