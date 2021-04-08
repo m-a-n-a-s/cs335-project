@@ -333,9 +333,8 @@ void addKeywords(){
 //   {string *keyword = new string();  *keyword = "ALIGNOF"; insert_symbol(*curr,"_Alignof","Keyword",8,0,1); } // _Alignof keyword
 //   {string *keyword = new string();  *keyword = "ATOMIC"; insert_symbol(*curr,"_Atomic","Keyword",8,0,1); } // _Atomic keyword
 //   {string *keyword = new string();  *keyword = "BOOL"; insert_symbol(*curr,"_Bool","Keyword",8,0,1); } // _Bool keyword
-//   {string *keyword = new string();  *keyword = "COMPLEX"; insert_symbol(*curr,"_Complex","Keyword",8,0,1); } // _Complex keyword
+
 //   {string *keyword = new string();  *keyword = "GENERIC"; insert_symbol(*curr,"_Generic","Keyword",8,0,1); } // _Generic keyword
-//   {string *keyword = new string();  *keyword = "IMAGINARY"; insert_symbol(*curr,"_Imaginary","Keyword",8,0,1); } // _Imaginary keyword
 //   {string *keyword = new string();  *keyword = "NORETURN"; insert_symbol(*curr,"_Noreturn","Keyword",8,0,1); } // _Noreturn keyword
 //   {string *keyword = new string();  *keyword = "STATIC_ASSERT"; insert_symbol(*curr,"_Static_assert","Keyword",8,0,1); } // _Static_assert keyword
 //   {string *keyword = new string();  *keyword = "THREAD_LOCAL"; insert_symbol(*curr,"_Thread_local","Keyword",8,0,1); } // _Thread_local keyword
