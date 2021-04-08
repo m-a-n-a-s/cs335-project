@@ -72,9 +72,9 @@ IS			(u|U|l|L)*
 {D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->integer_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); int_extract();return CONSTANT; }
 L?'(\\.|[^\\'])+'	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");int_extract();return CONSTANT; }
 
-{D}+{E}{FS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
-{D}*"."{D}+({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
-{D}+"."{D}*({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
+{D}+{E}{FS}?		{sscanf(yytext,"%Lf",&yylval.num->real_value); count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
+{D}*"."{D}+({E})?{FS}?	{ sscanf(yytext,"%Lf",&yylval.num->real_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
+{D}+"."{D}*({E})?{FS}?	{ sscanf(yytext,"%Lf",&yylval.num->real_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
 
 L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"STRING_LITERAL"); return STRING_LITERAL; }
 
@@ -139,6 +139,7 @@ int yywrap(void){
 
 void int_extract(){
    yylval.num->is_integer = 1;
+   //cout<<"int vlaue:"<<yylval.num->integer_value<<yylval.num->str<<"\n";
    yylval.num->num_type = yylval.num->unsigned_flag=1;
    for(int i=yyleng-1;;i--){
        if(yytext[i]=='u'||yytext[i]=='U')
@@ -155,7 +156,9 @@ void int_extract(){
 void real_extract(){
    int n=yyleng-1;
    yylval.num->is_integer=0;
-   sscanf(yytext,"%Lf",&yylval.num->real_value);
+   //cout<<yylval.num->str<<"\n";
+   //sscanf(yytext,"%Lf",&yylval.num->real_value);
+   //cout<<"rael vlaue:"<<yylval.num->real_value<<" "<<yylval.num->str<<"\n";
     if(yytext[n]=='f'||yytext[n]=='F')
             yylval.num->num_type = N_FLOAT;
     else if (yytext[n]=='l'||yytext[n] == 'L')
