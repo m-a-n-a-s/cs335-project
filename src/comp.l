@@ -10,8 +10,8 @@ int yylex();
 void count();
 void print();
 
-void get_int_info();
-void get_real_info();
+void int_extract();
+void real_extract();
 
 static int col=1;
 char lexeme[2048]; 
@@ -67,14 +67,14 @@ IS			(u|U|l|L)*
 
 {L}({L}|{D})*		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"IDENTIFIER"); return IDENTIFIER; }
 
-0[xX]{H}+{IS}?		{sscanf(yytext+2,"%llx",&yylval.num->iVal); count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT");get_int_info(); return CONSTANT; }
-0{D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->iVal);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_int_info();return CONSTANT; }
-{D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->iVal);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_int_info();return CONSTANT; }
-L?'(\\.|[^\\'])+'	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");get_int_info();return CONSTANT; }
+0[xX]{H}+{IS}?		{sscanf(yytext+2,"%llx",&yylval.num->integer_value); count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT");int_extract(); return CONSTANT; }
+0{D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->integer_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); int_extract();return CONSTANT; }
+{D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->integer_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); int_extract();return CONSTANT; }
+L?'(\\.|[^\\'])+'	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");int_extract();return CONSTANT; }
 
-{D}+{E}{FS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_real_info();return CONSTANT; }
-{D}*"."{D}+({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_real_info();return CONSTANT; }
-{D}+"."{D}*({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); get_real_info();return CONSTANT; }
+{D}+{E}{FS}?		{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
+{D}*"."{D}+({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
+{D}+"."{D}*({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
 
 L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"STRING_LITERAL"); return STRING_LITERAL; }
 
@@ -137,15 +137,14 @@ int yywrap(void){
 	return 1;
 }
 
-void get_int_info(){
-   int i;
-   yylval.num->is_integer=1;
-   yylval.num->nType = yylval.num->is_unsigned=1;
-   for(i=yyleng-1;;i--){
+void int_extract(){
+   yylval.num->is_integer = 1;
+   yylval.num->num_type = yylval.num->unsigned_flag=1;
+   for(int i=yyleng-1;;i--){
        if(yytext[i]=='u'||yytext[i]=='U')
-                yylval.num->is_unsigned =1;
+                yylval.num->unsigned_flag = 1;
        else if (yytext[i]=='l'||yytext[i] == 'L')
-                yylval.num->nType++;
+                yylval.num->num_type++;
        else
              break;
 
@@ -153,16 +152,16 @@ void get_int_info(){
 
 
 }
-void get_real_info(){
-   int i=yyleng-1;
+void real_extract(){
+   int n=yyleng-1;
    yylval.num->is_integer=0;
-   sscanf(yytext,"%Lf",&yylval.num->rVal);
-       if(yytext[i]=='f'||yytext[i]=='F')
-                yylval.num->nType =N_FLOAT;
-       else if (yytext[i]=='l'||yytext[i] == 'L')
-                yylval.num->nType = N_LONGDOUBLE;
-       else
-               yylval.num->nType =N_DOUBLE;
+   sscanf(yytext,"%Lf",&yylval.num->real_value);
+    if(yytext[n]=='f'||yytext[n]=='F')
+            yylval.num->num_type = N_FLOAT;
+    else if (yytext[n]=='l'||yytext[n] == 'L')
+            yylval.num->num_type = N_LONGDOUBLE;
+    else
+            yylval.num->num_type =N_DOUBLE;
 
 }
 void count(){

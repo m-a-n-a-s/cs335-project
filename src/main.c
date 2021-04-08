@@ -5,8 +5,6 @@
 extern FILE *yyin;
 FILE* ast;
 
- 
-
 int main(int argc, char * argv[]){
     if (argc < 4){
         printf("ERROR ::: USAGE: <Parser> <File Name> -o <Output File Name>\n");

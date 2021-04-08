@@ -10,50 +10,40 @@ using namespace std;
 struct node{
   char* token;
   unsigned long id;
-
+  int init_flag;
+  int expr_type;
   long long size;
-  long long int iVal;
-  long double rVal;
-  char cVal;
-  int isInit;
-  int exprType;
+  long long int integer_value;
+  long double real_value;
+  char char_value;
   string name;
-  string nodeType;
-  string nodeKey;
+  string node_key;
+  string node_type;
 };
 
 enum ntype {
     N_INT , N_LONG , N_LONGLONG , N_FLOAT , N_DOUBLE, N_LONGDOUBLE
 };
-// typedef struct{
-//    int nType; /* 0 int , 1 long , 2 long long ,3 float,4 : double , 5:long double */
-//    int is_unsigned;
-//    char * str;
-//    long long int iVal;
-//    long double rVal;
-
-//    int is_integer; // check wheteher I_CONSTANT or F_CONSTANT
-// } numb;
 
 typedef struct{
-   int nType; /* 0 int , 1 long , 2 long long ,3 float,4 : double , 5:long double */
-   int is_unsigned;
+   int num_type; /* int-0 , long-1 , long long-2 , float-3, double-4 , long double-5 */
+   int unsigned_flag;
    char * str;
-   long long int iVal;
-   long double rVal;
+   long long int integer_value;
+   long double real_value;
 
-   int is_integer; // check wheteher I_CONSTANT or F_CONSTANT
-} numb;
+   int is_integer; // check wheteher integer or real
+} number_types;
 
 
 typedef struct{
-   long long int iVal;
-   long double rVal;
+   long long int integer_value;
+   long double real_value;
    char *str;
-   char cVal;
-   int exprType;
+   char char_value;
+   int expr_type;
    node * nPtr;
-} exprNode;
+} expr_node;
 
 
 
@@ -69,13 +59,3 @@ struct node *non_term_symb_2(char *str,struct node *left,struct node *m, struct 
 struct node *non_term_symb_3(char *str,char *root1,char *root3, struct node *left,char *root2);
 struct node *non_term_symb_4(char *str,struct node *node1,struct node *node2, struct node *node3, struct node*node4,char* root);
 struct node *non_term_symb_5(char *str,struct node *node1,struct node *node2, struct node *node3, struct node*node4,struct node *node5);
-
-// struct node *square(char *str, struct node *node){return NULL;}
-// struct node *parentheses(char *str, struct node *node){return NULL;}
-// struct node *term_symb(char *str){return NULL;}
-// struct node *non_term_symb(char *str,char *root, struct node *left, struct node *right){return NULL;}
-// struct node *non_term_symb_1(char *str,char *root1, struct node *left,char *root2){return NULL;}
-// struct node *non_term_symb_2(char *str,struct node *left,struct node *m, struct node *right){return NULL;}
-// struct node *non_term_symb_3(char *str,char *root1,char *root3, struct node *left,char *root2){return NULL;}
-// struct node *non_term_symb_4(char *str,struct node *node1,struct node *node2, struct node *node3, struct node*node4,char* root){return NULL;}
-// struct node *non_term_symb_5(char *str,struct node *node1,struct node *node2, struct node *node3, struct node*node4,struct node *node5){return NULL;}
