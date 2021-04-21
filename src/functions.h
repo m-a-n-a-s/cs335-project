@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <vector>
+#include "IR_3ac.h"
 
 using namespace std;
 
@@ -19,6 +21,13 @@ struct node{
   string name;
   string node_key;
   string node_type;
+  qid place;
+  vector<int> truelist;
+  vector<int> nextlist;
+  vector<int> falselist;
+  vector<int> breaklist;
+  vector<int> continuelist;
+  vector<int> caselist;
 };
 
 enum ntype {
@@ -49,7 +58,7 @@ typedef struct{
 
 
 unsigned long find_id();
-
+void merging(vector<int> l1, vector<int>l2);
 struct node *square(char *str, struct node *node);
 struct node *parentheses(char *str, struct node *node);
 struct node *term_symb(char *str);
