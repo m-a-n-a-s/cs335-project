@@ -18,7 +18,8 @@ INPUT=./test
 BUILD=./build
 OBJ=$(BUILD)/functions.o     \
 		$(BUILD)/semanticCheck.o \
-		$(BUILD)/symbolTable.o  
+		$(BUILD)/symbolTable.o  \
+		$(BUILD)/IR_3ac.o  
 
 all: $(BIN)/compiler
 
