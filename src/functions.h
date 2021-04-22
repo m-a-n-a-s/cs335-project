@@ -21,6 +21,7 @@ struct node{
   string name;
   string node_key;
   string node_type;
+  ///////////////////////////
   qid place;
   vector<int> truelist;
   vector<int> nextlist;
@@ -28,6 +29,7 @@ struct node{
   vector<int> breaklist;
   vector<int> continuelist;
   vector<int> caselist;
+  ///////////////////////////
 };
 
 enum ntype {

@@ -167,11 +167,11 @@ postfix_expression
 								//****3AC****
 
 								$$->place = getTmpSym($$->node_type);
-                                //qid opT  = pair<string,Entry*>("[]",NULL);
-                                // int k = emit(opT, $1->place, $3->place, $$->place, -1);
-                                $$->place.second->size = $3->place.second->offset;
-                                $$->place.second->offset = $1->place.second->offset;
-                                $$->place.second->init_flag = -5;
+                                qid opT  = pair<string,Entry*>("[]",NULL);
+                                int k = emit(opT, $1->place, $3->place, $$->place, -1);
+                                // $$->place.second->size = $3->place.second->offset;
+                                // $$->place.second->offset = $1->place.second->offset;
+                                // $$->place.second->init_flag = -5;
                                 $$->nextlist = {};
                                 //backPatch($3->truelist, k);
                                 //backPatch($3->falselist, k);
@@ -295,7 +295,7 @@ postfix_expression
 												switch(k){
 													case 1: yyerror("Error :Invalid operator  \'%s\' on \'%s\'", $2, $1->node_key.c_str() );break;
 													case 2: yyerror("Error : \'%s\' does not have member \'%s\'", $1->node_key.c_str() ,$3);break;
-													default: {string stmp = struct_membr_type(as1, tmp_str);$$->node_type=stmp;}break;
+													default : {string stmp = struct_membr_type(as1, tmp_str);$$->node_type=stmp;}break;
 												}
 
 												string xtmp = $1->node_key+ "->" + tmp_str; $$->node_key=xtmp;
@@ -449,12 +449,12 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&");$$->name="&";}
-	| '*'	{$$ = term_symb("*");$$->name="*";}
-	| '+'	{$$ = term_symb("+");$$->name="+";}
-	| '-'	{$$ = term_symb("-");$$->name="-";}
-	| '~'	{$$ = term_symb("~");$$->name="~";}
-	| '!'	{$$ = term_symb("!");$$->name="!";}
+	: '&'	{$$ = term_symb("&");$$->name="&";$$->place = pair<string, Entry*>("&", NULL);}
+	| '*'	{$$ = term_symb("*");$$->name="*";$$->place = pair<string, Entry*>("unary*", NULL);}
+	| '+'	{$$ = term_symb("+");$$->name="+";$$->place = pair<string, Entry*>("unary+", NULL); }
+	| '-'	{$$ = term_symb("-");$$->name="-";$$->place = pair<string, Entry*>("unary-", NULL);}
+	| '~'	{$$ = term_symb("~");$$->name="~";$$->place = pair<string, Entry*>("~", NULL);}
+	| '!'	{$$ = term_symb("!");$$->name="!";$$->place = pair<string, Entry*>("!", NULL);}
 	;
 
 cast_expression
@@ -1131,7 +1131,7 @@ init_declarator
         	    yyerror("Error : void declaration \'%s\'",key);
         	}else {  
 				insert_symbol(*curr,key,t,$1->size,0,0);
-
+				$$->place = pair<string, Entry*>($1->node_key, lookup($1->node_key));
 			}
         }
 	}
@@ -1156,14 +1156,14 @@ init_declarator
 				//----------------- 3AC ------------------------//
                 char *a = validAssign($1->node_type, $4->node_type);
             	if(a){
-                    if(strcmp(a,"true")){ yyerror("Warning: Invalid assignment of \'%s\' to \'%s\' ",$1->node_type.c_str(),$4->node_type.c_str()); }
+                    if(strcmp(a,"true")){ yyerror("Warning : Invalid assignment of \'%s\' to \'%s\' ",$1->node_type.c_str(),$4->node_type.c_str()); }
                     $1->place = pair<string, Entry*>($1->node_key, lookup($1->node_key));
 		            assignmentExpression("=", $1->node_type,$1->node_type, $4->node_type, $1->place, $4->place);
                     $$->place = $1->place;
                     backPatch($1->nextlist, $3);
                     $$->nextlist = $4->nextlist;
                 }
-                else { yyerror("Error: Invalid assignment of \'%s\' to \'%s\' ",$1->node_type.c_str(),$4->node_type.c_str());}
+                else { yyerror("Error : Invalid assignment of \'%s\' to \'%s\' ",$1->node_type.c_str(),$4->node_type.c_str());}
                 $$->place = pair<string, Entry*>($1->node_key, lookup($1->node_key));
 
                 //-----------------------------------------------//
@@ -1190,7 +1190,7 @@ type_specifier
 	| SHORT							{if(type_name==""){string stmp($1); type_name = stmp;}
                    					else {string stmp($1);type_name = type_name+" "+stmp;}
 									$$ = term_symb($1);}
-	| INT							{if(type_name==""){string stmp($1); type_name = stmp;}
+	| INT							{if(type_name==""){string stmp($1);type_name = stmp;}
                    					else {string stmp($1);type_name = type_name+" "+stmp;}
 									$$ = term_symb($1);}
 	| LONG							{if(type_name==""){string stmp($1); type_name = stmp;}
@@ -1363,8 +1363,10 @@ direct_declarator
 														else { char* a = new char();
 																strcpy(a,($$->node_type).c_str());
 																$$->size = get_size(a); 
-															}
-
+														}
+														//------------------3AC---------------------------------//
+														$$->place = pair<string, Entry*>($$->node_key, NULL);
+														//-------------------------------------------------------//	
 													}
 										//DOUBTFULL}
 	| direct_declarator '[' ']'    {$$ = square("direct_declarator", $1);
@@ -1396,7 +1398,7 @@ direct_declarator
 							//------------------3AC---------------------------------//
                         	$$->place = pair<string, Entry*>($$->node_key, NULL);
                         	backPatch($4->nextlist, $6);
-                        	if( !(($$->node_key == "odd" && tempodd == 0) || ($$->node_key == "even" && tempeven == 0)) ){string em =  "func " + $$->node_key+ " begin:";
+                        	if( !(($$->node_key == "odd" && tempodd == 0) || ($$->node_key == "even" && tempeven == 0)) ){string em =  "func " + $$->node_key+ " begin :";
                         	emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-2);}
                         	if($$->node_key == "odd" ){
                         	   tempodd = 1;
@@ -1412,7 +1414,7 @@ direct_declarator
 							$$->size = get_size(a);
 							//------------------3AC---------------------------------//
                         	$$->place = pair<string, Entry*>($$->node_key, NULL);
-                        	string em =  "func " + $$->node_key+ " begin:";
+                        	string em =  "func " + $$->node_key+ " begin :";
                         	emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-2);
                         	//-------------------------------------------------------//
 							}
@@ -1429,7 +1431,7 @@ direct_declarator
 							a = ($$->node_type).c_str();
 							//------------------3AC---------------------------------//
                         	$$->place = pair<string, Entry*>($$->node_key, NULL);
-                        	string em =  "func " + $$->node_key+ " begin:";
+                        	string em =  "func " + $$->node_key+ " begin :";
                         	emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-2);
                         	//-------------------------------------------------------//
 							}
@@ -1582,7 +1584,7 @@ labeled_statement
 		$$ = non_term_symb("labeled_statement", NULL, term_symb($1), $4);
 		//===========3AC======================//
         if(!gotoIndexStorage($1, $3)){
-            yyerror("ERROR:\'%s\' is already defined", $1);
+            yyerror("ERROR :\'%s\' is already defined", $1);
         }
 		$$->nextlist = $4->nextlist;
         $$->caselist = $4->caselist;
@@ -1912,6 +1914,10 @@ function_definition
 															print_tables(curr,u);
 															symbol_count=0;
 															update_table(s);
+															//--------------------3AC--------------------------------//
+															if($5->real_value != -5){ string em =  "func end";
+															emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);}
+															//------------------------------------------------------//
 															//DOUBTFULL
 													}
 	| X1 declarator E2 compound_statement { $$ = non_term_symb_2("function_definition", $2,NULL,$4);
@@ -1920,7 +1926,11 @@ function_definition
 											print_tables(curr,u);
 											symbol_count=0;
 											update_table(s);
-															
+
+											//--------------------3AC--------------------------------//
+											if($4->real_value != -5){ string em =  "func end";
+											emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);}
+											//------------------------------------------------------//			
 									        //DOUBTFULL
 									}
 	;
@@ -1976,6 +1986,7 @@ int main(int argc, char * argv[]){
 	file_name = "global_table.csv";
   	print_tables(curr,file_name);
   	print_func_args();
+	display3ac();
     return 0;
 }
 
