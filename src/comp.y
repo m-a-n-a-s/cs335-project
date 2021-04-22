@@ -216,6 +216,7 @@ postfix_expression
 								currArguments="";
 							}
 	| postfix_expression '.' IDENTIFIER			{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));
+									
 												string tmp_str($3);
 												int k = structLookup($1->node_type, tmp_str);
 												
