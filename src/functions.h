@@ -58,7 +58,6 @@ typedef struct{
 
 
 
-
 unsigned long find_id();
 void merging(vector<int> l1, vector<int>l2);
 struct node *square(char *str, struct node *node);

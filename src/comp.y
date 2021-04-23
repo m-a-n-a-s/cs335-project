@@ -7,7 +7,7 @@
 #include <list>
 #include <stdarg.h>
 #include <string>
-
+#include <utility>
 using namespace std;
 
 int scope;
@@ -1338,9 +1338,14 @@ direct_declarator
 				char* a =new char();
                 strcpy(a,type_name.c_str());
 				$$->size = get_size(a);
+				cout<<"2\n";
 				//------------------3AC---------------------------------//
-                $$->place = pair<string, Entry*>($$->node_key, NULL);
-                //-------------------------------------------------------//
+				//qid xx= makePair($$->node_key,NULL);//pair<string, Entry*>($$->node_key, NULL);
+                $$->place = make_pair($$->node_key,NULL);//xx;
+                //$$->place.first=$$->node_key;
+				//$$->place.second=NULL;
+				//-------------------------------------------------------//
+				cout<<"1\n";
 				}
 	| '(' declarator ')' {$$ = $2;
 						if($2->expr_type==1){ 

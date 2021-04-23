@@ -12,11 +12,20 @@ unordered_map<string, vector<int>> gotoIndexPatchList;
 
 vector <quad> emittedCode;
 
+
+pair<string,Entry*> makePair(string s, Entry* e){
+  
+  return pair<string,Entry*>(s,e);
+}
+
+
+
+
 //get temporary variable
 string getTmpVar(){
   static long temp_var_num = 0;
   temp_var_num++;
-  return (string("temp_") + to_string(temp_var_num));
+  return ("temp_" + to_string(temp_var_num));
 }
 
 //get temporary symbol

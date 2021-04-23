@@ -5,6 +5,7 @@
 #include <map>
 #include <iomanip>
 #include "symbolTable.h"
+#include <utility>
 using namespace std;
 
 typedef pair <string, Entry*> qid;
@@ -19,6 +20,9 @@ typedef struct quadruple{
 
 extern vector <quad> emittedCode;
 extern map<int , string> gotoLabels;
+
+pair<string,Entry*> makePair(string s, Entry* e);
+
 
 string getTmpVar();
 pair<string, Entry*> getTmpSym(string type);
