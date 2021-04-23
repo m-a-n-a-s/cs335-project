@@ -100,7 +100,9 @@ primary_expression
 								$$->node_key = key;
 								$$->expr_type = 3;
 								// ****3AC****
-								$$->place = pair<string,Entry*>(key,lookup(key));
+								cout << "1" << endl;
+								$$->place.first = key;
+								$$->place.second = lookup(key);
                                 $$->nextlist={};
 								// ****3AC****
 							}else{
@@ -130,8 +132,9 @@ primary_expression
 								$$->expr_type=5;
 							}
 							// ****3AC****
-
-							$$->place = pair<string,Entry*>($1->str,NULL);
+							//cout << "1" << endl;
+							$$->place.first = $1->str;
+							$$->place.second = NULL;
                             $$->nextlist={};
 							
 							// ****3AC****
@@ -144,8 +147,8 @@ primary_expression
 							$$->node_type=stmp;
 
 							// ****3AC****
-
-							$$->place = pair<string,Entry*>($1,NULL);
+							$$->place.first = $1;
+							$$->place.second = NULL;
                             $$->nextlist={};
 
 							// ****3AC****
@@ -449,12 +452,36 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&");$$->name="&";$$->place = pair<string, Entry*>("&", NULL);}
-	| '*'	{$$ = term_symb("*");$$->name="*";$$->place = pair<string, Entry*>("unary*", NULL);}
-	| '+'	{$$ = term_symb("+");$$->name="+";$$->place = pair<string, Entry*>("unary+", NULL); }
-	| '-'	{$$ = term_symb("-");$$->name="-";$$->place = pair<string, Entry*>("unary-", NULL);}
-	| '~'	{$$ = term_symb("~");$$->name="~";$$->place = pair<string, Entry*>("~", NULL);}
-	| '!'	{$$ = term_symb("!");$$->name="!";$$->place = pair<string, Entry*>("!", NULL);}
+	: '&'	{$$ = term_symb("&");
+			$$->name="&";
+			$$->place.first = "&";
+			$$->place.second = NULL;
+			}
+	| '*'	{$$ = term_symb("*");
+			$$->name="*";
+			$$->place.first = "unary*";
+			$$->place.second = NULL;
+			}
+	| '+'	{$$ = term_symb("+");
+			$$->name="+";
+			$$->place.first = "unary+";
+			$$->place.second = NULL;
+			}
+	| '-'	{$$ = term_symb("-");
+			$$->name="-";
+			$$->place.first = "unary-";
+			$$->place.second = NULL;
+			}
+	| '~'	{$$ = term_symb("~");
+			$$->name="~";
+			$$->place.first = "~";
+			$$->place.second = NULL;
+			}
+	| '!'	{$$ = term_symb("!");
+			$$->name="!";
+			$$->place.first = "!";
+			$$->place.second = NULL;
+			}
 	;
 
 cast_expression
@@ -1131,8 +1158,8 @@ init_declarator
         	    yyerror("Error : void declaration \'%s\'",key);
         	}else {  
 				insert_symbol(*curr,key,t,$1->size,0,0);
-				$$->place = pair<string, Entry*>($1->node_key, lookup($1->node_key));
-			}
+				$$->place.first = $1->node_key;
+				$$->place.second = lookup($1->node_key);			}
         }
 	}
 	| declarator '=' M initializer	{
@@ -1164,8 +1191,8 @@ init_declarator
                     $$->nextlist = $4->nextlist;
                 }
                 else { yyerror("Error : Invalid assignment of \'%s\' to \'%s\' ",$1->node_type.c_str(),$4->node_type.c_str());}
-                $$->place = pair<string, Entry*>($1->node_key, lookup($1->node_key));
-
+                $$->place.first = $1->node_key;
+				$$->place.second = lookup($1->node_key);
                 //-----------------------------------------------//
             }
         }
@@ -1312,7 +1339,8 @@ declarator
 								strcpy(a,($$->node_type).c_str());
 								$$->size = get_size(a);
 								//------------------3AC---------------------------------//
-                        		$$->place = pair<string, Entry*>($$->node_key, NULL);
+								$$->place.first = $$->node_key;
+								$$->place.second = NULL;
                         		//-------------------------------------------------------//
 								}
 	| direct_declarator {$$ = $1;
@@ -1320,7 +1348,8 @@ declarator
 							func_type = $1->node_type;
 						}
 						//------------------3AC---------------------------------//
-                        $$->place = pair<string, Entry*>($$->node_key, NULL);
+						$$->place.first = $$->node_key;
+						$$->place.second = NULL;
                         //-------------------------------------------------------//
 						}
 	;
@@ -1340,19 +1369,17 @@ direct_declarator
 				$$->size = get_size(a);
 				cout<<"2\n";
 				//------------------3AC---------------------------------//
-				//qid xx= makePair($$->node_key,NULL);//pair<string, Entry*>($$->node_key, NULL);
-                $$->place = make_pair($$->node_key,NULL);//xx;
-                //$$->place.first=$$->node_key;
-				//$$->place.second=NULL;
-				//-------------------------------------------------------//
-				cout<<"1\n";
+				$$->place.first = $$->node_key;
+				$$->place.second = NULL;
+                //-------------------------------------------------------//
 				}
 	| '(' declarator ')' {$$ = $2;
 						if($2->expr_type==1){ 
 							$$->expr_type=1;
                             $$->node_key=$2->node_key;
 							//------------------3AC---------------------------------//
-                            $$->place = pair<string, Entry*>($$->node_key, NULL);
+							$$->place.first = $$->node_key;
+							$$->place.second = NULL;
                             //-------------------------------------------------------//
                             $$->node_type=$2->node_type;
 						}
@@ -1370,7 +1397,8 @@ direct_declarator
 																$$->size = get_size(a); 
 														}
 														//------------------3AC---------------------------------//
-														$$->place = pair<string, Entry*>($$->node_key, NULL);
+														$$->place.first = $$->node_key;
+														$$->place.second = NULL;
 														//-------------------------------------------------------//	
 													}
 										//DOUBTFULL}
@@ -1385,7 +1413,8 @@ direct_declarator
 					$$->expr_type=15;
 					$$->integer_value=get_size(a);
 					//------------------3AC---------------------------------//
-                	$$->place = pair<string, Entry*>($$->node_key, NULL);
+					$$->place.first = $$->node_key;
+					$$->place.second = NULL;
                     //-------------------------------------------------------//
 					}
 
@@ -1401,7 +1430,8 @@ direct_declarator
 								$$->size = get_size(a);
 							}
 							//------------------3AC---------------------------------//
-                        	$$->place = pair<string, Entry*>($$->node_key, NULL);
+							$$->place.first = $$->node_key;
+							$$->place.second = NULL;
                         	backPatch($4->nextlist, $6);
                         	if( !(($$->node_key == "odd" && tempodd == 0) || ($$->node_key == "even" && tempeven == 0)) ){string em =  "func " + $$->node_key+ " begin :";
                         	emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-2);}
@@ -1418,7 +1448,8 @@ direct_declarator
 							char* a = new char();
 							$$->size = get_size(a);
 							//------------------3AC---------------------------------//
-                        	$$->place = pair<string, Entry*>($$->node_key, NULL);
+							$$->place.first = $$->node_key;
+							$$->place.second = NULL;
                         	string em =  "func " + $$->node_key+ " begin :";
                         	emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-2);
                         	//-------------------------------------------------------//
@@ -1435,7 +1466,8 @@ direct_declarator
 							const char* a = new char();
 							a = ($$->node_type).c_str();
 							//------------------3AC---------------------------------//
-                        	$$->place = pair<string, Entry*>($$->node_key, NULL);
+							$$->place.first = $$->node_key;
+							$$->place.second = NULL;
                         	string em =  "func " + $$->node_key+ " begin :";
                         	emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-2);
                         	//-------------------------------------------------------//
