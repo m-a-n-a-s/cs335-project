@@ -58,19 +58,20 @@ int getNextIndex(){
 
 //backpatch
 void backPatch(list<int> li, int p){
+    cout<<"in\n";
     std::list<int>::iterator it = li.begin();
     for(int i=0; i<li.size(); ++i){
-    // unsigned N = i;
-    // if (li.size() > N)
-    // {
-    //   std::list<int>::iterator it = li.begin();
-    //   std::advance(it, N);
-    //   emittedCode[*it].stmtNum = p;
-    // }
+        unsigned N = i;
+        if (li.size() > N)
+        {
+        std::list<int>::iterator it = li.begin();
+        std::advance(it, N);
         emittedCode[*it].stmtNum = p;
-        advance(it, 1);
+        }
+        // emittedCode[*it].stmtNum = p;
+        // advance(it, 1);
     }
-return;
+    return;
 }
 
 //goto symbol

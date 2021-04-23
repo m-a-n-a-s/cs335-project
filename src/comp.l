@@ -51,7 +51,7 @@ IS			(u|U|l|L)*
 "int"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"INT"); return INT; }
 "long"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"LONG"); return LONG; }
 "register"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"REGISTER"); return REGISTER; }
-"return"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"RETURN"); return RETURN; }
+"return"		{ cout<<"return\n";count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"RETURN"); return RETURN; }
 "short"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"SHORT"); return SHORT; }
 "signed"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"SIGNED"); return SIGNED; }
 "sizeof"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"SIZEOF"); return SIZEOF; }

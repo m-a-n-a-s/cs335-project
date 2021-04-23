@@ -132,11 +132,11 @@ primary_expression
 								$$->expr_type=5;
 							}
 							// ****3AC****
-							//cout << "1" << endl;
-							$$->place.first = $1->str;
-							$$->place.second = NULL;
-                            $$->nextlist={};
-							
+							cout << "hel" << endl;
+							$$->place.first = $1->str;cout<<"h1\n";
+							$$->place.second = NULL;cout<<"h2\n";
+                            //$$->nextlist={};cout<<"h3\n";
+							cout<<"leh\n";
 							// ****3AC****
 
 							//TO ADD SOME THING REMEBBER************************
@@ -158,7 +158,7 @@ primary_expression
 	;
 
 postfix_expression
-: primary_expression			{$$ = $1;}
+: primary_expression			{$$ = $1;cout<<"ok1\n";}
 
 | postfix_expression '[' expression ']'	{$$ = non_term_symb("[ ]", NULL, $1, $3);
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
@@ -314,7 +314,7 @@ postfix_expression
 
 													//------------------3AC------------//
                   									qid t1 = getTmpSym($$->node_type);
-                  									int k=  emit(pair<string, Entry*>("++S", lookup("++")), $1->place, pair<string, Entry*>("", NULL), t1, -1);
+                  									int k=  emit(pair<string, Entry*>("++S", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
                   									$$->place = t1;
                   									$$->nextlist = {};
                   									//-----------------3AC-----------------//
@@ -334,7 +334,7 @@ postfix_expression
 
 													//-----------------3AC-------------//
                   									qid t1 = getTmpSym($$->node_type);
-                  									int k=emit(pair<string, Entry*>("--S", lookup("--")), $1->place, pair<string, Entry*>("", NULL), t1, -1);
+                  									int k=emit(pair<string, Entry*>("--S", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
                   									$$->place = t1;
                   									$$->nextlist={};
                   									//--------------3AC-------------//
@@ -382,7 +382,7 @@ unary_expression
 								$$->integer_value = $2->integer_value +1;
 								//===========3AC======================//
                   				qid t1 = getTmpSym($$->node_type);
-                  				int k = emit(pair<string, Entry*>("++P", lookup("++")), $2->place, pair<string, Entry*>("", NULL), t1, -1);
+                  				int k = emit(pair<string, Entry*>("++P",NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   				$$->place = t1;
                   				$$->nextlist = {};
               					//    $$->code =  $2->code + '\n' +\
@@ -402,7 +402,7 @@ unary_expression
 								$$->node_type =tmp_str;
 								//===========3AC======================//
                   				qid t1 = getTmpSym($$->node_type);
-                  				int k = emit(pair<string, Entry*>("--P", lookup("--")), $2->place, pair<string, Entry*>("", NULL), t1, -1);
+                  				int k = emit(pair<string, Entry*>("--P",NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   				$$->place = t1;
                   				$$->nextlist={};
 
@@ -434,7 +434,7 @@ unary_expression
 	| SIZEOF unary_expression			{$$ = non_term_symb($1, NULL, NULL, $2);$$->node_type = "int";$$->init_flag=1;
 										//===========3AC======================//
                   						qid t1 = getTmpSym($$->node_type);
-                  						int k = emit(pair<string, Entry*>("SIZEOF", lookup("sizeof")), $2->place, pair<string, Entry*>("", NULL), t1, -1);
+                  						int k = emit(pair<string, Entry*>("SIZEOF", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   						$$->place = t1;
                   						$$->nextlist={};
 
@@ -443,7 +443,7 @@ unary_expression
 	| SIZEOF '(' type_name ')'			{$$ = non_term_symb($1, NULL, NULL, $3);$$->node_type = "int";$$->init_flag=1;
 										//===========3AC======================//
                 						  qid t1 = getTmpSym($$->node_type);
-                						  int k = emit(pair<string, Entry*>("SIZEOF", lookup("sizeof")), $3->place, pair<string, Entry*>("", NULL), t1, -1);
+                						  int k = emit(pair<string, Entry*>("SIZEOF", NULL), $3->place, pair<string, Entry*>("", NULL), t1, -1);
                 						  $$->place = t1;
                 						  $$->nextlist={};
 
@@ -513,7 +513,7 @@ multiplicative_expression
 					$$->node_type = "long long";
 					//---------------3AC----------------//
                   	qid t1 = getTmpSym($$->node_type);
-                  	k=emit(pair<string, Entry*>("*int", lookup("*")), $1->place, $3->place, t1, -1);
+                  	k=emit(pair<string, Entry*>("*int", NULL), $1->place, $3->place, t1, -1);
                   	$$->place = t1;
                   	$$->nextlist={};
                 	//--------------3AC--------------------//
@@ -527,16 +527,16 @@ multiplicative_expression
                   	if(is_Intgr($1->node_type)){
                   	      qid t2 = getTmpSym($$->node_type);
                   	      emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
-                  	      k=emit(pair<string, Entry*>("*real", lookup("*")), t2, $3->place, t1, -1);
+                  	      k=emit(pair<string, Entry*>("*real", NULL), t2, $3->place, t1, -1);
                   	}
                   	else if(is_Intgr($3->node_type)){
                   	      qid t2 = getTmpSym($$->node_type);
                   	      emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
-                  	      k=emit(pair<string, Entry*>("*real", lookup("*")), $1->place, t2, t1, -1);
+                  	      k=emit(pair<string, Entry*>("*real", NULL), $1->place, t2, t1, -1);
                   	}
                   	else {
 
-                  	      k=emit(pair<string, Entry*>("*real", lookup("*")), $1->place, $3->place, t1, -1);
+                  	      k=emit(pair<string, Entry*>("*real", NULL), $1->place, $3->place, t1, -1);
                   	}
                   	$$->place = t1;
                   	$$->nextlist={};
@@ -559,7 +559,7 @@ multiplicative_expression
 																$$->node_type = "long long";
 																//---------------3AC----------------------//
                   												qid t1 = getTmpSym($$->node_type);
-                  												k = emit(pair<string, Entry*>("/int", lookup("/")), $1->place, $3->place, t1, -1);
+                  												k = emit(pair<string, Entry*>("/int", NULL), $1->place, $3->place, t1, -1);
                   												$$->place = t1;
                   												$$->nextlist= {};
                   												//--------------3AC------------------------//
@@ -573,15 +573,15 @@ multiplicative_expression
                   												if(is_Intgr($1->node_type)){
                   												      qid t2 = getTmpSym($$->node_type);
                   												      emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
-                  												      k=emit(pair<string, Entry*>("/real", lookup("/")), t2, $3->place, t1, -1);
+                  												      k=emit(pair<string, Entry*>("/real", NULL), t2, $3->place, t1, -1);
                   												}
                   												else if(is_Intgr($3->node_type)){
                   												      qid t2 = getTmpSym($$->node_type);
                   												      emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
-                  												      k=emit(pair<string, Entry*>("/real", lookup("/")), $1->place, t2, t1, -1);
+                  												      k=emit(pair<string, Entry*>("/real", NULL), $1->place, t2, t1, -1);
                   												}
                   												else {
-                  												      k=emit(pair<string, Entry*>("/real", lookup("/")), $1->place, $3->place, t1, -1);
+                  												      k=emit(pair<string, Entry*>("/real", NULL), $1->place, $3->place, t1, -1);
                   												}
                   												$$->place =t1;
                   												$$->nextlist={};
@@ -602,7 +602,7 @@ multiplicative_expression
 								$$->node_type= "long long";
 								//===========3AC======================//
                   				qid t1 = getTmpSym($$->node_type);
-                  				int k =emit(pair<string, Entry*>("%", lookup("%")), $1->place, $3->place, t1, -1);
+                  				int k =emit(pair<string, Entry*>("%", NULL), $1->place, $3->place, t1, -1);
                   				$$->nextlist={};
                   				$$->place = t1;
 
@@ -638,15 +638,15 @@ additive_expression
                    					if(is_Intgr($1->node_type) && is_float($3->node_type)){
                    					     qid t2 = getTmpSym($$->node_type);
                    					     emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
-                   					     emit(pair<string, Entry*>(p, lookup("+")), t2, $3->place, t1, -1);
+                   					     emit(pair<string, Entry*>(p, NULL), t2, $3->place, t1, -1);
                    					}
                    					else if(is_Intgr($3->node_type) && is_float($1->node_type)){
                    					     qid t2 = getTmpSym($$->node_type);
                    					     emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
-                   					     emit(pair<string, Entry*>(p, lookup("+")), $1->place, t2, t1, -1);
+                   					     emit(pair<string, Entry*>(p, NULL), $1->place, t2, t1, -1);
                    					}
                    					else {
-                   					     emit(pair<string, Entry*>(p, lookup("+")), $1->place, $3->place, t1, -1);
+                   					     emit(pair<string, Entry*>(p, NULL), $1->place, $3->place, t1, -1);
                    					}
                    					$$->place = t1;
                   					$$->nextlist = {};
@@ -678,15 +678,15 @@ additive_expression
                    					if(is_Intgr($1->node_type) && is_float($3->node_type)){
                    					     qid t2 = getTmpSym($$->node_type);
                    					     emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
-                   					     emit(pair<string, Entry*>(p, lookup("-")), t2, $3->place, t1, -1);
+                   					     emit(pair<string, Entry*>(p, NULL), t2, $3->place, t1, -1);
                    					}
                    					else if(is_Intgr($3->node_type) && is_float($1->node_type)){
                    					     qid t2 = getTmpSym($$->node_type);
                    					     emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
-                   					     emit(pair<string, Entry*>(p, lookup("-")), $1->place, t2, t1, -1);
+                   					     emit(pair<string, Entry*>(p, NULL), $1->place, t2, t1, -1);
                    					}
                    					else {
-                   					     emit(pair<string, Entry*>(p, lookup("-")), $1->place, $3->place, t1, -1);
+                   					     emit(pair<string, Entry*>(p, NULL), $1->place, $3->place, t1, -1);
                    					}
                    					$$->place = t1;
                    					$$->nextlist = {};
@@ -707,7 +707,7 @@ shift_expression
 								$$->node_type = $1->node_type;
 								//===========3AC======================//
                           		qid t1 = getTmpSym($$->node_type);
-                          		int k = emit(pair<string, Entry*>("LEFT_OP", lookup("<<")), $1->place, $3->place, t1, -1);
+                          		int k = emit(pair<string, Entry*>("LEFT_OP", NULL), $1->place, $3->place, t1, -1);
                           		$$->place = t1;
                           		$$->nextlist={};
                         		//====================================//
@@ -723,7 +723,7 @@ shift_expression
 															$$->node_type = $1->node_type;
 															//===========3AC======================//
                                  							qid t1 = getTmpSym($$->node_type);
-                                 							int k = emit(pair<string, Entry*>("RIGHT_OP", lookup(">>")), $1->place, $3->place, t1, -1);
+                                 							int k = emit(pair<string, Entry*>("RIGHT_OP", NULL), $1->place, $3->place, t1, -1);
                                  							$$->place = t1;
                                  							$$->nextlist={};
                                 							//====================================//	
@@ -746,7 +746,7 @@ relational_expression
 								}
 								//===========3AC======================//
                         		qid t1 = getTmpSym($$->node_type);
-                        		int k =  emit(pair<string, Entry*>("<", lookup("<")), $1->place, $3->place, t1, -1);
+                        		int k =  emit(pair<string, Entry*>("<", NULL), $1->place, $3->place, t1, -1);
                         		$$->place = t1;
                         		$$->nextlist={};
                        			//====================================//
@@ -767,7 +767,7 @@ relational_expression
 								}
 								//===========3AC======================//
                            		qid t1 = getTmpSym($$->node_type);
-                           		int k = emit(pair<string, Entry*>(">", lookup(">")), $1->place, $3->place, t1, -1);
+                           		int k = emit(pair<string, Entry*>(">", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist = {};
                        			//====================================//
@@ -787,7 +787,7 @@ relational_expression
 								}
 								//===========3AC======================//
                           	 	qid t1 = getTmpSym($$->node_type);
-                          		int k= emit(pair<string, Entry*>("LE_OP", lookup("<=")), $1->place, $3->place, t1, -1);
+                          		int k= emit(pair<string, Entry*>("LE_OP",NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist = {};
                        			//====================================//
@@ -807,7 +807,7 @@ relational_expression
 								}
 								//===========3AC======================//
                            		qid t1 = getTmpSym($$->node_type);
-                           		int k = emit(pair<string, Entry*>("GE_OP", lookup(">=")), $1->place, $3->place, t1, -1);
+                           		int k = emit(pair<string, Entry*>("GE_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist ={};
                        			//====================================//	
@@ -828,7 +828,7 @@ equality_expression
 							    $$->node_type = "bool";
 								//===========3AC======================//
                            		qid t1 = getTmpSym($$->node_type);
-                           		int k = emit(pair<string, Entry*>("EQ_OP", lookup("\=\=")), $1->place, $3->place, t1, -1);
+                           		int k = emit(pair<string, Entry*>("EQ_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist = {};
                        			//====================================//
@@ -845,7 +845,7 @@ equality_expression
 							    $$->node_type = "bool";
 								//===========3AC======================//
                            		qid t1 = getTmpSym($$->node_type);
-                           		int k = emit(pair<string, Entry*>("NE_OP", lookup("!=")), $1->place, $3->place, t1, -1);
+                           		int k = emit(pair<string, Entry*>("NE_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist ={};
                        			//====================================//
@@ -865,7 +865,7 @@ and_expression
                   else{  $$->node_type = "long long"; }
 				  //===========3AC======================//
                   qid t1 = getTmpSym($$->node_type);
-                  int k= emit(pair<string, Entry*>("&", lookup("&")), $1->place, $3->place, t1, -1);
+                  int k= emit(pair<string, Entry*>("&", NULL), $1->place, $3->place, t1, -1);
                   $$->place = t1;
                   $$->nextlist={};
                   //====================================//	
@@ -888,7 +888,7 @@ exclusive_or_expression
                   else{   $$->node_type = "long long";}
 				  //===========3AC======================//
                   qid t1 = getTmpSym($$->node_type);
-                  int k = emit(pair<string, Entry*>("^", lookup("^")), $1->place, $3->place, t1, -1);
+                  int k = emit(pair<string, Entry*>("^", NULL), $1->place, $3->place, t1, -1);
                   $$->place = t1;
                   $$->nextlist={};
                   //====================================//
@@ -910,7 +910,7 @@ inclusive_or_expression
 									else{   $$->node_type = "long long";}
 									//===========3AC======================//
                            			qid t1 = getTmpSym($$->node_type);
-                           			int k =  emit(pair<string, Entry*>("|", lookup("|")), $1->place, $3->place, t1, -1);
+                           			int k =  emit(pair<string, Entry*>("|", NULL), $1->place, $3->place, t1, -1);
                            			$$->place = t1;
                            			$$->nextlist={};
                        				//====================================//
@@ -927,8 +927,8 @@ inclusive_or_expression
 //M1
 //  : logical_and_expression AND_OP {
 //                        if($1->truelist.begin()==$1->truelist.end()){
-//                            int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $1->place, pair<string, Entry*>("", NULL ),0);
-//                            int k1 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+//                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF",NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+//                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
 //                            $1->truelist.push_back(k);
 //                            $1->falselist.push_back(k1);
 //
@@ -949,15 +949,15 @@ logical_and_expression
 								$$->node_type == "bool";
 								//===========3AC======================//
 								if($1->truelist.begin()==$1->truelist.end()){
-								int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $1->place, pair<string, Entry*>("", NULL ),0);
-								int k1 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+								int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+								int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
 								$1->truelist.push_back(k);
 								$1->falselist.push_back(k1);
 								}
 
                             	if($4->truelist.begin()==$4->truelist.end()){
-                                	int k2 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $4->place, pair<string, Entry*>("", NULL ),0);
-                                	int k3 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+                                	int k2 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $4->place, pair<string, Entry*>("", NULL ),0);
+                                	int k3 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
                                 	$4->truelist.push_back(k2);
                                 	$4->falselist.push_back(k3);
                         		}
@@ -975,8 +975,8 @@ logical_and_expression
 //M2
 //  : logical_or_expression OR_OP {
 //                        if($1->truelist.begin()==$1->truelist.end()){
-//                            int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $1->place, pair<string, Entry*>("", NULL ),0);
-//                            int k1 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+//                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+//                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
 //                            $1->truelist.push_back(k);
 //                            $1->falselist.push_back(k1);
 //
@@ -993,14 +993,14 @@ logical_or_expression
 								$$->node_type == "bool";
 								//===========3AC======================//
 								if($1->truelist.begin()==$1->truelist.end()){
-									int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $1->place, pair<string, Entry*>("", NULL ),0);
-									int k1 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+									int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+									int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
 									$1->truelist.push_back(k);
 									$1->falselist.push_back(k1);
 								}
                          		if($4->truelist.begin()==$4->truelist.end()){
-                                	int k2 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $4->place, pair<string, Entry*>("", NULL ),0);
-                                	int k3 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+                                	int k2 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $4->place, pair<string, Entry*>("", NULL ),0);
+                                	int k3 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
                                 	$4->truelist.push_back(k2);
                                 	$4->falselist.push_back(k3);
                         		}
@@ -1017,8 +1017,8 @@ logical_or_expression
 M3
   : logical_or_expression '?' {
                         if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF",NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
                             $1->truelist.push_back(k);
                             $1->falselist.push_back(k1);
 
@@ -1029,8 +1029,8 @@ M3
 
 N
  : %empty {
-                emit(pair<string, Entry*>("=", lookup("=")), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -1);
-                $$ = emit(pair<string, Entry*>("GOTO", lookup("goto")), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), 0);
+                emit(pair<string, Entry*>("=", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -1);
+                $$ = emit(pair<string, Entry*>("GOTO", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), 0);
  }
  ;
 
@@ -1044,8 +1044,8 @@ conditional_expression
 											$$->node_type = "int";
 											//--------------------3AC--------------------------//
                     						qid t = getTmpSym($$->node_type);
-                    						emit(pair<string, Entry*>("=", lookup("=")), $6->place, pair<string, Entry*>("", NULL), t, -1);
-                    						int k = emit(pair<string, Entry*>("GOTO", lookup("goto")), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), 0);
+                    						emit(pair<string, Entry*>("=", NULL), $6->place, pair<string, Entry*>("", NULL), t, -1);
+                    						int k = emit(pair<string, Entry*>("GOTO", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), 0);
                     						backPatch($1->truelist , $2);
                     						backPatch($1->falselist , $5+1);
                     						setId1($5-1 , $3->place);
@@ -1102,7 +1102,7 @@ assignment_operator
 	;
 
 expression
-	: assignment_expression					{$$ = $1;}
+	: assignment_expression					{$$ = $1;cout<<"ok2";}
 	| expression ',' M assignment_expression	{$$ = non_term_symb("expression ','", NULL, $1, $4);$$->node_type = "void";
 											//--------------3AC--------------------//
                     						backPatch($1->nextlist,$3);
@@ -1163,7 +1163,7 @@ init_declarator
         }
 	}
 	| declarator '=' M initializer	{
-		
+		cout<<"uk\n";
 		$$ = non_term_symb("=", NULL, $1, $4);
 		if($1->expr_type==1||$1->expr_type==15){ 
 			const char *t=new char();
@@ -1176,24 +1176,39 @@ init_declarator
                  yyerror("Error : void declaration \'%s\'",key);
             }
             else { 
+				cout<<"chal\n";
 				if($$->expr_type==15) { 
 					insert_symbol(*curr,key,t,($4->expr_type*$1->integer_value),0,1); 
 				}
                 insert_symbol(*curr,key,t,$1->size,0,1);
 				//----------------- 3AC ------------------------//
-                char *a = validAssign($1->node_type, $4->node_type);
+                cout<<"1\n";
+				char *a = validAssign($1->node_type, $4->node_type);
+				cout<<"2\n";
             	if(a){
                     if(strcmp(a,"true")){ yyerror("Warning : Invalid assignment of \'%s\' to \'%s\' ",$1->node_type.c_str(),$4->node_type.c_str()); }
-                    $1->place = pair<string, Entry*>($1->node_key, lookup($1->node_key));
-		            assignmentExpression("=", $1->node_type,$1->node_type, $4->node_type, $1->place, $4->place);
-                    $$->place = $1->place;
-                    backPatch($1->nextlist, $3);
-                    $$->nextlist = $4->nextlist;
+                    //$1->place = pair<string, Entry*>($1->node_key, lookup($1->node_key));
+		            cout<<"3\n";
+					$1->place.first=$1->node_key;
+					$1->place.second=lookup($1->node_key);
+					cout<<"4\n";
+					assignmentExpression("=", $1->node_type,$1->node_type, $4->node_type, $1->place, $4->place);
+                    cout<<"5\n";
+					$$->place = $1->place;
+                    cout<<"6 size :"<<$1->nextlist.size()<<",no.:"<<$3<<"\n";
+					list<int> ll;
+					$1->nextlist=ll;
+					cout<<"6.1\n"<<$1->nextlist.size()<<"\n"<<$3<<"\n";
+					backPatch($1->nextlist, $3);
+                    cout<<"7\n";
+					$$->nextlist = $4->nextlist;
                 }
                 else { yyerror("Error : Invalid assignment of \'%s\' to \'%s\' ",$1->node_type.c_str(),$4->node_type.c_str());}
-                $$->place.first = $1->node_key;
+                cout<<"232\n";
+				$$->place.first = $1->node_key;
 				$$->place.second = lookup($1->node_key);
                 //-----------------------------------------------//
+				cout<<"bye\n";
             }
         }
 	}
@@ -1372,6 +1387,7 @@ direct_declarator
 				$$->place.first = $$->node_key;
 				$$->place.second = NULL;
                 //-------------------------------------------------------//
+				cout<<"1\n";
 				}
 	| '(' declarator ')' {$$ = $2;
 						if($2->expr_type==1){ 
@@ -1604,9 +1620,9 @@ M5
                                   $$=$2;
                                 //-----------3AC--------------------//
                                  qid t = getTmpSym("bool");
-                                 int k = emit(pair<string, Entry*>("EQ_OP", lookup("\=\=")),pair<string, Entry*>("", NULL), $2->place, t, -1);
-                                 int k1 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), t, pair<string, Entry*>("", NULL ),0);
-                                 int k2 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+                                 int k = emit(pair<string, Entry*>("EQ_OP", NULL),pair<string, Entry*>("", NULL), $2->place, t, -1);
+                                 int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), t, pair<string, Entry*>("", NULL ),0);
+                                 int k2 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
                                  $$->caselist.push_back(k);
                                  $$->truelist.push_back(k1);
                                  $$->falselist.push_back(k2);
@@ -1726,8 +1742,8 @@ expression_statement
 M4
   :  IF '(' expression ')' {
                         if($3->truelist.begin()==$3->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $3->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $3->place, pair<string, Entry*>("", NULL ),0);
+                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
                             $3->truelist.push_back(k);
                             $3->falselist.push_back(k1);
 
@@ -1739,7 +1755,7 @@ M4
 GOTO_emit
    : %empty {
 
-                           $$ = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+                           $$ = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
    }
    ;
 
@@ -1787,8 +1803,8 @@ selection_statement
 M6
   :   expression  {
                         if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
                             $1->truelist.push_back(k);
                             $1->falselist.push_back(k1);
 
@@ -1801,8 +1817,8 @@ M6
 M7
   :   expression_statement  {
                         if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("IF", lookup("if")), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
                             $1->truelist.push_back(k);
                             $1->falselist.push_back(k1);
 
@@ -1870,35 +1886,37 @@ iteration_statement
 jump_statement
 	: GOTO IDENTIFIER ';' {$$ = non_term_symb("jump_statement", NULL, term_symb("GOTO"), term_symb($2));
 	//-----------3AC---------------------//
-    int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+    int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
     gotoIndexPatchListStorage($2, k);
 	//-----------------------------------//
 	}
 	| CONTINUE ';' {
 		$$ = term_symb("continue");
 		//-----------3AC---------------------//
-        int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+        int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
         $$->continuelist.push_back(k);
         //-----------------------------------//
 	}
 	| BREAK ';' {
 		$$ = term_symb("break");
 		//-----------3AC---------------------//
-        int k = emit(pair<string, Entry*>("GOTO", lookup("goto")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+        int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
         $$->breaklist.push_back(k);
         //-----------------------------------//
 	}
 	| RETURN ';' {
 		$$ = term_symb("return");
 		//------------3AC----------------//
-		emit(pair<string, Entry*>("RETURN", lookup("return")),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),-1);
+		emit(pair<string, Entry*>("RETURN", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),-1);
         //------------------------------//
 	}
 	| RETURN expression ';' {
 		$$ = non_term_symb("jump_statement", NULL, term_symb("return"), $2);
+		cout<<"in jump";
 		//------------3AC----------------//
-		emit(pair<string, Entry*>("RETURN", lookup("return")), $2->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),-1);
+		emit(pair<string, Entry*>("RETURN", NULL), $2->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),-1);
         //------------------------------//
+		cout<<"exit jump\n";
 	}
 	;
 
