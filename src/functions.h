@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <vector>
+#include <list>
 #include "IR_3ac.h"
 
 using namespace std;
@@ -23,12 +23,12 @@ struct node{
   string node_type;
   ///////////////////////////
   qid place;
-  vector<int> truelist;
-  vector<int> nextlist;
-  vector<int> falselist;
-  vector<int> breaklist;
-  vector<int> continuelist;
-  vector<int> caselist;
+  list<int> truelist;
+  list<int> nextlist;
+  list<int> falselist;
+  list<int> breaklist;
+  list<int> continuelist;
+  list<int> caselist;
   ///////////////////////////
 };
 
@@ -59,7 +59,7 @@ typedef struct{
 
 
 unsigned long find_id();
-void merging(vector<int> l1, vector<int>l2);
+//void merging(vector<int> l1, vector<int>l2);
 struct node *square(char *str, struct node *node);
 struct node *parentheses(char *str, struct node *node);
 struct node *term_symb(char *str);
@@ -69,3 +69,4 @@ struct node *non_term_symb_2(char *str,struct node *left,struct node *m, struct 
 struct node *non_term_symb_3(char *str,char *root1,char *root3, struct node *left,char *root2);
 struct node *non_term_symb_4(char *str,struct node *node1,struct node *node2, struct node *node3, struct node*node4,char* root);
 struct node *non_term_symb_5(char *str,struct node *node1,struct node *node2, struct node *node3, struct node*node4,struct node *node5);
+
