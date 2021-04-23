@@ -963,8 +963,8 @@ logical_and_expression
                         		}
                            		backPatch($1->truelist,$3);
                            		$$->truelist = $4->truelist;
-                           		//$1->falselist.merge($4->falselist);
-								   merging($1->falselist, $4->falselist);
+                           		$1->falselist.merge($4->falselist);
+								//merging($1->falselist, $4->falselist);
                            		$$->falselist = $1->falselist;
                            		$$->nextlist ={};
                        			//====================================//
@@ -1006,8 +1006,8 @@ logical_or_expression
                         		}
                          		backPatch($1->falselist, $3);
                          		$$->falselist = $4->falselist;
-                         		//$1->truelist.merge($4->truelist);
-								 merging($1->truelist, $4->truelist);
+                         		$1->truelist.merge($4->truelist);
+								// merging($1->truelist, $4->truelist);
                          		$$->truelist = $1->truelist;
                          		$$->nextlist = {};
                         		//====================================//
@@ -1632,8 +1632,8 @@ labeled_statement
 		$$ = non_term_symb_2("labeled_statement", term_symb("CASE"), $1, $3);
 		//-----------3AC--------------------//
         backPatch($1->truelist, $2);
-        //$3->nextlist.merge($1->falselist);
-		merging($3->nextlist, $1->falselist);
+        $3->nextlist.merge($1->falselist);
+		//merging($3->nextlist, $1->falselist);
         $$->breaklist = $3->breaklist;
         $$->nextlist = $3->nextlist;
         $$->caselist = $1->caselist;
@@ -1704,13 +1704,13 @@ statement_list
 								//---------------3AC--------------------//
                                          backPatch($1->nextlist, $2);
                                          $$->nextlist = $3->nextlist;
-                                         //$1->caselist.merge($3->caselist);
-										 merging($1->caselist, $3->caselist);
+                                         $1->caselist.merge($3->caselist);
+										 //merging($1->caselist, $3->caselist);
                                          $$->caselist = $1->caselist;
-                                         //$1->continuelist.merge($3->continuelist);
-										 merging($1->continuelist, $3->continuelist);
-                                         //$1->breaklist.merge($3->breaklist);
-										 merging($1->breaklist, $3->breaklist);
+                                         $1->continuelist.merge($3->continuelist);
+										 //merging($1->continuelist, $3->continuelist);
+                                         $1->breaklist.merge($3->breaklist);
+										 //merging($1->breaklist, $3->breaklist);
                                          $$->continuelist = $1->continuelist;
                                          $$->breaklist = $1->breaklist;
                                       //----------------------------------------//
@@ -1749,14 +1749,14 @@ selection_statement
         backPatch($1->truelist, $2);
         backPatch($1->falselist, $6);
         $3->nextlist.push_back($4);
-        //$3->nextlist.merge($7->nextlist);
-		merging($3->nextlist, $7->nextlist);
+        $3->nextlist.merge($7->nextlist);
+		//merging($3->nextlist, $7->nextlist);
         $$->nextlist=$3->nextlist;
-        //$3->breaklist.merge($7->breaklist);
-		merging($3->breaklist, $7->breaklist);
+        $3->breaklist.merge($7->breaklist);
+		//merging($3->breaklist, $7->breaklist);
         $$->breaklist = $3->breaklist;
-        //$3->continuelist.merge($7->continuelist);
-		merging($3->continuelist, $7->continuelist);
+        $3->continuelist.merge($7->continuelist);
+		//merging($3->continuelist, $7->continuelist);
         $$->continuelist = $3->continuelist;
         //-----------------------------------//
 	}
@@ -1764,8 +1764,8 @@ selection_statement
 		$$ = non_term_symb_2("IF (expr) stmt", NULL, $1, $3);
 		//---------------3AC-------------------//
         backPatch($1->truelist, $2);
-        //$3->nextlist.merge($1->falselist);
-		merging($3->nextlist, $1->falselist);
+        $3->nextlist.merge($1->falselist);
+		//merging($3->nextlist, $1->falselist);
         $$->nextlist= $3->nextlist;
         $$->continuelist = $3->continuelist;
         $$->breaklist = $3->breaklist;
@@ -1775,8 +1775,8 @@ selection_statement
 		$$ = non_term_symb_2("SWITCH (expr) stmt", NULL, $3, $5);
 		//--------------3AC---------------------------//
         setListId1($5->caselist, $3->place);
-        //$5->nextlist.merge($5->breaklist);
-		merging($5->nextlist, $5->breaklist);
+        $5->nextlist.merge($5->breaklist);
+		//merging($5->nextlist, $5->breaklist);
         $$->nextlist= $5->nextlist;
         $$->continuelist= $5->continuelist;
         //---------------------------------------------//
@@ -1819,8 +1819,8 @@ iteration_statement
         backPatch($7->continuelist, $3);
         backPatch($7->nextlist, $3);
         $$->nextlist = $4->falselist;
-        //$$->nextlist.merge($7->breaklist);
-		merging($$->nextlist, $7->breaklist);
+        $$->nextlist.merge($7->breaklist);
+		//merging($$->nextlist, $7->breaklist);
         //--------------------------------//
 	}
 	| DO M statement  WHILE '(' M M6 ')' ';'{
@@ -1829,8 +1829,8 @@ iteration_statement
         backPatch($7->truelist, $2);
         backPatch($3->continuelist, $6);
         backPatch($3->nextlist, $6);
-        //$7->falselist.merge($3->breaklist);
-		merging($7->falselist, $3->breaklist);
+        $7->falselist.merge($3->breaklist);
+		//merging($7->falselist, $3->breaklist);
         $$->nextlist = $7->falselist;
         //-----------------------------------//
 	}
@@ -1839,11 +1839,11 @@ iteration_statement
 		//-------------3AC-------------------//
         backPatch($3->nextlist, $4);
         backPatch($5->truelist, $7);
-        //$5->falselist.merge($8->breaklist);
-		merging($5->falselist, $8->breaklist);
+        $5->falselist.merge($8->breaklist);
+		//merging($5->falselist, $8->breaklist);
         $$->nextlist = $5->falselist;
-        //$8->nextlist.merge($8->continuelist);
-		merging($8->nextlist, $8->continuelist);
+        $8->nextlist.merge($8->continuelist);
+		//merging($8->nextlist, $8->continuelist);
         $8->nextlist.push_back($9);
         backPatch($8->nextlist, $4 );
         //------------------------------------//
@@ -1853,11 +1853,11 @@ iteration_statement
 		//-------------3AC-------------------//
         backPatch($3->nextlist, $4);
         backPatch($5->truelist, $10);
-        //$5->falselist.merge($11->breaklist);
-		merging($5->falselist, $11->breaklist);
+        $5->falselist.merge($11->breaklist);
+		//merging($5->falselist, $11->breaklist);
         $$->nextlist = $5->falselist;
-        //$11->nextlist.merge($11->continuelist);
-		merging($11->nextlist, $11->continuelist);
+        $11->nextlist.merge($11->continuelist);
+		//merging($11->nextlist, $11->continuelist);
         $11->nextlist.push_back($12);
         backPatch($11->nextlist, $6 );
         $7->nextlist.push_back($8);

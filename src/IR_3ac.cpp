@@ -8,7 +8,7 @@ map<int , string> Labels;
 ofstream IRcodeFile;
 long long Index = -1;
 map<string, int> gotoIndex;
-unordered_map<string, vector<int>> gotoIndexPatchList;
+unordered_map<string, list<int>> gotoIndexPatchList;
 
 vector <quad> emittedCode;
 
@@ -48,17 +48,19 @@ int getNextIndex(){
 }
 
 //backpatch
-void backPatch(vector<int> li, int p){
-  for(int i=0; i<li.size(); ++i){
+void backPatch(list<int> li, int p){
+    std::list<int>::iterator it = li.begin();
+    for(int i=0; i<li.size(); ++i){
     // unsigned N = i;
     // if (li.size() > N)
     // {
-    //   std::vector<int>::iterator it = li.begin();
+    //   std::list<int>::iterator it = li.begin();
     //   std::advance(it, N);
     //   emittedCode[*it].stmtNum = p;
     // }
-    emittedCode[li[i]].stmtNum = p;
-}
+        emittedCode[*it].stmtNum = p;
+        advance(it, 1);
+    }
 return;
 }
 
@@ -75,16 +77,18 @@ void setId1(int a, qid p){
 }
 
 //goto for whole list
-void setListId1(vector<int> li, qid p){
-  for(int i=0; i<li.size(); ++i){
+void setListId1(list<int> li, qid p){
+    std::list<int>::iterator it = li.begin();
+    for(int i=0; i<li.size(); ++i){
 //     unsigned N = i;
 //     if (li.size() > N)
 //     {
-//       std::vector<int>::iterator it = li.begin();
+//       std::list<int>::iterator it = li.begin();
 //       std::advance(it, N);
 //       setId1(*it, p);
 //   }
-    setId1(li[i], p);
+        setId1(*it, p);
+        advance(it, 1);
     }
 	return;
 }
