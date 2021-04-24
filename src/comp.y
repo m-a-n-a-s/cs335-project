@@ -100,10 +100,10 @@ primary_expression
 								$$->node_key = key;
 								$$->expr_type = 3;
 								// ****3AC****
-								cout << "1" << endl;
+								// cout << "1" << endl;
 								$$->place.first = key;
 								$$->place.second = lookup(key);
-                                $$->nextlist={};
+                                 
 								// ****3AC****
 							}else{
 								yyerror("Error : %s not declared",$1);
@@ -135,7 +135,7 @@ primary_expression
 							//cout << "1" << endl;
 							$$->place.first = $1->str;
 							$$->place.second = NULL;
-                            $$->nextlist={};
+                             
 							
 							// ****3AC****
 
@@ -149,7 +149,7 @@ primary_expression
 							// ****3AC****
 							$$->place.first = $1;
 							$$->place.second = NULL;
-                            $$->nextlist={};
+                             
 
 							// ****3AC****
 
@@ -175,7 +175,6 @@ postfix_expression
                                 // $$->place.second->size = $3->place.second->offset;
                                 // $$->place.second->offset = $1->place.second->offset;
                                 // $$->place.second->init_flag = -5;
-                                $$->nextlist = {};
                                 //backPatch($3->truelist, k);
                                 //backPatch($3->falselist, k);
 
@@ -201,7 +200,7 @@ postfix_expression
                          			qid t = getTmpSym($$->node_type);
 									int k=emit(pair<string, Entry*>("refParam", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), t, -1);
 									int k1=emit(pair<string, Entry*>("CALL", NULL), $1->place, pair<string, Entry*>("1", NULL), t, -1);
-									$$->nextlist ={};
+									 
 									$$->place = t;
 									//-------------------------3AC---------------------------------------//
 
@@ -264,7 +263,7 @@ postfix_expression
                   					emit(pair<string, Entry*>("refParam", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), t, -1);
                   					int k=emit(pair<string, Entry*>("CALL", NULL), $1->place, pair<string, Entry*>(to_string(carg), NULL), t, -1);
                   					$$->place = t;
-                  					$$->nextlist ={};
+                  					 
                   					//----------------------------3AC-----------------------------------------//	
 								}
 
@@ -316,7 +315,6 @@ postfix_expression
                   									qid t1 = getTmpSym($$->node_type);
                   									int k=  emit(pair<string, Entry*>("++S", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
                   									$$->place = t1;
-                  									$$->nextlist = {};
                   									//-----------------3AC-----------------//
 
 												}else {
@@ -336,7 +334,7 @@ postfix_expression
                   									qid t1 = getTmpSym($$->node_type);
                   									int k=emit(pair<string, Entry*>("--S", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
                   									$$->place = t1;
-                  									$$->nextlist={};
+                  									 
                   									//--------------3AC-------------//
 													  
 												}else {
@@ -352,7 +350,7 @@ argument_expression_list
                 											  int k=emit(pair<string, Entry*>("param", NULL), $$->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -4);
                 											}
                 											else int k=emit(pair<string, Entry*>("param", NULL), $$->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -1);
-                											$$->nextlist={};
+                											 
                 											//---------------3AC------------//
 															}
 	| argument_expression_list ',' assignment_expression	{$$ = non_term_symb($2,NULL,$1, $3);
@@ -366,7 +364,7 @@ argument_expression_list
              					     int k=emit(pair<string, Entry*>("param", NULL), $3->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -4);
              					}
              					else int k=emit(pair<string, Entry*>("param", NULL), $3->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -1);
-             					$$->nextlist={};
+             					 
              					//------3AC--------------//
 								}
 	;
@@ -384,7 +382,6 @@ unary_expression
                   				qid t1 = getTmpSym($$->node_type);
                   				int k = emit(pair<string, Entry*>("++P", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   				$$->place = t1;
-                  				$$->nextlist = {};
               					//    $$->code =  $2->code + '\n' +\
                 				//         $$->node_key + string("= ") + "INC_OP" + string(" ") + $2->node_key;
                   				//====================================//
@@ -404,7 +401,7 @@ unary_expression
                   				qid t1 = getTmpSym($$->node_type);
                   				int k = emit(pair<string, Entry*>("--P", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   				$$->place = t1;
-                  				$$->nextlist={};
+                  				 
 
                   				//====================================//
 							}
@@ -423,7 +420,7 @@ unary_expression
                   			qid t1 = getTmpSym($$->node_type);
                   			int k = emit($1->place, $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   			$$->place = t1;
-                  			$$->nextlist={};
+                  			 
 
                   			//====================================//
 						}
@@ -436,7 +433,7 @@ unary_expression
                   						qid t1 = getTmpSym($$->node_type);
                   						int k = emit(pair<string, Entry*>("SIZEOF", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   						$$->place = t1;
-                  						$$->nextlist={};
+                  						 
 
                 						//====================================//
 										}
@@ -445,7 +442,7 @@ unary_expression
                 						  qid t1 = getTmpSym($$->node_type);
                 						  int k = emit(pair<string, Entry*>("SIZEOF", NULL), $3->place, pair<string, Entry*>("", NULL), t1, -1);
                 						  $$->place = t1;
-                						  $$->nextlist={};
+                						   
 
                 						//====================================//
 										}
@@ -493,7 +490,7 @@ cast_expression
                         qid t1 = getTmpSym($$->node_type);
                         string t = $4->node_type+ "to" + $$->node_type ;
                         int k = emit(pair<string, Entry*>(t, NULL), $4->place, pair<string, Entry*>(",", NULL), t1, -1);
-                        $$->nextlist={};
+                         
                         $$->place = t1;
 
                         //====================================//
@@ -515,7 +512,7 @@ multiplicative_expression
                   	qid t1 = getTmpSym($$->node_type);
                   	k=emit(pair<string, Entry*>("*int", NULL), $1->place, $3->place, t1, -1);
                   	$$->place = t1;
-                  	$$->nextlist={};
+                  	 
                 	//--------------3AC--------------------//
 				}
 				else if (strcmp(a, "float")==0){
@@ -539,7 +536,7 @@ multiplicative_expression
                   	      k=emit(pair<string, Entry*>("*real", NULL), $1->place, $3->place, t1, -1);
                   	}
                   	$$->place = t1;
-                  	$$->nextlist={};
+                  	 
                 	//------------3AC-----------------------------//
 				}
 			}
@@ -561,7 +558,6 @@ multiplicative_expression
                   												qid t1 = getTmpSym($$->node_type);
                   												k = emit(pair<string, Entry*>("/int", NULL), $1->place, $3->place, t1, -1);
                   												$$->place = t1;
-                  												$$->nextlist= {};
                   												//--------------3AC------------------------//
 															}
 															else if (!strcmp(a,"float")){
@@ -584,7 +580,7 @@ multiplicative_expression
                   												      k=emit(pair<string, Entry*>("/real", NULL), $1->place, $3->place, t1, -1);
                   												}
                   												$$->place =t1;
-                  												$$->nextlist={};
+                  												 
                   												//-------------------------------------------//
 															}
 														}
@@ -603,7 +599,7 @@ multiplicative_expression
 								//===========3AC======================//
                   				qid t1 = getTmpSym($$->node_type);
                   				int k =emit(pair<string, Entry*>("%", NULL), $1->place, $3->place, t1, -1);
-                  				$$->nextlist={};
+                  				 
                   				$$->place = t1;
 
                   				//====================================//
@@ -649,7 +645,6 @@ additive_expression
                    					     emit(pair<string, Entry*>(p, NULL), $1->place, $3->place, t1, -1);
                    					}
                    					$$->place = t1;
-                  					$$->nextlist = {};
                   					//====================================//
 								}
 								else {
@@ -689,7 +684,6 @@ additive_expression
                    					     emit(pair<string, Entry*>(p, NULL), $1->place, $3->place, t1, -1);
                    					}
                    					$$->place = t1;
-                   					$$->nextlist = {};
                   					//====================================//
 								}
 								else {
@@ -709,7 +703,7 @@ shift_expression
                           		qid t1 = getTmpSym($$->node_type);
                           		int k = emit(pair<string, Entry*>("LEFT_OP", NULL), $1->place, $3->place, t1, -1);
                           		$$->place = t1;
-                          		$$->nextlist={};
+                          		 
                         		//====================================//
 							}
 							else yyerror("Error : Invalid operands to <<");
@@ -725,7 +719,7 @@ shift_expression
                                  							qid t1 = getTmpSym($$->node_type);
                                  							int k = emit(pair<string, Entry*>("RIGHT_OP", NULL), $1->place, $3->place, t1, -1);
                                  							$$->place = t1;
-                                 							$$->nextlist={};
+                                 							 
                                 							//====================================//	
 														}
 														else{yyerror("Error : Invalid operands to >>");}
@@ -748,7 +742,7 @@ relational_expression
                         		qid t1 = getTmpSym($$->node_type);
                         		int k =  emit(pair<string, Entry*>("<", NULL), $1->place, $3->place, t1, -1);
                         		$$->place = t1;
-                        		$$->nextlist={};
+                        		 
                        			//====================================//
 							}	
 							else {
@@ -769,7 +763,6 @@ relational_expression
                            		qid t1 = getTmpSym($$->node_type);
                            		int k = emit(pair<string, Entry*>(">", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
-                           		$$->nextlist = {};
                        			//====================================//
 							}else {
 								yyerror("Error : invalid operands to >");
@@ -789,7 +782,6 @@ relational_expression
                           	 	qid t1 = getTmpSym($$->node_type);
                           		int k= emit(pair<string, Entry*>("LE_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
-                           		$$->nextlist = {};
                        			//====================================//
 							}else {
 								yyerror("Error : invalid operands to <=");
@@ -809,7 +801,7 @@ relational_expression
                            		qid t1 = getTmpSym($$->node_type);
                            		int k = emit(pair<string, Entry*>("GE_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
-                           		$$->nextlist ={};
+                           		 
                        			//====================================//	
 							}else {
 								yyerror("Error : invalid operands to >=");
@@ -830,7 +822,6 @@ equality_expression
                            		qid t1 = getTmpSym($$->node_type);
                            		int k = emit(pair<string, Entry*>("EQ_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
-                           		$$->nextlist = {};
                        			//====================================//
 						    }
 						   else{ yyerror("Error :Invalid operands to =="); }
@@ -847,7 +838,7 @@ equality_expression
                            		qid t1 = getTmpSym($$->node_type);
                            		int k = emit(pair<string, Entry*>("NE_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
-                           		$$->nextlist ={};
+                           		 
                        			//====================================//
 						    }
 						   else{ yyerror("Error :Invalid operands to !="); }
@@ -867,7 +858,7 @@ and_expression
                   qid t1 = getTmpSym($$->node_type);
                   int k= emit(pair<string, Entry*>("&", NULL), $1->place, $3->place, t1, -1);
                   $$->place = t1;
-                  $$->nextlist={};
+                   
                   //====================================//	
 				  
                }
@@ -890,7 +881,7 @@ exclusive_or_expression
                   qid t1 = getTmpSym($$->node_type);
                   int k = emit(pair<string, Entry*>("^", NULL), $1->place, $3->place, t1, -1);
                   $$->place = t1;
-                  $$->nextlist={};
+                   
                   //====================================//
                }
                else {
@@ -912,7 +903,7 @@ inclusive_or_expression
                            			qid t1 = getTmpSym($$->node_type);
                            			int k =  emit(pair<string, Entry*>("|", NULL), $1->place, $3->place, t1, -1);
                            			$$->place = t1;
-                           			$$->nextlist={};
+                           			 
                        				//====================================//
 						
 								}
@@ -938,7 +929,7 @@ inclusive_or_expression
 //  ;
 
 M
- : %empty {
+ : /* empty */ {
            $$ = getNextIndex();
  }
  ;
@@ -966,7 +957,7 @@ logical_and_expression
                            		//$1->falselist.merge($4->falselist);
 								   merging($1->falselist, $4->falselist);
                            		$$->falselist = $1->falselist;
-                           		$$->nextlist ={};
+                           		 
                        			//====================================//
 								if($1->init_flag==1 && $4->init_flag==1) $$->init_flag=1;
 								}
@@ -1009,7 +1000,6 @@ logical_or_expression
                          		//$1->truelist.merge($4->truelist);
 								 merging($1->truelist, $4->truelist);
                          		$$->truelist = $1->truelist;
-                         		$$->nextlist = {};
                         		//====================================//
 								}
 	;
@@ -1028,7 +1018,7 @@ M3
   ;
 
 N
- : %empty {
+ : /* empty */ {
                 emit(pair<string, Entry*>("=", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -1);
                 $$ = emit(pair<string, Entry*>("GOTO", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), 0);
  }
@@ -1269,7 +1259,7 @@ struct_or_union_specifier
 	;
 
 E4
-  : %empty {
+  : /* empty */ {
            make_struct_table();
   };
 
@@ -1473,7 +1463,7 @@ direct_declarator
 							}
 	;
 E3
-   :%empty                  {   type_name ="";
+   :/* empty */                  {   type_name ="";
                           funcArguments = "";
                            paramTable();  }
     ;
@@ -1736,7 +1726,7 @@ M4
   ;
 
 GOTO_emit
-   : %empty {
+   : /* empty */ {
 
                            $$ = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
    }
@@ -1972,7 +1962,7 @@ function_definition
 	;
 
 E2
-    : %empty                 { type_name="";scope = S_FUNC;
+    : /* empty */                 { type_name="";scope = S_FUNC;
                                          func_flag = 1;
                                          func_symb++;
                                          file_name = func_name;//string("symTableFunc")+to_string(func_symb);
@@ -1983,7 +1973,7 @@ E2
        }
     ;
 
-X1 : %empty {
+X1 : /* empty */ {
 		type_name="spec_less_func";
 	}
 	;

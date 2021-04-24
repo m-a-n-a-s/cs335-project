@@ -19,7 +19,8 @@ void merging(vector<int> l1, vector<int>l2){
 }
 
 struct node *square(char *str, struct node *node1) {
-  struct node* head = (struct node*) malloc(sizeof(struct node));
+  struct node* head = new node;
+  //struct node* head = (struct node*) malloc(sizeof(struct node));
   ul size1 = strlen(str);
   head->token = (char*)malloc(size1 + 1);
   strcpy(head->token, str);
@@ -35,7 +36,8 @@ struct node *square(char *str, struct node *node1) {
 }
 
 struct node *parentheses(char *str, struct node *node1) {
-  struct node* head = (struct node*) malloc(sizeof(struct node));
+  struct node* head = new node;
+  //struct node* head = (struct node*) malloc(sizeof(struct node));
   ul size1 = strlen(str);
   head->token = (char*)malloc(size1 + 1);
   strcpy(head->token, str);
@@ -51,7 +53,8 @@ struct node *parentheses(char *str, struct node *node1) {
 }
 
 struct node *term_symb(char *str) {
-  struct node* head = (struct node*) malloc(sizeof(struct node));
+  struct node* head = new node;
+  //struct node* head = (struct node*) malloc(sizeof(struct node));
   // puts(str);
   ul size1 = strlen(str);
   head->token = (char*)malloc(2*size1 + 1);
@@ -82,7 +85,8 @@ struct node *term_symb(char *str) {
 }
 
 struct node *non_term_symb(char* str, char *root, struct node *left, struct node *right) {
-  struct node *head = (struct node*) malloc(sizeof(struct node));
+  struct node* head = new node;
+  //struct node *head = (struct node*) malloc(sizeof(struct node));
   ul size1 = strlen(str);
   head->token = (char*)malloc(size1 + 1);
   strcpy(head->token, str);
@@ -99,7 +103,8 @@ struct node *non_term_symb(char* str, char *root, struct node *left, struct node
   // return NULL;
 }
 struct node *non_term_symb_1(char *str,char *root1, struct node *left ,char *root2) {
-  struct node *head = (struct node*) malloc(sizeof(struct node));
+  struct node* head = new node;
+  //struct node *head = (struct node*) malloc(sizeof(struct node));
   ul size1 = strlen(str);
   head->token = (char*)malloc(size1 + 1);
   strcpy(head->token, str);
@@ -117,7 +122,8 @@ struct node *non_term_symb_1(char *str,char *root1, struct node *left ,char *roo
   // return NULL;
 }
 struct node *non_term_symb_3(char *str,char *root1,char *root3, struct node *left,char *root2) {
-  struct node *head = (struct node*) malloc(sizeof(struct node));
+  struct node* head = new node;
+  //struct node *head = (struct node*) malloc(sizeof(struct node));
   ul size1 = strlen(str);
   head->token = (char*)malloc(size1 + 1);
   strcpy(head->token, str);
@@ -138,7 +144,8 @@ struct node *non_term_symb_3(char *str,char *root1,char *root3, struct node *lef
   // return NULL;
 }
 struct node *non_term_symb_2(char *str,struct node *left ,struct node *mid, struct node *right) {
-  struct node* head = (struct node*) malloc(sizeof(struct node));
+  struct node* head = new node;
+  //struct node* head = (struct node*) malloc(sizeof(struct node));
   ul size1 = strlen(str);
   head->token = (char*)malloc(size1 + 1);
   strcpy(head->token, str);
@@ -153,7 +160,8 @@ struct node *non_term_symb_2(char *str,struct node *left ,struct node *mid, stru
 }
 
 struct node *non_term_symb_4(char *str,struct node *node1,struct node *node2, struct node *node3, struct node *node4, char* root) {
-  struct node* head = (struct node*) malloc(sizeof(struct node));
+  struct node* head = new node;
+  //struct node* head = (struct node*) malloc(sizeof(struct node));
   ul size1 = strlen(str);
   head->token = (char*)malloc(size1 + 1);
   strcpy(head->token, str);
@@ -172,7 +180,8 @@ struct node *non_term_symb_4(char *str,struct node *node1,struct node *node2, st
 }
 
 struct node *non_term_symb_5(char *str,struct node *node1,struct node *node2, struct node *node3, struct node *node4, struct node* node5) {
-  struct node* head = (struct node*) malloc(sizeof(struct node));
+  struct node* head = new node;
+  //struct node* head = (struct node*) malloc(sizeof(struct node));
   ul size1 = strlen(str);
   head->token = (char*)malloc(size1 + 1);
   strcpy(head->token, str);
