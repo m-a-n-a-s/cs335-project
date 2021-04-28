@@ -100,7 +100,7 @@ primary_expression
 								$$->node_key = key;
 								$$->expr_type = 3;
 								// ****3AC****
-								cout << "1" << endl;
+								
 								$$->place.first = key;
 								$$->place.second = lookup(key);
                                 $$->nextlist={};
@@ -142,7 +142,7 @@ primary_expression
 							//TO ADD SOME THING REMEBBER************************
 							} 
 	| STRING_LITERAL		{$$ = term_symb($1);
-							string stmp("char *");
+							string stmp("char*");
 							$$->init_flag=1;
 							$$->node_type=stmp;
 
@@ -1743,12 +1743,12 @@ GOTO_emit
    ;
 
 selection_statement
-	: M4 M statement GOTO_emit ELSE M statement {
+	: M4 M statement ELSE GOTO_emit M statement {
 		$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $1, $3, $7);
 		//----------3AC---------------------//
         backPatch($1->truelist, $2);
         backPatch($1->falselist, $6);
-        $3->nextlist.push_back($4);
+        $3->nextlist.push_back($5);
         //$3->nextlist.merge($7->nextlist);
 		merging($3->nextlist, $7->nextlist);
         $$->nextlist=$3->nextlist;
