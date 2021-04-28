@@ -131,7 +131,9 @@ void insert_symbol(symbol_table& table,string key,string type,ull size,ll offset
 }
 
 void fprintStruct(Entry *a, FILE* file){
+   //cout<<"p1\n"<<a->type<<"323\n";
    fprintf(file, "%s,%lld, %lld, %d\n",a->type.c_str(),a->size, a->offset,a->init_flag);
+   //printf("%s,%lld, %lld, %d\n",a->type.c_str(),a->size, a->offset,a->init_flag);
    
 
 }
@@ -252,13 +254,17 @@ void print_func_args(){
      fclose(file);
 }
 void print_tables(symbol_table* a, string filename) {
+  
   FILE* file = fopen(filename.c_str(), "w");
   fprintf( file,"Key,Type,Size,Offset,is_Initialized\n");
 
-
+   
   for(auto it: *a ){
     fprintf( file,"%s,", it.first.c_str());
     fprintStruct(it.second, file);
+     // Entry* a=it.second;
+     //printf("%s,%lld, %lld, %d\n",a->type.c_str(),a->size, a->offset,a->init_flag);
   }
+  
   fclose(file);
 }

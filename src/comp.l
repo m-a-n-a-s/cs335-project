@@ -1,5 +1,6 @@
 %{
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdarg.h>
 #include <iostream>
 #include "functions.h"
@@ -51,7 +52,7 @@ IS			(u|U|l|L)*
 "int"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"INT"); return INT; }
 "long"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"LONG"); return LONG; }
 "register"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"REGISTER"); return REGISTER; }
-"return"		{ cout<<"return\n";count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"RETURN"); return RETURN; }
+"return"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"RETURN"); return RETURN; }
 "short"			{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"SHORT"); return SHORT; }
 "signed"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"SIGNED"); return SIGNED; }
 "sizeof"		{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"SIZEOF"); return SIZEOF; }
@@ -73,7 +74,7 @@ IS			(u|U|l|L)*
 L?'(\\.|[^\\'])+'	{ count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"CONSTANT");int_extract();return CONSTANT; }
 
 {D}+{E}{FS}?		{sscanf(yytext,"%Lf",&yylval.num->real_value); count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
-{D}*"."{D}+({E})?{FS}?	{ sscanf(yytext,"%Lf",&yylval.num->real_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
+{D}*"."{D}+({E})?{FS}?	{sscanf(yytext,"%Lf",&yylval.num->real_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
 {D}+"."{D}*({E})?{FS}?	{ sscanf(yytext,"%Lf",&yylval.num->real_value);count(); yylval.num->str = strdup(yytext); strcpy(lexeme,yytext);strcpy(token,"CONSTANT"); real_extract();return CONSTANT; }
 
 L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); strcpy(lexeme,yytext); strcpy(token,"STRING_LITERAL"); return STRING_LITERAL; }
@@ -154,16 +155,23 @@ void int_extract(){
 
 }
 void real_extract(){
+        
+        // yylval.num->str = strdup(yytext);
+        //strcpy(yylval.num->str,yytext);
    int n=yyleng-1;
    yylval.num->is_integer=0;
    //cout<<yylval.num->str<<"\n";
    //cout<<"rael vlaue:"<<yylval.num->real_value<<" "<<yylval.num->str<<"\n";
-    if(yytext[n]=='f'||yytext[n]=='F')
-            yylval.num->num_type = N_FLOAT;
-    else if (yytext[n]=='l'||yytext[n] == 'L')
-            yylval.num->num_type = N_LONGDOUBLE;
-    else
-            yylval.num->num_type =N_DOUBLE;
+    if(yytext[n]=='f'||yytext[n]=='F'){
+            //cout<<"1h\n";
+            yylval.num->num_type = N_FLOAT;}
+    else if (yytext[n]=='l'||yytext[n] == 'L'){
+            //cout<<"2h\n";
+            yylval.num->num_type = N_LONGDOUBLE;}
+    else {
+           //cout<<"3h\n";
+            yylval.num->num_type =N_DOUBLE;}
+        //cout<<"finfis\n";
 
 }
 void count(){

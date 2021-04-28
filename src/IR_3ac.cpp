@@ -31,10 +31,10 @@ string getTmpVar(){
 //get temporary symbol
 pair<string, Entry*> getTmpSym(string type){
     string temp = getTmpVar();
-//  char *cstr = new char[type.length() + 1];
-//  strcpy(cstr, type.c_str());
+    char *cstr = new char[type.length() + 1];
+    strcpy(cstr, type.c_str());
 //  char* test = &type[0];
-    insert_symbol(*curr, temp, type, get_size(&type[0]),0, 1);
+    insert_symbol(*curr, temp, type, get_size(cstr),0, 1);
     return pair <string, Entry* >(temp, lookup(temp));
 }
 
@@ -58,7 +58,7 @@ int getNextIndex(){
 
 //backpatch
 void backPatch(list<int> li, int p){
-    cout<<"in\n";
+    //cout<<"in\n";
     std::list<int>::iterator it = li.begin();
     for(int i=0; i<li.size(); ++i){
         unsigned N = i;

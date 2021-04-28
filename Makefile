@@ -11,7 +11,7 @@
 
 # clean:
 # 	rm -r bin
-CC=g++ -w
+CC=g++ -ggdb3 -std=c++17 -w 
 BIN=./bin
 SOURCE=./src
 INPUT=./test

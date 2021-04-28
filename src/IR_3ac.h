@@ -1,12 +1,22 @@
+// #include <iostream>
+// #include <string>
+// #include <cstring>
+// #include <list>
+// #include <vector>
+// #include <map>
+// #include <iomanip>
+// #include "symbolTable.h"
+// #include <utility>
+
 #include <iostream>
 #include <string>
 #include <cstring>
-#include <list>
 #include <vector>
+#include <list>
 #include <map>
 #include <iomanip>
 #include "symbolTable.h"
-#include <utility>
+
 using namespace std;
 
 typedef pair <string, Entry*> qid;
