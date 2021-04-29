@@ -319,6 +319,7 @@ void display(quad q, int i)
         IRcodeFile << setw(5) << "[" << i << "]"
                    << ": " << setw(15) << q.op.first << " " << setw(15) << q.id1.first << " " << setw(15) << q.id2.first << " " << setw(15) << q.res.first << '\n';
     }
+    break;
     default:
     {
         while (emittedCode[k].op.first == "GOTO" && emittedCode[k].id1.first == "")
