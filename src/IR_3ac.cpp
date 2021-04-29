@@ -3,15 +3,15 @@
 
 #include <fstream>
 using namespace std;
-using std::setw;
 
 long long pos = -1;
 vector<quad> emit_list;
-map<int, string> label_map;
-map<string, int> goto_map;
+
+unordered_map<int, string> label_map;
+unordered_map<string, int> goto_map;
 unordered_map<string, vector<int>> backpatch_list;
 
-ofstream IRcodeFile;
+ofstream IR_file;
 
 //set the values inside struct
 quad set_values_quad(pair <string, Entry*> operand_1, pair <string, Entry*> operand_2, pair <string, Entry*> op, pair <string, Entry*> ans, int line_no){  
@@ -48,113 +48,128 @@ pair<string, Entry *> newlabel_sym(string type){
     return new_temp_sym;
 }
 
-int assignmentExpression(char* o, string type, string type1, string type3, pair <string, Entry*> place1, pair <string, Entry*> place3){
-    pair <string, Entry*> t = place3;
-    pair <string, Entry*> t2;
-    string o_new(o);
-    string op;
-    string op1;
-    int a = 0;
-    int b = 0;
-    if (o_new == "=")
-        a = 1;
-    else if (o_new == "*=")
-    {
-        op = "*";
-        op1 = "*";
-        t = newlabel_sym(type);
-    }
-    else if (o_new == "/=")
-    {
-        op = "/";
-        op1 = "/";
-        t = newlabel_sym(type);
-    }
-    else if (o_new == "+=")
-    {
-        op = "+";
-        op1 = "+";
-        t = newlabel_sym(type);
-    }
-    else if (o_new == "-=")
-    {
-        op = "-";
-        op1 = "-";
-        t = newlabel_sym(type);
-    }
-    int k;
+int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2_type, pair <string, Entry*> operand_1_place, pair <string, Entry*> operand_2_place){
+    int ret_val;
+    string oprtr_str = string(oprtr);
 
-    if (is_Intgr(type1))
-    {
-        if (is_Intgr(type3))
-        {
-            op += "int";
-            if (o_new != "=")
-                k = emit(pair<string, Entry *>(op, lookup(op1)), place1, place3, t, -1);
+    if(oprtr_str == "=" || oprtr_str == "+=" || oprtr_str == "-=" || oprtr_str == "*=" || oprtr_str == "/="){            
+        bool equate = false;
+        bool same_type = true;
+        bool oprtr_matched = false;
+        
+        pair <string, Entry*> t;
+        pair <string, Entry*> t2;
+
+        string tmp_oprtr1;
+        string tmp_oprtr2;
+
+        if (oprtr_str == "="){
+            equate = true;
+            t = operand_2_place;
         }
-        else if (is_float(type3))
-        {
-            t2 = newlabel_sym(type);
-            k = emit(pair<string, Entry *>("realtoint", NULL), place3, pair<string, Entry *>("", NULL), t2, -1);
-            op += "int";
-            if (o_new != "=")
-                emit(pair<string, Entry *>(op, lookup(op1)), place1, t2, t, -1);
-            b = 1;
+        else if (oprtr_str == "+=" || oprtr_str == "-=" || oprtr_str == "*=" || oprtr_str == "/=")  oprtr_matched = true;
+
+        if(oprtr_matched){
+            t = newlabel_sym(type);
+            tmp_oprtr1.push_back(oprtr[0]);
+            tmp_oprtr2 = tmp_oprtr1;
         }
-    }
-    else if (is_float(type1))
-    {
-        if (is_Intgr(type3))
-        {
-            t2 = newlabel_sym(type);
-            k = emit(pair<string, Entry *>("realtoint", NULL), place3, pair<string, Entry *>("", NULL), t2, -1);
-            op += "int";
-            if (o_new != "=")
-                emit(pair<string, Entry *>(op, lookup(op1)), place1, t2, t, -1);
-            b = 1;
+
+        if (is_Intgr(operand_1_type)){
+            if (is_Intgr(operand_2_type)){
+                tmp_oprtr1.append("int");
+                if(equate){
+                    //do nothing
+                }
+                else{
+                    ret_val = emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, operand_2_place, t, -1);
+                }
+            }
+            else if (is_float(operand_2_type)){
+                same_type = false;
+                t2 = newlabel_sym(type);
+                ret_val = emit(pair<string, Entry *>("realtoint", NULL), operand_2_place, pair<string, Entry *>("", NULL), t2, -1);
+                tmp_oprtr1.append("int");
+                if(equate){
+                    //do nothing
+                }
+                else{
+                    emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, t2, t, -1);
+                }
+            }
         }
-        else if (is_float(type3))
+        else if (is_float(operand_1_type))
         {
-            op += "real";
-            if (o_new != "=")
-                k = emit(pair<string, Entry *>(op, lookup(op1)), place1, place3, t, -1);
+            if (is_Intgr(operand_2_type))
+            {
+                t2 = newlabel_sym(type);
+                ret_val = emit(pair<string, Entry *>("realtoint", NULL), operand_2_place, pair<string, Entry *>("", NULL), t2, -1);
+                tmp_oprtr1.append("int");
+                if(equate){
+                    //do nothing
+                }
+                else{
+                    emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, t2, t, -1);
+                }
+                same_type = false;
+            }
+            else if (is_float(operand_2_type))
+            {
+                tmp_oprtr1.append("real");
+                if(equate){
+                    //do nothing
+                }
+                else{
+                    ret_val = emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, operand_2_place, t, -1);
+                }
+            }
+        }
+
+        if (!same_type && equate){
+            emit(pair<string, Entry *>("=", lookup("=")), t2, pair<string, Entry *>("", NULL), operand_1_place, -1);
+        }
+        else{
+            ret_val = emit(pair<string, Entry *>("=", lookup("=")), t, pair<string, Entry *>("", NULL), operand_1_place, -1);
         }
     }
 
-    if (!(a && b))
-        k = emit(pair<string, Entry *>("=", lookup("=")), t, pair<string, Entry *>("", NULL), place1, -1);
-    else
-        emit(pair<string, Entry *>("=", lookup("=")), t2, pair<string, Entry *>("", NULL), place1, -1);
+    else{
+        ret_val = 0;
+        bool oprtr_matched = false;
 
-    return k;
-}
-void assignment2(char *o, string type, string type1, string type3, pair <string, Entry*> place1, pair <string, Entry*> place3)
-{
-    pair <string, Entry*> t = newlabel_sym(type);
-    string o_new(o);
-    string op;
-    string op1;
-    if (o_new == "%=")
-        op = "%";
-    else if (o_new == "^=")
-        op = "^";
-    else if (o_new == "|=")
-        op = "|";
-    else if (o_new == "&=")
-        op = "&";
-    op1 = op;
-    if (o_new == "<<=")
-    {
-        op = "LEFT_OP";
-        op1 = "<<";
+        pair <string, Entry*> t = newlabel_sym(type);
+        
+        string tmp_oprtr1;
+        string tmp_oprtr2;
+
+        string oprtr_str = string(oprtr);
+
+        if (oprtr_str == "%=" || oprtr_str == "^=" || oprtr_str == "|=" || oprtr_str == "&="){
+            oprtr_matched = true;
+        }
+
+        if(oprtr_matched){
+            tmp_oprtr1.push_back(oprtr[0]);
+            tmp_oprtr2 = tmp_oprtr1;
+        }
+
+        else{
+            if (oprtr_str == "<<="){
+                tmp_oprtr1.append("LEFT_OP");
+                tmp_oprtr2.append("<<");
+            }
+
+            else if(oprtr_str == ">>="){
+                tmp_oprtr1.append("RIGHT_OP");
+                tmp_oprtr2.append(">>");
+            }
+        }
+        emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, operand_2_place, t, -1);
+        emit(pair<string, Entry *>("=", lookup("=")), t, pair<string, Entry *>("", NULL), operand_1_place, -1);
+    
     }
-    if (o_new == ">>=")
-    {
-        op = "RIGHT_OP";
-        op1 = ">>";
-    }
-    emit(pair<string, Entry *>(op, lookup(op1)), place1, place3, t, -1);
-    emit(pair<string, Entry *>("=", lookup("=")), t, pair<string, Entry *>("", NULL), place1, -1);
+
+    return ret_val;
 }
 
 //backpatch
@@ -183,21 +198,21 @@ char *backPatchGoto(){
 // --- REMEMBER --- It will be used as it is in main.cpp and  removed from here
 
 void show_in_file(){
-    IRcodeFile.open("IRcode.txt");
+    IR_file.open("IRcode.txt");
 	for(int i = 0; i < emit_list.size(); ++i)  {
 		switch (-emit_list[i].line_no){
-        case 1: {IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
+        case 1: {IR_file << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
                     setw(15) << emit_list[i].operand_1.first << " " <<
                     setw(15) << emit_list[i].operand_2.first << " " <<
                     setw(15) << emit_list[i].ans.first << '\n';
                 break;}
-        case 2: {IRcodeFile  << endl << "[" << i << "]" << ": "<<
+        case 2: {IR_file  << endl << "[" << i << "]" << ": "<<
                     emit_list[i].op.first << endl << endl;
                 break;}
-        case 3: {IRcodeFile  << endl << "[" << i << "]" << ": "<<
+        case 3: {IR_file  << endl << "[" << i << "]" << ": "<<
                     emit_list[i].op.first << endl << endl;
                 break;}
-        case 4: {IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
+        case 4: {IR_file << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
                     setw(15) << emit_list[i].operand_1.first << " " <<
                     setw(15) << emit_list[i].operand_2.first << " " <<
                     setw(15) << emit_list[i].ans.first << '\n';
@@ -207,7 +222,7 @@ void show_in_file(){
                     k = emit_list[k].line_no;
                 }
                 if(label_map.find(k)== label_map.end()) label_map.insert(pair<int, string>(k, "Label"+to_string(k)));
-                IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
+                IR_file << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
                     setw(15) << emit_list[i].operand_1.first << " " <<
                     setw(15) << emit_list[i].operand_2.first << " " <<
                     setw(15) << k << "---" << '\n';
@@ -215,6 +230,6 @@ void show_in_file(){
                 break;}
         }
 	}
-    IRcodeFile.close();
+    IR_file.close();
 	return;
 }

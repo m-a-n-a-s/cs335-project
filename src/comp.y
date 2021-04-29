@@ -1078,9 +1078,8 @@ assignment_expression
 											}
 										//-------------3AC------------------------------------//
                       					int k;
-		     							if(!strcmp($2,"=") || !strcmp($2,"+=") || !strcmp($2,"-=") || !strcmp($2,"*=") || !strcmp($2,"/=")) k= assignmentExpression($2, $$->node_type,$1->node_type, $3->node_type, $1->place, $3->place)	;
-		     							else assignment2($2, $$->node_type,$1->node_type, $3->node_type, $1->place, $3->place);
-                       					$$->place = $1->place;
+										k = assign_3ac($2, $$->node_type,$1->node_type, $3->node_type, $1->place, $3->place);
+										$$->place = $1->place;
 										backPatch($3->nextlist, k);
                        					//-------------------------------------------------------//		
 									}
@@ -1187,7 +1186,7 @@ init_declarator
             	if(a){
                     if(strcmp(a,"true")){ yyerror("Warning : Invalid assignment of \'%s\' to \'%s\' ",$1->node_type.c_str(),$4->node_type.c_str()); }
                     $1->place = pair<string, Entry*>($1->node_key, lookup($1->node_key));
-		            assignmentExpression("=", $1->node_type,$1->node_type, $4->node_type, $1->place, $4->place);
+		            assign_3ac("=", $1->node_type,$1->node_type, $4->node_type, $1->place, $4->place);
                     $$->place = $1->place;
                     backPatch($1->nextlist, $3);
                     $$->nextlist = $4->nextlist;
