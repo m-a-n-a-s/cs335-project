@@ -1,40 +1,33 @@
-#include <iostream>
-#include <string>
-#include <cstring>
-#include <vector>
-#include <map>
-#include <iomanip>
 #include "symbolTable.h"
+
+// #include <iostream>
+// #include <string>
+// #include <cstring>
+// #include <vector>
+// #include <map>
+// #include <iomanip>
+#include <bits/stdc++.h>
 using namespace std;
 
-typedef pair <string, Entry*> qid;
-
 typedef struct quadruple{
-  qid id1;
-  qid id2;
-  qid op;
-  qid res;
-  int stmtNum;
+  pair <string, Entry*> operand_1;
+  pair <string, Entry*> operand_2;
+  pair <string, Entry*> op;
+  pair <string, Entry*> ans;
+  int line_no;
 } quad;
 
 extern vector <quad> emit_list;
-extern map<int , string> Labels;
-extern unordered_map<string, vector<int>> gotoIndexPatchList;
-extern map<string, int> gotoIndex;
+extern unordered_map<string, vector<int>> backpatch_list;
+extern map<string, int> goto_map;
+extern map<int , string> label_map;
 
+quad set_values_quad(pair <string, Entry*> operand_1, pair <string, Entry*> operand_2, pair <string, Entry*> op, pair <string, Entry*> ans, int line_no);
+int emit (pair <string, Entry*> operand_1, pair <string, Entry*> operand_2, pair <string, Entry*> op, pair <string, Entry*>  ans, int line_no);
 string newlabel_var();
 pair<string, Entry*> newlabel_sym(string type);
-quad set_values_quad(qid id1, qid id2, qid op, qid res, int stmtNum);
-int emit (qid id1, qid id2, qid op, qid  res, int stmtNum);
-void backPatch(vector<int> li, int i);
-void show_in_file();
-// void display(quad q, int p);
-// int getNextIndex();
-// void setResult(int a, qid p);
-// void setId1(int a, qid p);
-// void setListId1(vector<int> li, qid p);
-int assignmentExpression(char *op, string type, string type1, string type3, qid place1, qid place3);
-void assignment2(char *op, string type, string type1, string type3, qid place1, qid place3);
-// bool gotoIndexStorage (string id, int loc);
-// void gotoIndexPatchListStorage (string id, int loc);
+int assignmentExpression(char *op, string type, string type1, string type3, pair <string, Entry*> place1, pair <string, Entry*> place3);
+void assignment2(char *op, string type, string type1, string type3, pair <string, Entry*> place1, pair <string, Entry*> place3);
+void backPatch(vector<int> goto_list, int line_no);
 char* backPatchGoto();
+void show_in_file();

@@ -22,7 +22,7 @@ struct node{
   string node_key;
   string node_type;
   ///////////////////////////
-  qid place;
+  pair <string, Entry*> place;
   vector<int> truelist;
   vector<int> nextlist;
   vector<int> falselist;

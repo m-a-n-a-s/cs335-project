@@ -1,6 +1,6 @@
 int main(){
     int a = 5, b = 4, c = 6;
-    //float d = 1.01, e = 2.02;
+    float d = 1.01, e = 2.02;
     char f = 'x';
     double g = a + b;
     if (f < 100) printf("Working\n");

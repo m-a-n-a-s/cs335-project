@@ -170,7 +170,7 @@ postfix_expression
 								//****3AC****
 
 								$$->place = newlabel_sym($$->node_type);
-                                qid opT  = pair<string,Entry*>("[]",NULL);
+                                pair <string, Entry*> opT  = pair<string,Entry*>("[]",NULL);
                                 int k = emit(opT, $1->place, $3->place, $$->place, -1);
                                 // $$->place.second->size = $3->place.second->offset;
                                 // $$->place.second->offset = $1->place.second->offset;
@@ -198,7 +198,7 @@ postfix_expression
 									string funcArgs = func_args_list($1->node_key);
 
 									//----------------------------3AC-------------------------------------------------//
-                         			qid t = newlabel_sym($$->node_type);
+                         			pair <string, Entry*> t = newlabel_sym($$->node_type);
 									int k=emit(pair<string, Entry*>("refParam", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), t, -1);
 									int k1=emit(pair<string, Entry*>("CALL", NULL), $1->place, pair<string, Entry*>("1", NULL), t, -1);
 									$$->nextlist ={};
@@ -260,7 +260,7 @@ postfix_expression
                           				fT = currArguments.find_first_of(delim);
                           				if(fT==-1) typeA = currArguments; else{ typeA = currArguments.substr(0,fT); currArguments = currArguments.substr(fT+1);}
                   					}
-                  					qid t = newlabel_sym($$->node_type);
+                  					pair <string, Entry*> t = newlabel_sym($$->node_type);
                   					emit(pair<string, Entry*>("refParam", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), t, -1);
                   					int k=emit(pair<string, Entry*>("CALL", NULL), $1->place, pair<string, Entry*>(to_string(carg), NULL), t, -1);
                   					$$->place = t;
@@ -313,7 +313,7 @@ postfix_expression
 													$$->integer_value = $1->integer_value +1;
 
 													//------------------3AC------------//
-                  									qid t1 = newlabel_sym($$->node_type);
+                  									pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   									int k=  emit(pair<string, Entry*>("++S", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
                   									$$->place = t1;
                   									$$->nextlist = {};
@@ -333,7 +333,7 @@ postfix_expression
 												    $$->integer_value = $1->integer_value -1;
 
 													//-----------------3AC-------------//
-                  									qid t1 = newlabel_sym($$->node_type);
+                  									pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   									int k=emit(pair<string, Entry*>("--S", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
                   									$$->place = t1;
                   									$$->nextlist={};
@@ -381,7 +381,7 @@ unary_expression
 								$$->node_type =tmp_str;
 								$$->integer_value = $2->integer_value +1;
 								//===========3AC======================//
-                  				qid t1 = newlabel_sym($$->node_type);
+                  				pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   				int k = emit(pair<string, Entry*>("++P", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   				$$->place = t1;
                   				$$->nextlist = {};
@@ -401,7 +401,7 @@ unary_expression
 								string tmp_str(s);
 								$$->node_type =tmp_str;
 								//===========3AC======================//
-                  				qid t1 = newlabel_sym($$->node_type);
+                  				pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   				int k = emit(pair<string, Entry*>("--P", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   				$$->place = t1;
                   				$$->nextlist={};
@@ -420,7 +420,7 @@ unary_expression
 							string tmp_str(a);
 							$$->node_type= tmp_str;
 							//===========3AC======================//
-                  			qid t1 = newlabel_sym($$->node_type);
+                  			pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   			int k = emit($1->place, $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   			$$->place = t1;
                   			$$->nextlist={};
@@ -433,7 +433,7 @@ unary_expression
 						}
 	| SIZEOF unary_expression			{$$ = non_term_symb($1, NULL, NULL, $2);$$->node_type = "int";$$->init_flag=1;
 										//===========3AC======================//
-                  						qid t1 = newlabel_sym($$->node_type);
+                  						pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   						int k = emit(pair<string, Entry*>("SIZEOF", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
                   						$$->place = t1;
                   						$$->nextlist={};
@@ -442,7 +442,7 @@ unary_expression
 										}
 	| SIZEOF '(' type_name ')'			{$$ = non_term_symb($1, NULL, NULL, $3);$$->node_type = "int";$$->init_flag=1;
 										//===========3AC======================//
-                						  qid t1 = newlabel_sym($$->node_type);
+                						  pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                 						  int k = emit(pair<string, Entry*>("SIZEOF", NULL), $3->place, pair<string, Entry*>("", NULL), t1, -1);
                 						  $$->place = t1;
                 						  $$->nextlist={};
@@ -490,7 +490,7 @@ cast_expression
 						$$->node_type = $2->node_type;
         				if($4->init_flag==1) $$->init_flag=1;
 						//=============3AC====================//
-                        qid t1 = newlabel_sym($$->node_type);
+                        pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                         string t = $4->node_type+ "to" + $$->node_type ;
                         int k = emit(pair<string, Entry*>(t, NULL), $4->place, pair<string, Entry*>(",", NULL), t1, -1);
                         $$->nextlist={};
@@ -512,7 +512,7 @@ multiplicative_expression
 					//$$=non_term_symb("*int",NULL,$1,$3);
 					$$->node_type = "long long";
 					//---------------3AC----------------//
-                  	qid t1 = newlabel_sym($$->node_type);
+                  	pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   	k=emit(pair<string, Entry*>("*int", NULL), $1->place, $3->place, t1, -1);
                   	$$->place = t1;
                   	$$->nextlist={};
@@ -522,15 +522,15 @@ multiplicative_expression
 					//$$=non_term_symb("*float",NULL,$1,$3);
 					$$->node_type = "long double";
 					//-------------3AC---------------------//
-                  	qid t1 = newlabel_sym($$->node_type);
+                  	pair <string, Entry*> t1 = newlabel_sym($$->node_type);
 
                   	if(is_Intgr($1->node_type)){
-                  	      qid t2 = newlabel_sym($$->node_type);
+                  	      pair <string, Entry*> t2 = newlabel_sym($$->node_type);
                   	      emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
                   	      k=emit(pair<string, Entry*>("*real", NULL), t2, $3->place, t1, -1);
                   	}
                   	else if(is_Intgr($3->node_type)){
-                  	      qid t2 = newlabel_sym($$->node_type);
+                  	      pair <string, Entry*> t2 = newlabel_sym($$->node_type);
                   	      emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
                   	      k=emit(pair<string, Entry*>("*real", NULL), $1->place, t2, t1, -1);
                   	}
@@ -558,7 +558,7 @@ multiplicative_expression
 																//$$=non_term_symb("/int",NULL,$1,$3);
 																$$->node_type = "long long";
 																//---------------3AC----------------------//
-                  												qid t1 = newlabel_sym($$->node_type);
+                  												pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   												k = emit(pair<string, Entry*>("/int", NULL), $1->place, $3->place, t1, -1);
                   												$$->place = t1;
                   												$$->nextlist= {};
@@ -568,15 +568,15 @@ multiplicative_expression
 																//$$=non_term_symb("/float",NULL,$1,$3);
 																$$->node_type = "long double";
 																//-------------3AC---------------------//
-                  												qid t1 = newlabel_sym($$->node_type);
+                  												pair <string, Entry*> t1 = newlabel_sym($$->node_type);
 
                   												if(is_Intgr($1->node_type)){
-                  												      qid t2 = newlabel_sym($$->node_type);
+                  												      pair <string, Entry*> t2 = newlabel_sym($$->node_type);
                   												      emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
                   												      k=emit(pair<string, Entry*>("/real", NULL), t2, $3->place, t1, -1);
                   												}
                   												else if(is_Intgr($3->node_type)){
-                  												      qid t2 = newlabel_sym($$->node_type);
+                  												      pair <string, Entry*> t2 = newlabel_sym($$->node_type);
                   												      emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
                   												      k=emit(pair<string, Entry*>("/real", NULL), $1->place, t2, t1, -1);
                   												}
@@ -601,7 +601,7 @@ multiplicative_expression
 							if(!strcmp(a,"int")){
 								$$->node_type= "long long";
 								//===========3AC======================//
-                  				qid t1 = newlabel_sym($$->node_type);
+                  				pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   				int k =emit(pair<string, Entry*>("%", NULL), $1->place, $3->place, t1, -1);
                   				$$->nextlist={};
                   				$$->place = t1;
@@ -634,14 +634,14 @@ additive_expression
 									else if(!strcmp(a,"real")) $$->node_type="long double";
 									else $$->node_type=tmp_str; // for imaginary and complex returns
 									//===========3AC======================//
-                   					qid t1 = newlabel_sym($$->node_type);
+                   					pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                    					if(is_Intgr($1->node_type) && is_float($3->node_type)){
-                   					     qid t2 = newlabel_sym($$->node_type);
+                   					     pair <string, Entry*> t2 = newlabel_sym($$->node_type);
                    					     emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
                    					     emit(pair<string, Entry*>(p, NULL), t2, $3->place, t1, -1);
                    					}
                    					else if(is_Intgr($3->node_type) && is_float($1->node_type)){
-                   					     qid t2 = newlabel_sym($$->node_type);
+                   					     pair <string, Entry*> t2 = newlabel_sym($$->node_type);
                    					     emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
                    					     emit(pair<string, Entry*>(p, NULL), $1->place, t2, t1, -1);
                    					}
@@ -674,14 +674,14 @@ additive_expression
 									else if(!strcmp(a,"real")) $$->node_type="long double";
 									else $$->node_type=tmp_str;   // for imaginary and complex returns
 									//===========3AC======================//
-                   					qid t1 = newlabel_sym($$->node_type);
+                   					pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                    					if(is_Intgr($1->node_type) && is_float($3->node_type)){
-                   					     qid t2 = newlabel_sym($$->node_type);
+                   					     pair <string, Entry*> t2 = newlabel_sym($$->node_type);
                    					     emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
                    					     emit(pair<string, Entry*>(p, NULL), t2, $3->place, t1, -1);
                    					}
                    					else if(is_Intgr($3->node_type) && is_float($1->node_type)){
-                   					     qid t2 = newlabel_sym($$->node_type);
+                   					     pair <string, Entry*> t2 = newlabel_sym($$->node_type);
                    					     emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
                    					     emit(pair<string, Entry*>(p, NULL), $1->place, t2, t1, -1);
                    					}
@@ -706,7 +706,7 @@ shift_expression
 							if(a){
 								$$->node_type = $1->node_type;
 								//===========3AC======================//
-                          		qid t1 = newlabel_sym($$->node_type);
+                          		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                           		int k = emit(pair<string, Entry*>("LEFT_OP", NULL), $1->place, $3->place, t1, -1);
                           		$$->place = t1;
                           		$$->nextlist={};
@@ -722,7 +722,7 @@ shift_expression
 														if(a){
 															$$->node_type = $1->node_type;
 															//===========3AC======================//
-                                 							qid t1 = newlabel_sym($$->node_type);
+                                 							pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                                  							int k = emit(pair<string, Entry*>("RIGHT_OP", NULL), $1->place, $3->place, t1, -1);
                                  							$$->place = t1;
                                  							$$->nextlist={};
@@ -745,7 +745,7 @@ relational_expression
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
 								//===========3AC======================//
-                        		qid t1 = newlabel_sym($$->node_type);
+                        		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                         		int k =  emit(pair<string, Entry*>("<", NULL), $1->place, $3->place, t1, -1);
                         		$$->place = t1;
                         		$$->nextlist={};
@@ -766,7 +766,7 @@ relational_expression
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
 								//===========3AC======================//
-                           		qid t1 = newlabel_sym($$->node_type);
+                           		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                            		int k = emit(pair<string, Entry*>(">", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist = {};
@@ -786,7 +786,7 @@ relational_expression
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
 								//===========3AC======================//
-                          	 	qid t1 = newlabel_sym($$->node_type);
+                          	 	pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                           		int k= emit(pair<string, Entry*>("LE_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist = {};
@@ -806,7 +806,7 @@ relational_expression
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
 								//===========3AC======================//
-                           		qid t1 = newlabel_sym($$->node_type);
+                           		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                            		int k = emit(pair<string, Entry*>("GE_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist ={};
@@ -827,7 +827,7 @@ equality_expression
 							    }
 							    $$->node_type = "bool";
 								//===========3AC======================//
-                           		qid t1 = newlabel_sym($$->node_type);
+                           		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                            		int k = emit(pair<string, Entry*>("EQ_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist = {};
@@ -844,7 +844,7 @@ equality_expression
 							    }
 							    $$->node_type = "bool";
 								//===========3AC======================//
-                           		qid t1 = newlabel_sym($$->node_type);
+                           		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                            		int k = emit(pair<string, Entry*>("NE_OP", NULL), $1->place, $3->place, t1, -1);
                            		$$->place = t1;
                            		$$->nextlist ={};
@@ -864,7 +864,7 @@ and_expression
                   if(!strcmp(a,"true")) { $$->node_type = "bool"; }
                   else{  $$->node_type = "long long"; }
 				  //===========3AC======================//
-                  qid t1 = newlabel_sym($$->node_type);
+                  pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   int k= emit(pair<string, Entry*>("&", NULL), $1->place, $3->place, t1, -1);
                   $$->place = t1;
                   $$->nextlist={};
@@ -887,7 +887,7 @@ exclusive_or_expression
                   if(!strcmp(a,"true")) { $$->node_type = "bool"; }
                   else{   $$->node_type = "long long";}
 				  //===========3AC======================//
-                  qid t1 = newlabel_sym($$->node_type);
+                  pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   int k = emit(pair<string, Entry*>("^", NULL), $1->place, $3->place, t1, -1);
                   $$->place = t1;
                   $$->nextlist={};
@@ -909,7 +909,7 @@ inclusive_or_expression
 									if(!strcmp(a,"true")) { $$->node_type = "bool"; }
 									else{   $$->node_type = "long long";}
 									//===========3AC======================//
-                           			qid t1 = newlabel_sym($$->node_type);
+                           			pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                            			int k =  emit(pair<string, Entry*>("|", NULL), $1->place, $3->place, t1, -1);
                            			$$->place = t1;
                            			$$->nextlist={};
@@ -1043,15 +1043,15 @@ conditional_expression
 											string tmp_str(a);
 											$$->node_type = "int";
 											//--------------------3AC--------------------------//
-                    						qid t = newlabel_sym($$->node_type);
+                    						pair <string, Entry*> t = newlabel_sym($$->node_type);
                     						emit(pair<string, Entry*>("=", NULL), $6->place, pair<string, Entry*>("", NULL), t, -1);
                     						int k = emit(pair<string, Entry*>("GOTO", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), 0);
                     						backPatch($1->truelist , $2);
                     						backPatch($1->falselist , $5+1);
                     						//setId1($5-1 , $3->place);
-											emit_list[$5-1].id1 = $3->place;
+											emit_list[$5-1].operand_1 = $3->place;
                     						//setResult($5-1 , t);
-											emit_list[$5-1].res = t;
+											emit_list[$5-1].ans = t;
                     						$$->nextlist = $3->nextlist;
                     						$$->nextlist.push_back($5);
                     						$$->nextlist.push_back(k);
@@ -1604,7 +1604,7 @@ M5
   : CASE constant_expression ':' {
                                   $$=$2;
                                 //-----------3AC--------------------//
-                                 qid t = newlabel_sym("bool");
+                                 pair <string, Entry*> t = newlabel_sym("bool");
                                  int k = emit(pair<string, Entry*>("EQ_OP", NULL),pair<string, Entry*>("", NULL), $2->place, t, -1);
                                  int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), t, pair<string, Entry*>("", NULL ),0);
                                  int k2 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
@@ -1624,11 +1624,11 @@ labeled_statement
         //if(!gotoIndexStorage($1, $3)){
         //    yyerror("ERROR :\'%s\' is already defined", $1);
         //}
-		if(gotoIndex.find($1) != gotoIndex.end()){
+		if(goto_map.find($1) != goto_map.end()){
 			yyerror("ERROR :\'%s\' is already defined", $1);
 		}
 		else{
-			gotoIndex.insert(pair<string, int>($1, $3));
+			goto_map.insert(pair<string, int>($1, $3));
 		}
 		$$->nextlist = $4->nextlist;
         $$->caselist = $4->caselist;
@@ -1785,7 +1785,7 @@ selection_statement
         //setListId1($5->caselist, $3->place);
 		for (int i = 0; i < $5->caselist.size(); ++i){
 			// setId1(li[i], p);
-			emit_list[$5->caselist[i]].id1 = $3->place;
+			emit_list[$5->caselist[i]].operand_1 = $3->place;
 		}
         //$5->nextlist.merge($5->breaklist);
 		merging($5->nextlist, $5->breaklist);
@@ -1882,8 +1882,8 @@ jump_statement
 	: GOTO IDENTIFIER ';' {$$ = non_term_symb("jump_statement", NULL, term_symb("GOTO"), term_symb($2));
 	//-----------3AC---------------------//
     int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-    //gotoIndexPatchListStorage($2, k);
-	gotoIndexPatchList[$2].push_back(k);
+    //backpatch_listStorage($2, k);
+	backpatch_list[$2].push_back(k);
 	//-----------------------------------//
 	}
 	| CONTINUE ';' {
