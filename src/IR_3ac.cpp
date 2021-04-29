@@ -10,97 +10,90 @@ long long Index = -1;
 map<string, int> gotoIndex;
 unordered_map<string, vector<int>> gotoIndexPatchList;
 
-vector<quad> emittedCode;
+vector<quad> emit_list;
 
 //get temporary variable
-string getTmpVar()
-{
+string newlabel_var(){
     static long temp_var_num = 0;
     temp_var_num++;
     return (string("temp_") + to_string(temp_var_num));
 }
 
 //get temporary symbol
-pair<string, Entry *> getTmpSym(string type)
-{
-    string temp = getTmpVar();
-    char *cstr = new char[type.length() + 1];
-    strcpy(cstr, type.c_str());
-    //  char* test = &type[0];
-    insert_symbol(*curr, temp, type, get_size(cstr), 0, 1);
-    return pair<string, Entry *>(temp, lookup(temp));
+pair<string, Entry *> newlabel_sym(string type){
+    string temp_var_str = newlabel_var();
+    char* new_temp_str = new char[type.length() + 1];
+    strcpy(new_temp_str, type.c_str()); 
+    insert_symbol(*curr, temp_var_str, type, get_size(new_temp_str), 0, 1);
+    pair<string, Entry *> new_temp_sym = pair <string, Entry* >(temp_var_str, lookup(temp_var_str));
+    return new_temp_sym;
+}
+
+quad set_values_quad(qid id1, qid id2, qid op, qid res, int stmtNum){  
+    quad new_instr;
+    new_instr.id1 = id1;
+    new_instr.id2 = id2;
+    new_instr.op = op;
+    new_instr.res = res;
+    new_instr.stmtNum = stmtNum;
+    return new_instr;
 }
 
 //emit
-int emit(qid op, qid id1, qid id2, qid res, int stmtNum)
-{
-    quad t;
-    t.id1 = id1;
-    t.id2 = id2;
-    t.res = res;
-    t.op = op;
-    t.stmtNum = stmtNum;
-    emittedCode.push_back(t);
-    Index++;
-    return emittedCode.size() - 1;
+int emit(qid op, qid id1, qid id2, qid res, int stmtNum){
+    quad new_instr = set_values_quad(id1, id2, op, res, stmtNum);
+    emit_list.push_back(new_instr);
+    return ++Index;
+    // quad t;
+    // t.id1 = id1;
+    // t.id2 = id2;
+    // t.res = res;
+    // t.op = op;
+    // t.stmtNum = stmtNum;
+    // emit_list.push_back(t);
+    // Index++;
+    // return emit_list.size() - 1;
 }
 
 //nextinstr
-int getNextIndex()
-{
-    return emittedCode.size();
-}
+// int getNextIndex()
+// {
+//     return emit_list.size();
+// }
 
 //backpatch
-void backPatch(vector<int> li, int p)
-{
-    for (int i = 0; i < li.size(); ++i)
-    {
-        // unsigned N = i;
-        // if (li.size() > N)
-        // {
-        //   std::vector<int>::iterator it = li.begin();
-        //   std::advance(it, N);
-        //   emittedCode[*it].stmtNum = p;
-        // }
-        emittedCode[li[i]].stmtNum = p;
+void backPatch(vector<int> li, int p){
+    for (int i = 0; i < li.size(); ++i){
+        emit_list[li[i]].stmtNum = p;
     }
     return;
 }
 
 //goto symbol
-void setResult(int a, qid p)
-{
-    emittedCode[a].res = p;
-    return;
-}
+// void setResult(int a, qid p)
+// {
+//     emit_list[a].res = p;
+//     return;
+// }
 
 //goto
-void setId1(int a, qid p)
-{
-    emittedCode[a].id1 = p;
-    return;
-}
+// void setId1(int a, qid p)
+// {
+//     emit_list[a].id1 = p;
+//     return;
+// }
 
 //goto for whole list
-void setListId1(vector<int> li, qid p)
-{
-    for (int i = 0; i < li.size(); ++i)
-    {
-        //     unsigned N = i;
-        //     if (li.size() > N)
-        //     {
-        //       std::vector<int>::iterator it = li.begin();
-        //       std::advance(it, N);
-        //       setId1(*it, p);
-        //   }
-        setId1(li[i], p);
-    }
-    return;
-}
+// void setListId1(vector<int> li, qid p)
+// {
+//     for (int i = 0; i < li.size(); ++i){
+//         // setId1(li[i], p);
+//         emit_list[li[i]].id1 = p;
+//     }
+//     return;
+// }
 
-int assignmentExpression(char *o, string type, string type1, string type3, qid place1, qid place3)
-{
+int assignmentExpression(char *o, string type, string type1, string type3, qid place1, qid place3){
     qid t = place3;
     qid t2;
     string o_new(o);
@@ -114,46 +107,27 @@ int assignmentExpression(char *o, string type, string type1, string type3, qid p
     {
         op = "*";
         op1 = "*";
-        t = getTmpSym(type);
+        t = newlabel_sym(type);
     }
     else if (o_new == "/=")
     {
         op = "/";
         op1 = "/";
-        t = getTmpSym(type);
+        t = newlabel_sym(type);
     }
     else if (o_new == "+=")
     {
         op = "+";
         op1 = "+";
-        t = getTmpSym(type);
+        t = newlabel_sym(type);
     }
     else if (o_new == "-=")
     {
         op = "-";
         op1 = "-";
-        t = getTmpSym(type);
+        t = newlabel_sym(type);
     }
     int k;
-    // if(is_Intgr(type1) && is_Intgr(type3)){
-    // 	op += "int";
-    //     if(o_new != "=") k= emit(pair<string, Entry*>(op, lookup(op1)), place1, place3, t, -1);
-    // }else if(is_float(type1) && is_Intgr(type3)){
-    // 	t2 = getTmpSym(type);
-    // 	k = emit(pair<string, Entry*>("inttoreal",NULL), place3,pair<string, Entry*>("",NULL),t2,-1);
-    // 	op += "real";
-    // 	if(o_new != "=") emit(pair<string, Entry*>(op, lookup(op1)), place1, t2, t, -1);
-    //     b=1;
-    // }else if(is_float(type3) && is_Intgr(type1)){
-    // 	t2 = getTmpSym(type);
-    // 	k = emit(pair<string, Entry*>("realtoint",NULL),place3,pair<string, Entry*>("",NULL),t2,-1);
-    // 	op += "int";
-    // 	if(o_new != "=") emit(pair<string, Entry*>(op, lookup(op1)), place1, t2, t, -1);
-    //     b=1;
-    // }else if(is_float(type3) && is_float(type1)){
-    // 	op += "real";
-    // 	if(o_new != "=") k=emit(pair<string, Entry*>(op, lookup(op1)), place1, place3, t, -1);
-    // }
 
     if (is_Intgr(type1))
     {
@@ -165,7 +139,7 @@ int assignmentExpression(char *o, string type, string type1, string type3, qid p
         }
         else if (is_float(type3))
         {
-            t2 = getTmpSym(type);
+            t2 = newlabel_sym(type);
             k = emit(pair<string, Entry *>("realtoint", NULL), place3, pair<string, Entry *>("", NULL), t2, -1);
             op += "int";
             if (o_new != "=")
@@ -177,7 +151,7 @@ int assignmentExpression(char *o, string type, string type1, string type3, qid p
     {
         if (is_Intgr(type3))
         {
-            t2 = getTmpSym(type);
+            t2 = newlabel_sym(type);
             k = emit(pair<string, Entry *>("realtoint", NULL), place3, pair<string, Entry *>("", NULL), t2, -1);
             op += "int";
             if (o_new != "=")
@@ -201,7 +175,7 @@ int assignmentExpression(char *o, string type, string type1, string type3, qid p
 }
 void assignment2(char *o, string type, string type1, string type3, qid place1, qid place3)
 {
-    qid t = getTmpSym(type);
+    qid t = newlabel_sym(type);
     string o_new(o);
     string op;
     string op1;
@@ -230,22 +204,22 @@ void assignment2(char *o, string type, string type1, string type3, qid place1, q
 
 // List of goto___'s
 //if(!gotoIndexStorage($1, $3)){yyerror("ERROR:\'%s\' is already defined", $1);}
-bool gotoIndexStorage(string id, int loc)
-{
-    if (gotoIndex.find(id) == gotoIndex.end())
-    {
-        //not found
-        gotoIndex.insert(pair<string, int>(id, loc));
-        return true;
-    }
-    return false;
-}
+// bool gotoIndexStorage(string id, int loc)
+// {
+//     if (gotoIndex.find(id) == gotoIndex.end())
+//     {
+//         //not found
+//         gotoIndex.insert(pair<string, int>(id, loc));
+//         return true;
+//     }
+//     return false;
+// }
 
 //List of backpatch to resolve goto___'s
-void gotoIndexPatchListStorage(string id, int loc)
-{
-    gotoIndexPatchList[id].push_back(loc);
-}
+// void gotoIndexPatchListStorage(string id, int loc)
+// {
+//     gotoIndexPatchList[id].push_back(loc);
+// }
 
 //finding corresponding goto for backpatches
 char *backPatchGoto()
@@ -266,82 +240,108 @@ char *backPatchGoto()
     return NULL;
 }
 
-void display(quad q, int i)
-{
+// void display(quad q, int i)
+// {
 
-    int k = q.stmtNum;
-    // if(q.stmtNum==-1 || q.stmtNum == -4){
-    // 	IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << q.op.first << " " <<
-    // 		setw(15) << q.id1.first << " " <<
-    // 		setw(15) << q.id2.first << " " <<
-    // 		setw(15) << q.res.first << '\n';
-    // }else if(q.stmtNum==-2 || q.stmtNum == -3){
-    // 	IRcodeFile  << endl << "[" << i << "]" << ": "<<
-    // 	 q.op.first << endl << endl;
-    // }else{
-    //     k = q.stmtNum;
-    //     while(emittedCode[k].op.first == "GOTO" && emittedCode[k].id1.first == ""){
-    //         k = emittedCode[k].stmtNum;
-    //     }
-    //     if(Labels.find(k)== Labels.end()) Labels.insert(pair<int, string>(k, "Label"+to_string(k)));
-    // 	IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << q.op.first << " " <<
-    // 		setw(15) << q.id1.first << " " <<
-    // 		setw(15) << q.id2.first << " " <<
-    // 		setw(15) << k << "---" << '\n';
-    //     emittedCode[i].stmtNum = k;
-    // }
-    switch (-k)
-    {
-    case 1:
-    {
-        IRcodeFile << setw(5) << "[" << i << "]"
-                   << ": " << setw(15) << q.op.first << " " << setw(15) << q.id1.first << " " << setw(15) << q.id2.first << " " << setw(15) << q.res.first << '\n';
-    }
-    break;
-    case 2:
-    {
-        IRcodeFile << endl
-                   << "[" << i << "]"
-                   << ": " << q.op.first << endl
-                   << endl;
-    }
-    break;
-    case 3:
-    {
-        IRcodeFile << endl
-                   << "[" << i << "]"
-                   << ": " << q.op.first << endl
-                   << endl;
-    }
-    break;
-    case 4:
-    {
-        IRcodeFile << setw(5) << "[" << i << "]"
-                   << ": " << setw(15) << q.op.first << " " << setw(15) << q.id1.first << " " << setw(15) << q.id2.first << " " << setw(15) << q.res.first << '\n';
-    }
-    default:
-    {
-        while (emittedCode[k].op.first == "GOTO" && emittedCode[k].id1.first == "")
-        {
-            k = emittedCode[k].stmtNum;
-        }
-        if (Labels.find(k) == Labels.end())
-            Labels.insert(pair<int, string>(k, "Label" + to_string(k)));
-        IRcodeFile << setw(5) << "[" << i << "]"
-                   << ": " << setw(15) << q.op.first << " " << setw(15) << q.id1.first << " " << setw(15) << q.id2.first << " " << setw(15) << k << "---" << '\n';
-        emittedCode[i].stmtNum = k;
-    }
-    break;
-    }
-}
+//     int k = q.stmtNum;
+//     // if(q.stmtNum==-1 || q.stmtNum == -4){
+//     // 	IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << q.op.first << " " <<
+//     // 		setw(15) << q.id1.first << " " <<
+//     // 		setw(15) << q.id2.first << " " <<
+//     // 		setw(15) << q.res.first << '\n';
+//     // }else if(q.stmtNum==-2 || q.stmtNum == -3){
+//     // 	IRcodeFile  << endl << "[" << i << "]" << ": "<<
+//     // 	 q.op.first << endl << endl;
+//     // }else{
+//     //     k = q.stmtNum;
+//     //     while(emit_list[k].op.first == "GOTO" && emit_list[k].id1.first == ""){
+//     //         k = emit_list[k].stmtNum;
+//     //     }
+//     //     if(Labels.find(k)== Labels.end()) Labels.insert(pair<int, string>(k, "Label"+to_string(k)));
+//     // 	IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << q.op.first << " " <<
+//     // 		setw(15) << q.id1.first << " " <<
+//     // 		setw(15) << q.id2.first << " " <<
+//     // 		setw(15) << k << "---" << '\n';
+//     //     emit_list[i].stmtNum = k;
+//     // }
+//     switch (-k)
+//     {
+//     case 1:
+//     {
+//         IRcodeFile << setw(5) << "[" << i << "]"
+//                    << ": " << setw(15) << q.op.first << " " << setw(15) << q.id1.first << " " << setw(15) << q.id2.first << " " << setw(15) << q.res.first << '\n';
+//     }
+//     break;
+//     case 2:
+//     {
+//         IRcodeFile << endl
+//                    << "[" << i << "]"
+//                    << ": " << q.op.first << endl
+//                    << endl;
+//     }
+//     break;
+//     case 3:
+//     {
+//         IRcodeFile << endl
+//                    << "[" << i << "]"
+//                    << ": " << q.op.first << endl
+//                    << endl;
+//     }
+//     break;
+//     case 4:
+//     {
+//         IRcodeFile << setw(5) << "[" << i << "]"
+//                    << ": " << setw(15) << q.op.first << " " << setw(15) << q.id1.first << " " << setw(15) << q.id2.first << " " << setw(15) << q.res.first << '\n';
+//     }
+//     default:
+//     {
+//         while (emit_list[k].op.first == "GOTO" && emit_list[k].id1.first == "")
+//         {
+//             k = emit_list[k].stmtNum;
+//         }
+//         if (Labels.find(k) == Labels.end())
+//             Labels.insert(pair<int, string>(k, "Label" + to_string(k)));
+//         IRcodeFile << setw(5) << "[" << i << "]"
+//                    << ": " << setw(15) << q.op.first << " " << setw(15) << q.id1.first << " " << setw(15) << q.id2.first << " " << setw(15) << k << "---" << '\n';
+//         emit_list[i].stmtNum = k;
+//     }
+//     break;
+//     }
+// }
 
-void display3ac()
-{
+void show_in_file(){
     IRcodeFile.open("IRcode.txt");
-    for (int i = 0; i < emittedCode.size(); ++i)
-    {
-        display(emittedCode[i], i);
-    }
-    return;
+	for(int i = 0; i < emit_list.size(); ++i)  {
+		switch (-emit_list[i].stmtNum){
+        case 1: {IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
+                    setw(15) << emit_list[i].id1.first << " " <<
+                    setw(15) << emit_list[i].id2.first << " " <<
+                    setw(15) << emit_list[i].res.first << '\n';}
+                break;
+        case 2: {IRcodeFile  << endl << "[" << i << "]" << ": "<<
+                    emit_list[i].op.first << endl << endl;}
+                break;
+        case 3: {IRcodeFile  << endl << "[" << i << "]" << ": "<<
+                    emit_list[i].op.first << endl << endl;}
+                break;
+        case 4: {IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
+                    setw(15) << emit_list[i].id1.first << " " <<
+                    setw(15) << emit_list[i].id2.first << " " <<
+                    setw(15) << emit_list[i].res.first << '\n';}
+                break;
+        default:{int k = emit_list[i].stmtNum;
+                while(emit_list[k].op.first == "GOTO" && emit_list[k].id1.first == ""){
+                    k = emit_list[k].stmtNum;
+                }
+                if(Labels.find(k)== Labels.end()) Labels.insert(pair<int, string>(k, "Label"+to_string(k)));
+                IRcodeFile << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
+                    setw(15) << emit_list[i].id1.first << " " <<
+                    setw(15) << emit_list[i].id2.first << " " <<
+                    setw(15) << k << "---" << '\n';
+                emit_list[i].stmtNum = k;}
+                break; 
+        }
+	}
     IRcodeFile.close();
+	return;
 }
