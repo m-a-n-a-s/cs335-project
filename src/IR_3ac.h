@@ -1,4 +1,4 @@
-#include "symbolTable.h"
+#include "semanticCheck.h"
 
 #include <vector>
 #include <iomanip>

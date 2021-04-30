@@ -1,29 +1,29 @@
-#include <iostream>
-#include <cstring>
-#include <string>
-#include <map>
-#include <unordered_map>
+#include "symbolTable.h"
 using namespace std;
 
 typedef long long ll;
 typedef unsigned long long ull;
 
-bool is_Intgr (string type);
-bool is_float (string type);
-bool is_SignedInt (string type);
-bool is_SignedFloat (string type);
-char* constant(int num_type);
-char* primary_expr(char* identifier);
-char* postfix_expr(string type, int Number);
-char* argument_expr(string type1, string type2, int Number);
-char* unary_expr(string op, string type, int Number);
-char* validAssign(string type1,string type2);
-char* additive_expr(string type1, string type2, char op);
-char* multilplicative_expr(string type1, string type2, char op);
-char* equality_expr(string type1,string type2);
-char* relational_expr(string type1,string type2,char * op);
-char* shift_expr(string type1,string type2);
-char* bitwise_expr(string type1,string type2);
-char* conditional_expr(string type1,string type2);
-char* assign_expr(string type1,string type2,char* op);
+string getstr_num_type(int num_type);
+bool int_flag (string type);
+bool real_flag (string type);
+bool is_ptr(string type);
+bool void_ptr(string type);
+bool is_char(string type);
+//char* primary_type(char* identifier);
+// char* postfix_type(string type, int rule_no);
+char* postfix_type1(string type);
+char* postfix_type2(string type);
+char* postfix_type3(string type);
+char* argument_type(string first_type, string second_type);
+char* unary_type(string op, string type);
+int compatible(string first_type,string second_type);
+int additive_type(string first_type, string second_type);
+char* multilplicative_type(string first_type, string second_type, char op);
+char* equality_type(string first_type,string second_type);
+char* relational_type(string first_type,string second_type,char * op);
+// char* shift_type(string first_type,string second_type);
+char* bitwise_type(string first_type,string second_type);
+char* conditional_type(string first_type,string second_type);
+char* assign_type(string first_type,string second_type,char* op);
 

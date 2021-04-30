@@ -1,6 +1,4 @@
-#include "semanticCheck.h"
 #include "IR_3ac.h"
-
 #include <fstream>
 using namespace std;
 
@@ -75,8 +73,8 @@ int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2
             tmp_oprtr2 = tmp_oprtr1;
         }
 
-        if (is_Intgr(operand_1_type)){
-            if (is_Intgr(operand_2_type)){
+        if (int_flag(operand_1_type)){
+            if (int_flag(operand_2_type)){
                 tmp_oprtr1.append("int");
                 if(equate){
                     //do nothing
@@ -85,7 +83,7 @@ int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2
                     ret_val = emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, operand_2_place, t, -1);
                 }
             }
-            else if (is_float(operand_2_type)){
+            else if (real_flag(operand_2_type)){
                 same_type = false;
                 t2 = newlabel_sym(type);
                 ret_val = emit(pair<string, Entry *>("realtoint", NULL), operand_2_place, pair<string, Entry *>("", NULL), t2, -1);
@@ -98,9 +96,9 @@ int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2
                 }
             }
         }
-        else if (is_float(operand_1_type))
+        else if (real_flag(operand_1_type))
         {
-            if (is_Intgr(operand_2_type))
+            if (int_flag(operand_2_type))
             {
                 t2 = newlabel_sym(type);
                 ret_val = emit(pair<string, Entry *>("realtoint", NULL), operand_2_place, pair<string, Entry *>("", NULL), t2, -1);
@@ -113,7 +111,7 @@ int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2
                 }
                 same_type = false;
             }
-            else if (is_float(operand_2_type))
+            else if (real_flag(operand_2_type))
             {
                 tmp_oprtr1.append("real");
                 if(equate){
