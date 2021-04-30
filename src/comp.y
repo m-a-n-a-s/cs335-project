@@ -360,9 +360,13 @@ argument_expression_list
                 											//---------------3AC------------//
 															}
 	| argument_expression_list ',' assignment_expression	{$$ = non_term_symb($2,NULL,$1, $3);
-								char* a =  argument_type($1->node_type, $3->node_type);
-								string tmp_str(a);
-								$$->node_type = tmp_str;
+								int arg_type =  argument_type($1->node_type, $3->node_type);
+								if(arg_type == -1){
+									$$->node_type = "error";
+								}
+								else{
+									$$->node_type = "void";
+								}
 								if($1->init_flag == 1 && $3->init_flag==1) $$->init_flag=1;
 								currArguments = currArguments +","+ $3->node_type;
 								//-------3AC-------------//
@@ -509,10 +513,13 @@ multiplicative_expression
 
 	| multiplicative_expression '*' cast_expression{
 			$$ = non_term_symb("*", NULL, $1, $3);
-			char* a=multilplicative_type($1->node_type, $3->node_type, '*');
-			if(a){
+			int mult_type = multiplicative_type1($1->node_type, $3->node_type);
+			if(mult_type == -1){
+				yyerror("Error : Incompatible type for \'*\'");
+			}
+			else{
 				int k;
-				if(strcmp(a,"int")==0){
+				if(mult_type == 0){
 					//$$=non_term_symb("*int",NULL,$1,$3);
 					$$->node_type = "long long";
 					//---------------3AC----------------//
@@ -522,7 +529,7 @@ multiplicative_expression
                   	$$->nextlist={};
                 	//--------------3AC--------------------//
 				}
-				else if (strcmp(a, "float")==0){
+				else if (mult_type == 1){
 					//$$=non_term_symb("*float",NULL,$1,$3);
 					$$->node_type = "long double";
 					//-------------3AC---------------------//
@@ -547,18 +554,18 @@ multiplicative_expression
                 	//------------3AC-----------------------------//
 				}
 			}
-			else{
-				//$$=non_term_symb("*",NULL,$1,$3);
-				yyerror("Error : Incompatible type for \'*\'");
-			}
 			if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 		}
 	| multiplicative_expression '/' cast_expression	{$$ = non_term_symb("/", NULL, $1, $3);
 														if ($3->integer_value != 0)
 															$$->integer_value = $1->integer_value/ $3->integer_value;
-														char* a=multilplicative_type($1->node_type, $3->node_type, '/');
-														if(a){int k;
-															if(!strcmp(a,"int")){
+														int mult_type = multiplicative_type2($1->node_type, $3->node_type);
+														if(mult_type == -1){
+															yyerror("Error : Incompatible type for \'/\'");
+														}
+														else{
+															int k;
+															if(mult_type == 0){
 																//$$=non_term_symb("/int",NULL,$1,$3);
 																$$->node_type = "long long";
 																//---------------3AC----------------------//
@@ -568,7 +575,7 @@ multiplicative_expression
                   												$$->nextlist= {};
                   												//--------------3AC------------------------//
 															}
-															else if (!strcmp(a,"float")){
+															else if (mult_type == 1){
 																//$$=non_term_symb("/float",NULL,$1,$3);
 																$$->node_type = "long double";
 																//-------------3AC---------------------//
@@ -592,17 +599,16 @@ multiplicative_expression
                   												//-------------------------------------------//
 															}
 														}
-														else{
-															//$$=non_term_symb("/",NULL,$1,$3);
-															yyerror("Error : Incompatible type for \'/\'");
-														}
 														if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 													}
 
 	| multiplicative_expression '%' cast_expression	{$$ = non_term_symb("%", NULL, $1, $3);
 							if($3->integer_value != 0) $$->integer_value = $1->integer_value % $3->integer_value;
-							char* a=multilplicative_type($1->node_type, $3->node_type, '/');
-							if(!strcmp(a,"int")){
+							int mult_type = multiplicative_type3($1->node_type, $3->node_type);
+							if(mult_type == -1){
+								yyerror("Error : Incompatible type for \'%\'");
+							}
+							else{
 								$$->node_type= "long long";
 								//===========3AC======================//
                   				pair <string, Entry*> t1 = newlabel_sym($$->node_type);
@@ -612,7 +618,6 @@ multiplicative_expression
 
                   				//====================================//
 							}
-							else yyerror("Error : Incompatible type for \'%\'");
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 
 							}
@@ -759,10 +764,13 @@ shift_expression
 relational_expression
 	: shift_expression								{$$ = $1;}
 	| relational_expression '<' shift_expression	{$$ = non_term_symb("<", NULL, $1, $3);
-							char* a = relational_type($1->node_type,$3->node_type,"<");
-							if(a) { 
-								if(!strcmp(a,"bool")) $$->node_type = "bool";
-								else if(!strcmp(a,"bool_warning")){
+							int rel_type = relational_type($1->node_type,$3->node_type);
+							if(rel_type == -1){
+								yyerror("Error : invalid operands to <");
+							}
+							else{ 
+								if(rel_type == 1) $$->node_type = "bool";
+								else{
 									$$->node_type = "bool";
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
@@ -773,17 +781,17 @@ relational_expression
                         		$$->nextlist={};
                        			//====================================//
 							}	
-							else {
-								yyerror("Error : invalid operands to <");
-							}
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
 
 	| relational_expression '>' shift_expression	{$$ = non_term_symb(">", NULL, $1, $3);
-							char* a=relational_type($1->node_type,$3->node_type,">");
-							if(a){ 
-								if(!strcmp(a,"bool")) $$->node_type = "bool";
-								else if(!strcmp(a,"bool_warning")){
+							int rel_type = relational_type($1->node_type,$3->node_type);
+							if(rel_type == -1){
+								yyerror("Error : invalid operands to <");
+							}
+							else{ 
+								if(rel_type == 1) $$->node_type = "bool";
+								else{
 									$$->node_type = "bool";
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
@@ -793,17 +801,18 @@ relational_expression
                            		$$->place = t1;
                            		$$->nextlist = {};
                        			//====================================//
-							}else {
-								yyerror("Error : invalid operands to >");
 							}
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
 
 	| relational_expression LE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);
-							char* a=relational_type($1->node_type,$3->node_type,"<=");
-							if(a){
-								if(!strcmp(a,"bool")) $$->node_type = "bool";
-								else if(!strcmp(a,"bool_warning")){
+							int rel_type = relational_type($1->node_type,$3->node_type);
+							if(rel_type == -1){
+								yyerror("Error : invalid operands to <");
+							}
+							else{ 
+								if(rel_type == 1) $$->node_type = "bool";
+								else{
 									$$->node_type = "bool";
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
@@ -813,17 +822,18 @@ relational_expression
                            		$$->place = t1;
                            		$$->nextlist = {};
                        			//====================================//
-							}else {
-								yyerror("Error : invalid operands to <=");
 							}
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
 
 	| relational_expression GE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);
-							char* a=relational_type($1->node_type,$3->node_type,">=");
-							if(a){  
-								if(!strcmp(a,"bool")) $$->node_type = "bool";
-								else if(!strcmp(a,"bool_warning")){
+							int rel_type = relational_type($1->node_type,$3->node_type);
+							if(rel_type == -1){
+								yyerror("Error : invalid operands to <");
+							}
+							else{ 
+								if(rel_type == 1) $$->node_type = "bool";
+								else{
 									$$->node_type = "bool";
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
@@ -833,8 +843,6 @@ relational_expression
                            		$$->place = t1;
                            		$$->nextlist ={};
                        			//====================================//	
-							}else {
-								yyerror("Error : invalid operands to >=");
 							}
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
@@ -843,9 +851,13 @@ relational_expression
 equality_expression
   : relational_expression   {$$ = $1;}
   | equality_expression EQ_OP relational_expression {$$ = non_term_symb_2("==", $1, NULL, $3);
-						    char* a = equality_type($1->node_type,$3->node_type);
-						    if(a){ if(!strcmp(a,"true")){
-							    yyerror("Warning : Invalid Comparison : pointer and Integer");
+						    int eq_type = equality_type($1->node_type,$3->node_type);
+						    if(eq_type == -1){
+								yyerror("Error :Invalid operands to ==");
+							}
+							else{
+								if(eq_type == 0){
+							    	yyerror("Warning : Invalid Comparison : pointer and Integer");
 							    }
 							    $$->node_type = "bool";
 								//===========3AC======================//
@@ -855,14 +867,17 @@ equality_expression
                            		$$->nextlist = {};
                        			//====================================//
 						    }
-						   else{ yyerror("Error :Invalid operands to =="); }
-						   if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
+						   	if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
                                                    }
 
   | equality_expression NE_OP relational_expression {$$ = non_term_symb_2("!=", $1, NULL, $3);
-						    char* a = equality_type($1->node_type,$3->node_type);
-						    if(a){   if(!strcmp(a,"true")){
-							    yyerror("Warning : Invalid Comparison : pointer and Integer");
+						    int eq_type = equality_type($1->node_type,$3->node_type);
+						    if(eq_type == -1){
+								yyerror("Error :Invalid operands to ==");
+							}
+							else{
+								if(eq_type == 0){
+							    	yyerror("Warning : Invalid Comparison : pointer and Integer");
 							    }
 							    $$->node_type = "bool";
 								//===========3AC======================//
@@ -872,7 +887,6 @@ equality_expression
                            		$$->nextlist ={};
                        			//====================================//
 						    }
-						   else{ yyerror("Error :Invalid operands to !="); }
 						   if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
                                                    }
   ;
@@ -880,11 +894,18 @@ equality_expression
 and_expression
   : equality_expression  { $$ = $1;}
   | and_expression '&' equality_expression  {
-               $$ = non_term_symb("&",NULL, $1, $3);
-               char* a = bitwise_type($1->node_type,$3->node_type);
-               if(a){
-                  if(!strcmp(a,"true")) { $$->node_type = "bool"; }
-                  else{  $$->node_type = "long long"; }
+               	$$ = non_term_symb("&",NULL, $1, $3);
+				int bit_type = bitwise_type($1->node_type,$3->node_type);
+               	if(bit_type == -1){
+					yyerror("Error :Invalid operands to the &");
+				}
+				else{
+					if(bit_type == 1){
+						$$->node_type = "bool"; 
+					}
+					else{   
+						$$->node_type = "long long";
+					}
 				  //===========3AC======================//
                   pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   int k= emit(pair<string, Entry*>("&", NULL), $1->place, $3->place, t1, -1);
@@ -892,9 +913,6 @@ and_expression
                   $$->nextlist={};
                   //====================================//	
 				  
-               }
-               else {
-                 yyerror("Error :Invalid operands to the &");
                }
                  if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
           }
@@ -904,19 +922,23 @@ exclusive_or_expression
   : and_expression   { $$ = $1;}
   | exclusive_or_expression '^' and_expression  {
            $$ = non_term_symb("^", NULL, $1, $3);
-               char* a = bitwise_type($1->node_type,$3->node_type);
-               if(a){
-                  if(!strcmp(a,"true")) { $$->node_type = "bool"; }
-                  else{   $$->node_type = "long long";}
+               	int bit_type = bitwise_type($1->node_type,$3->node_type);
+               	if(bit_type == -1){
+					yyerror("Error :Invalid operands to the ^");
+				}
+				else{
+					if(bit_type == 1){
+						$$->node_type = "bool"; 
+					}
+					else{   
+						$$->node_type = "long long";
+					}
 				  //===========3AC======================//
                   pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                   int k = emit(pair<string, Entry*>("^", NULL), $1->place, $3->place, t1, -1);
                   $$->place = t1;
                   $$->nextlist={};
                   //====================================//
-               }
-               else {
-                 yyerror("Error :Invalid operands to the ^");
                }
                  if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 
@@ -926,10 +948,17 @@ exclusive_or_expression
 inclusive_or_expression
 	: exclusive_or_expression								{$$ = $1;}
 	| inclusive_or_expression '|' exclusive_or_expression	{$$ = non_term_symb("|", NULL, $1, $3);
-								char* a = bitwise_type($1->node_type,$3->node_type);
-								if(a){
-									if(!strcmp(a,"true")) { $$->node_type = "bool"; }
-									else{   $$->node_type = "long long";}
+								int bit_type = bitwise_type($1->node_type,$3->node_type);
+								if(bit_type == -1){
+									yyerror("Error :Invalid operands to the |");
+								}
+								else{
+									if(bit_type == 1){
+										$$->node_type = "bool"; 
+									}
+									else{   
+										$$->node_type = "long long";
+									}
 									//===========3AC======================//
                            			pair <string, Entry*> t1 = newlabel_sym($$->node_type);
                            			int k =  emit(pair<string, Entry*>("|", NULL), $1->place, $3->place, t1, -1);
@@ -937,9 +966,6 @@ inclusive_or_expression
                            			$$->nextlist={};
                        				//====================================//
 						
-								}
-								else {
-									yyerror("Error :Invalid operands to the |");
 								}
 									if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							
@@ -1060,9 +1086,11 @@ conditional_expression
 	: logical_or_expression												{$$ = $1;}
 	| M3 M expression ':' N conditional_expression	{$$ = non_term_symb_2("logical_expr ? expr : conditional_expr", $1, $3, $6);
 										$$->real_value = -11;
-										char* a = conditional_type($3->node_type,$6->node_type);
-										if(a){
-											string tmp_str(a);
+										int cond_type = conditional_type($3->node_type,$6->node_type);
+										if(cond_type == -1){
+											yyerror("Error :Type Error in ternary statement");
+										}
+										else{
 											$$->node_type = "int";
 											//--------------------3AC--------------------------//
                     						pair <string, Entry*> t = newlabel_sym($$->node_type);
@@ -1080,10 +1108,6 @@ conditional_expression
                     						$$->place = t;
                  							//--------------------------------------------------//
 										}
-										else{
-
-											yyerror("Error :Type Error in ternary statement");
-										}
 										if($1->init_flag==1 && $3->init_flag==1 && $6->init_flag==1) $$->init_flag=1;																		
 										}
 	;
@@ -1091,13 +1115,37 @@ conditional_expression
 assignment_expression
 	: conditional_expression										{$$ = $1;}
 	| unary_expression assignment_operator assignment_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
-									char* a = assign_type($1->node_type,$3->node_type,$2);
-									if(a){
-											if(!strcmp(a,"true")){ $$->node_type = $1->node_type;
-											}
-											if(!strcmp(a,"warning")){ $$->node_type = $1->node_type;
-												yyerror("Warning : Incompatible pointer type assignment");
-											}
+									string tmp_str = convert_to_string($2);
+									int assign_type;
+									if(tmp_str == "="){
+										assign_type = assignment_type1($1->node_type, $3->node_type);										
+									}
+									else if(tmp_str == "+=" || tmp_str == "-="){
+										assign_type = assignment_type2($1->node_type, $3->node_type);
+									}
+									else if(tmp_str == "*="){
+										assign_type = assignment_type3($1->node_type, $3->node_type);
+									}
+									else if(tmp_str == "/="){
+										assign_type = assignment_type4($1->node_type, $3->node_type);
+									}
+									else if(tmp_str == "%="){
+										assign_type = assignment_type5($1->node_type, $3->node_type);
+									}
+									else if(tmp_str == ">>=" || tmp_str == "<<="){
+										assign_type = assignment_type6($1->node_type, $3->node_type);
+									}
+									else if(tmp_str == "&=" || tmp_str == "^=" || tmp_str == "|="){
+										assign_type = assignment_type7($1->node_type, $3->node_type);
+									}
+									if(assign_type == -1){
+										yyerror("Error : Incompatible types when assigning type \'%s\' to \'%s\' ",($1->node_type).c_str(),($3->node_type).c_str());
+									}
+									else{
+										$$->node_type = $1->node_type;
+										if(assign_type == 0){
+											yyerror("Warning : Incompatible pointer type assignment");
+										}
 										//-------------3AC------------------------------------//
                       					int k;
 										k = assign_3ac($2, $$->node_type,$1->node_type, $3->node_type, $1->place, $3->place);
@@ -1105,7 +1153,6 @@ assignment_expression
 										backPatch($3->nextlist, k);
                        					//-------------------------------------------------------//		
 									}
-									else{ yyerror("Error : Incompatible types when assigning type \'%s\' to \'%s\' ",($1->node_type).c_str(),($3->node_type).c_str()); }
 									if($1->expr_type==3){ if($3->init_flag==1) update_init_flag($1->node_key); }
 									}
 	;
