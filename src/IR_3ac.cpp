@@ -35,7 +35,7 @@ int emit(pair <string, Entry*> op, pair <string, Entry*> operand_1, pair <string
 string newlabel_var(){
     static long temp_var_num = 0;
     temp_var_num++;
-    return (string("temp_") + to_string(temp_var_num));
+    return (string("@temp") + to_string(temp_var_num));
 }
 
 //get temporary symbol
