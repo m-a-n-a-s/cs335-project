@@ -1,10 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <cstring>
-#include <string>
-#include <iostream>
-#include <sstream>
-#include <vector>
+//#include <cstring>
+//#include <string>
+//#include <iostream>
+//#include <sstream>
+//#include <vector>
 #include "IR_3ac.h"
 
 using namespace std;
@@ -22,7 +22,7 @@ struct node{
   string node_key;
   string node_type;
   ///////////////////////////
-  qid place;
+  pair <string, Entry*> place;
   vector<int> truelist;
   vector<int> nextlist;
   vector<int> falselist;

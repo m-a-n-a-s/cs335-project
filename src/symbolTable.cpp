@@ -93,9 +93,9 @@ void table_initialize(){
     //addKeywords();
     insert_symbol(*curr,"printf","FUNC_void",8,0,1);
     insert_symbol(*curr,"scanf","FUNC_int",8,0,1);
-    argsMap.insert(pair<string,string>("printf","char *,..."));
+    argsMap.insert(pair<string,string>("printf","char*,..."));
    //  argsMap.insert(pair<string,string>("prints","char*"));
-    argsMap.insert(pair<string,string>("scanf","char *,..."));
+    argsMap.insert(pair<string,string>("scanf","char*,..."));
 
 }
 
