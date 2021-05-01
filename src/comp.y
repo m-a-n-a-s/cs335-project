@@ -175,11 +175,23 @@ postfix_expression
 								//****3AC****
 
 								$$->place = newlabel_sym($$->node_type);
-                                pair <string, Entry*> opT  = pair<string,Entry*>("[]",NULL);
-                                int k = emit(opT, $1->place, $3->place, $$->place, -1);
-                                // $$->place.second->size = $3->place.second->offset;
-                                // $$->place.second->offset = $1->place.second->offset;
-                                // $$->place.second->init_flag = -5;
+                                //pair <string, Entry*> opT  = pair<string,Entry*>("[]",NULL);
+                                //int k = emit(opT, $1->place, $3->place, $$->place, -1);
+							
+                                if($3->place.second!=NULL){
+									//means index is not a const number
+									$$->place.second->size = $3->place.second->offset;
+                                	$$->place.second->offset = $1->place.second->offset;
+									$$->place.second->is_array=1;
+								}
+								else{
+									//means const number
+									$$->place.second->size=stoi($3->place.first);
+									$$->place.second->offset=$1->place.second->offset;
+									$$->place.second->is_array=2;
+								}
+                                $$->place.second->init_flag = 1;
+								
                                 $$->nextlist = {};
                                 //backPatch($3->truelist, k);
                                 //backPatch($3->falselist, k);

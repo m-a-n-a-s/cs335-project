@@ -20,6 +20,7 @@ typedef struct table_entry{
     ll offset;
     string type;
     int init_flag;
+    int is_array;
 } Entry;
 
 typedef unordered_map<string,Entry *> symbol_table;
