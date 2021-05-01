@@ -75,7 +75,7 @@ int tempeven;
 %right <str> '&' '=' '!' '~' ':' '?'
 
 %type <ptr> multiplicative_expression additive_expression cast_expression primary_expression expression assignment_expression postfix_expression unary_expression shift_expression relational_expression equality_expression and_expression exclusive_or_expression inclusive_or_expression logical_or_expression logical_and_expression conditional_expression constant_expression
-%type <ptr> type_name argument_expression_list initializer_list M3 M4 M5 M6 M7
+%type <ptr> type_name argument_expression_list initializer_list M5
 %type <ptr> unary_operator
 %type <ptr> declaration declaration_specifiers
 %type <ptr> init_declarator_list storage_class_specifier type_specifier type_qualifier
@@ -1062,18 +1062,18 @@ logical_or_expression
 								}
 	;
 
-M3
-  : logical_or_expression '?' {
-                        if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                            $1->truelist.push_back(k);
-                            $1->falselist.push_back(k1);
-
-                        }
-                        $$ = $1;
-  }
-  ;
+//M3
+//  : logical_or_expression '?' {
+//                        if($1->truelist.begin()==$1->truelist.end()){
+//                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+//                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+//                            $1->truelist.push_back(k);
+//                            $1->falselist.push_back(k1);
+//
+//                        }
+//                        $$ = $1;
+//  }
+//  ;
 
 N
  : %empty {
@@ -1084,31 +1084,37 @@ N
 
 conditional_expression
 	: logical_or_expression												{$$ = $1;}
-	| M3 M expression ':' N conditional_expression	{$$ = non_term_symb_2("logical_expr ? expr : conditional_expr", $1, $3, $6);
+	| logical_or_expression '?' M expression ':' N conditional_expression	{$$ = non_term_symb_2("logical_expr ? expr : conditional_expr", $1, $4, $7);
 										$$->real_value = -11;
-										int cond_type = conditional_type($3->node_type,$6->node_type);
+										int cond_type = conditional_type($4->node_type,$7->node_type);
 										if(cond_type == -1){
 											yyerror("Error :Type Error in ternary statement");
 										}
 										else{
+											if($1->truelist.begin()==$1->truelist.end()){
+												int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+												int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+												$1->truelist.push_back(k);
+												$1->falselist.push_back(k1);
+											}
 											$$->node_type = "int";
 											//--------------------3AC--------------------------//
                     						pair <string, Entry*> t = newlabel_sym($$->node_type);
-                    						emit(pair<string, Entry*>("=", NULL), $6->place, pair<string, Entry*>("", NULL), t, -1);
-                    						int k = emit(pair<string, Entry*>("GOTO", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), 0);
-                    						backPatch($1->truelist , $2);
-                    						backPatch($1->falselist , $5+1);
-                    						//setId1($5-1 , $3->place);
-											emit_list[$5-1].operand_1 = $3->place;
-                    						//setResult($5-1 , t);
-											emit_list[$5-1].ans = t;
-                    						$$->nextlist = $3->nextlist;
-                    						$$->nextlist.push_back($5);
-                    						$$->nextlist.push_back(k);
+                    						emit(pair<string, Entry*>("=", NULL), $7->place, pair<string, Entry*>("", NULL), t, -1);
+                    						int k2 = emit(pair<string, Entry*>("GOTO", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), 0);
+                    						backPatch($1->truelist , $3);
+                    						backPatch($1->falselist , $6+1);
+                    						//setId1($6-1 , $4->place);
+											emit_list[$6-1].operand_1 = $4->place;
+                    						//setResult($6-1 , t);
+											emit_list[$6-1].ans = t;
+                    						$$->nextlist = $4->nextlist;
+                    						$$->nextlist.push_back($6);
+                    						$$->nextlist.push_back(k2);
                     						$$->place = t;
                  							//--------------------------------------------------//
 										}
-										if($1->init_flag==1 && $3->init_flag==1 && $6->init_flag==1) $$->init_flag=1;																		
+										if($1->init_flag==1 && $4->init_flag==1 && $7->init_flag==1) $$->init_flag=1;																		
 										}
 	;
 
@@ -1799,18 +1805,18 @@ expression_statement
 	| expression ';' {$$ = $1;}
 	;
 
-M4
-  :  IF '(' expression ')' {
-                        if($3->truelist.begin()==$3->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $3->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                            $3->truelist.push_back(k);
-                            $3->falselist.push_back(k1);
-
-                        }
-                        $$ = $3;
-  }
-  ;
+//M4
+//  :  IF '(' expression ')' {
+//                        if($3->truelist.begin()==$3->truelist.end()){
+//                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $3->place, pair<string, Entry*>("", NULL ),0);
+//                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+//                            $3->truelist.push_back(k);
+//                            $3->falselist.push_back(k1);
+//
+//                        }
+//                        $$ = $3;
+//  }
+//  ;
 
 GOTO_emit
    : %empty {
@@ -1820,32 +1826,44 @@ GOTO_emit
    ;
 
 selection_statement
-	: M4 M statement ELSE GOTO_emit M statement {
-		$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $1, $3, $7);
+	: IF '(' expression ')' M statement ELSE GOTO_emit M statement {
+		$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $3, $6, $10);
 		//----------3AC---------------------//
-        backPatch($1->truelist, $2);
-        backPatch($1->falselist, $6);
-        $3->nextlist.push_back($5);
-        //$3->nextlist.merge($7->nextlist);
-		merging($3->nextlist, $7->nextlist);
-        $$->nextlist=$3->nextlist;
-        //$3->breaklist.merge($7->breaklist);
-		merging($3->breaklist, $7->breaklist);
-        $$->breaklist = $3->breaklist;
-        //$3->continuelist.merge($7->continuelist);
-		merging($3->continuelist, $7->continuelist);
-        $$->continuelist = $3->continuelist;
+		if($3->truelist.begin()==$3->truelist.end()){
+			int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $3->place, pair<string, Entry*>("", NULL ),0);
+			int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+			$3->truelist.push_back(k);
+			$3->falselist.push_back(k1);
+		}
+        backPatch($3->truelist, $5);
+        backPatch($3->falselist, $9);
+        $6->nextlist.push_back($8);
+        //$6->nextlist.merge($10->nextlist);
+		merging($6->nextlist, $10->nextlist);
+        $$->nextlist=$6->nextlist;
+        //$6->breaklist.merge($10->breaklist);
+		merging($6->breaklist, $10->breaklist);
+        $$->breaklist = $6->breaklist;
+        //$6->continuelist.merge($10->continuelist);
+		merging($6->continuelist, $10->continuelist);
+        $$->continuelist = $6->continuelist;
         //-----------------------------------//
 	}
-	| M4 M statement %prec IFX {
-		$$ = non_term_symb_2("IF (expr) stmt", NULL, $1, $3);
+	| IF '(' expression ')' M statement %prec IFX {
+		$$ = non_term_symb_2("IF (expr) stmt", NULL, $3, $6);
 		//---------------3AC-------------------//
-        backPatch($1->truelist, $2);
-        //$3->nextlist.merge($1->falselist);
-		merging($3->nextlist, $1->falselist);
-        $$->nextlist= $3->nextlist;
-        $$->continuelist = $3->continuelist;
-        $$->breaklist = $3->breaklist;
+		if($3->truelist.begin()==$3->truelist.end()){
+			int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $3->place, pair<string, Entry*>("", NULL ),0);
+			int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+			$3->truelist.push_back(k);
+			$3->falselist.push_back(k1);
+		}
+        backPatch($3->truelist, $5);
+        //$6->nextlist.merge($3->falselist);
+		merging($6->nextlist, $3->falselist);
+        $$->nextlist= $6->nextlist;
+        $$->continuelist = $6->continuelist;
+        $$->breaklist = $6->breaklist;
         //------------------------------------//
 	}
 	| SWITCH '(' expression ')' statement{
@@ -1864,37 +1882,44 @@ selection_statement
 	}
 	;
 
-M6
-  :   expression  {
-                        if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                            $1->truelist.push_back(k);
-                            $1->falselist.push_back(k1);
+//M6
+//  :   expression  {
+//                        if($1->truelist.begin()==$1->truelist.end()){
+//                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+//                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+//                            $1->truelist.push_back(k);
+//                            $1->falselist.push_back(k1);
+//
+//                        }
+//                        $$ = $1;
+//  }
+//  ;
 
-                        }
-                        $$ = $1;
-  }
-  ;
 
-
-M7
-  :   expression_statement  {
-                        if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                            $1->truelist.push_back(k);
-                            $1->falselist.push_back(k1);
-
-                        }
-                        $$ = $1;
-  }
-  ;
+//M7
+//  :   expression_statement  {
+//                        if($1->truelist.begin()==$1->truelist.end()){
+//                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
+//                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+//                            $1->truelist.push_back(k);
+//                            $1->falselist.push_back(k1);
+//
+//                        }
+//                        $$ = $1;
+//  }
+//  ;
 
 iteration_statement
-	: WHILE '(' M M6 ')' M statement GOTO_emit {
+	: WHILE '(' M expression ')' M statement GOTO_emit {
 		$$ = non_term_symb_2("WHILE (expr) stmt", NULL, $4, $7);
 		//-----------3AC------------------//
+		if($4->truelist.begin()==$4->truelist.end()){
+			int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $4->place, pair<string, Entry*>("", NULL ),0);
+			int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+			$4->truelist.push_back(k);
+			$4->falselist.push_back(k1);
+		}
+
         backPatch($4->truelist, $6);
         $7->continuelist.push_back($8);
         backPatch($7->continuelist, $3);
@@ -1904,9 +1929,16 @@ iteration_statement
 		merging($$->nextlist, $7->breaklist);
         //--------------------------------//
 	}
-	| DO M statement  WHILE '(' M M6 ')' ';'{
+	| DO M statement  WHILE '(' M expression ')' ';'{
 		$$ = non_term_symb_2("DO stmt WHILE (expr)", NULL, $3, $7);
 		//--------3AC-------------------------//
+		if($7->truelist.begin()==$7->truelist.end()){
+			int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $7->place, pair<string, Entry*>("", NULL ),0);
+			int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+			$7->truelist.push_back(k);
+			$7->falselist.push_back(k1);
+		}
+
         backPatch($7->truelist, $2);
         backPatch($3->continuelist, $6);
         backPatch($3->nextlist, $6);
@@ -1915,9 +1947,16 @@ iteration_statement
         $$->nextlist = $7->falselist;
         //-----------------------------------//
 	}
-	| FOR '(' expression_statement M M7 ')' M statement GOTO_emit {
+	| FOR '(' expression_statement M expression_statement ')' M statement GOTO_emit {
 		$$ = non_term_symb_2("FOR (expr_stmt expr_stmt) stmt", $3, $5, $8);
 		//-------------3AC-------------------//
+		if($5->truelist.begin()==$5->truelist.end()){
+			int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $5->place, pair<string, Entry*>("", NULL ),0);
+			int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+			$5->truelist.push_back(k);
+			$5->falselist.push_back(k1);
+		}
+
         backPatch($3->nextlist, $4);
         backPatch($5->truelist, $7);
         //$5->falselist.merge($8->breaklist);
@@ -1929,9 +1968,16 @@ iteration_statement
         backPatch($8->nextlist, $4 );
         //------------------------------------//
 	}
-	| FOR '(' expression_statement M M7 M expression GOTO_emit ')' M statement GOTO_emit {
+	| FOR '(' expression_statement M expression_statement M expression GOTO_emit ')' M statement GOTO_emit {
 		$$ = non_term_symb_5("FOR (expr_stmt expr_stmt expr) stmt", NULL, $3, $5, $7, $11);
 		//-------------3AC-------------------//
+		if($5->truelist.begin()==$5->truelist.end()){
+			int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $5->place, pair<string, Entry*>("", NULL ),0);
+			int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+			$5->truelist.push_back(k);
+			$5->falselist.push_back(k1);
+		}
+
         backPatch($3->nextlist, $4);
         backPatch($5->truelist, $10);
         //$5->falselist.merge($11->breaklist);
