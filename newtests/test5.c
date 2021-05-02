@@ -3,10 +3,10 @@ int main(){
     if (a <= 2){
         if (b <= 3){
             if (c == 4 && d >= 5){
-                printf("Working\n");
+                prints("Working\n");
             }
-            else printf("Incorrect\n");
+            else prints("Incorrect\n");
         }
-        else if (b > 6) printf("Incorrect\n");
+        else if (b > 6) prints("Incorrect\n");
     }
 }

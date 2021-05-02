@@ -5,15 +5,16 @@ int fib(int n){
 
 int main(){
     int n, a = 1, b = 1, c, d, i;
-    scanf("%d", &n);
+    //n=scanf();
+    n=3;
     d = fib(n);
     for(i = 2; i <= n; i++){
         c = a + b;
         a = b;
         b = c;
     }
-    if (n < 2 && d == 1) printf("Correct\n");
-    else if (n >= 2 && d == c) printf("Correct\n");
-    else printf("Incorrect\n"); 
+    if (n < 2 && d == 1) prints("Correct\n");
+    else if (n >= 2 && d == c) prints("Correct\n");
+    else prints("Incorrect\n"); 
     return 0;
 }

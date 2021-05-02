@@ -3,8 +3,8 @@ int main(){
     float d = 1.01, e = 2.02;
     char f = 'x';
     double g = a + b;
-    if (f < 100) printf("Working\n");
-    else if (a + d > 2) printf("Working again\n");
-    else if (c / e > 0) printf("Working\n"); 
+    if (f < 100) prints("Working\n");
+    else if (a + d > 2) prints("Working again\n");
+    else if (c / e > 0) prints("Working\n"); 
     return 0;
 }

@@ -26,6 +26,7 @@ quad set_values_quad(pair <string, Entry*> operand_1, pair <string, Entry*> oper
 int emit(pair <string, Entry*> op, pair <string, Entry*> operand_1, pair <string, Entry*> operand_2, pair <string, Entry*> ans, int line_no){
     quad new_instr = set_values_quad(operand_1, operand_2, op, ans, line_no);
     emit_list.push_back(new_instr);
+    //cout<<new_instr.op.first<<" "<<new_instr.operand_1.first<<" "<<new_instr.operand_2.first<<"\n";
     return ++pos;
 }
 

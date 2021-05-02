@@ -21,8 +21,9 @@ int yylex(void);
 void yyerror(char *s,...);
 
 //#include "semanticCheck.h"
-#include "functions.h"
+//#include "functions.h"
 //#include "symbolTable.h"
+#include "assembly.h"
 
 extern int yylineno;
 string file_name;
@@ -243,8 +244,8 @@ postfix_expression
 									string temp2 = funcArgs;
 									string typeA,typeB;
 									string delim = ",";
-									unsigned f1=1;
-									unsigned f2=1;
+									int f1=1;
+									int f2=1;
 									int argNo = 0;
 									while(f1!=-1 && f2!=-1){
 										f1 = temp1.find_first_of(delim);
@@ -269,8 +270,8 @@ postfix_expression
 										}else{ break; }
 									}
 									//--------------------------3AC----------------------------------//
-                       				unsigned fT=1;
-                       				unsigned carg=1;
+                       				int fT=1;
+                       				int carg=1;
                   					while(fT!=-1){
                           				carg++;
                           				fT = currArguments.find_first_of(delim);
@@ -1840,13 +1841,17 @@ GOTO_emit
 selection_statement
 	: IF '(' expression ')' M statement ELSE GOTO_emit M statement {
 		$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $3, $6, $10);
+		//cout<<"pleas\n";
 		//----------3AC---------------------//
+		//cout<<$3->truelist.size()<<endl;
 		if($3->truelist.begin()==$3->truelist.end()){
+			//cout<<"incsode\n";
 			int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $3->place, pair<string, Entry*>("", NULL ),0);
 			int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
 			$3->truelist.push_back(k);
 			$3->falselist.push_back(k1);
 		}
+		
         backPatch($3->truelist, $5);
         backPatch($3->falselist, $9);
         $6->nextlist.push_back($8);
@@ -2163,6 +2168,13 @@ int main(int argc, char * argv[]){
   	print_tables(curr,file_name);
   	print_func_args();
 	show_in_file();
+
+	resetRegister();
+	//cout<<"1\n";
+	generate();
+	//cout<<"2\n";
+	print_asm();
+
     return 0;
 }
 
