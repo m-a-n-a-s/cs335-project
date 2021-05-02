@@ -19,7 +19,8 @@ BUILD=./build
 OBJ=$(BUILD)/functions.o     \
 		$(BUILD)/semanticCheck.o \
 		$(BUILD)/symbolTable.o  \
-		$(BUILD)/IR_3ac.o  
+		$(BUILD)/IR_3ac.o  \
+		$(BUILD)/assembly.o
 
 all: $(BIN)/compiler
 

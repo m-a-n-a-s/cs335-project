@@ -12,7 +12,7 @@ do
 echo "$i done"
 done
 
-./bin/compiler test1.c -o ast.dot
-echo "test1 done"
+# ./bin/compiler test1.c -o ast.dot
+# echo "test1 done"
 ./bin/compiler sample.c -o ast.dot
 echo "sample done"
