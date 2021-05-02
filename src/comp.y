@@ -331,7 +331,7 @@ postfix_expression
 
 													//------------------3AC------------//
                   									pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  									int k=  emit(pair<string, Entry*>("++S", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
+                  									int k=  emit(pair<string, Entry*>("S++", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
                   									$$->place = t1;
                   									$$->nextlist = {};
                   									//-----------------3AC-----------------//
@@ -351,7 +351,7 @@ postfix_expression
 
 													//-----------------3AC-------------//
                   									pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  									int k=emit(pair<string, Entry*>("--S", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
+                  									int k=emit(pair<string, Entry*>("S--", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
                   									$$->place = t1;
                   									$$->nextlist={};
                   									//--------------3AC-------------//
@@ -1780,6 +1780,7 @@ statement_list
 	: statement {$$ = $1;}
 	| statement_list M statement {$$ = non_term_symb("statement_list", NULL, $1, $3);
 								//---------------3AC--------------------//
+								
                                          backPatch($1->nextlist, $2);
                                          $$->nextlist = $3->nextlist;
                                          //$1->caselist.merge($3->caselist);
@@ -1849,6 +1850,7 @@ selection_statement
         backPatch($1->truelist, $2);
         //$3->nextlist.merge($1->falselist);
 		merging($3->nextlist, $1->falselist);
+		
         $$->nextlist= $3->nextlist;
         $$->continuelist = $3->continuelist;
         $$->breaklist = $3->breaklist;

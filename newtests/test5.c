@@ -3,10 +3,11 @@ int main(){
     if (a <= 2){
         if (b <= 3){
             if (c == 4 && d >= 5){
-                prints("Working\n");
+                print_string("Working\n");
             }
-            else prints("Incorrect\n");
+            else print_string("Incorrect\n");
         }
-        else if (b > 6) prints("Incorrect\n");
+        else if (b > 6) print_string("Incorrect\n");
     }
+    return 0;
 }

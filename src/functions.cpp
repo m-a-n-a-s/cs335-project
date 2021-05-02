@@ -11,7 +11,7 @@ ul find_id() {
 }
 // WORKING !!
 
-void merging(vector<int> l1, vector<int>l2){
+void merging(vector<int> &l1, vector<int>&l2){
   vector<int> arr(l1.size() + l2.size());
   merge(l1.begin(), l1.end(), l2.begin(), l2.end(), arr.begin());
   //arr1.assign(arr3.begin(), arr3.end());
