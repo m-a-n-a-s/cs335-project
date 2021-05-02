@@ -7,8 +7,8 @@ To build the executable -
 ```
 $make
 ```
-This will make an executable named parser in bin folder.<br /> 
-To run and make the dot script -
+This will make an executable named compiler in bin folder.<br /> 
+To run and make the dot script , symbol tables, IR code and asm code-
 ```
 $./bin/compiler <file> -o ast.dot
 ```
@@ -20,3 +20,10 @@ To visualize the tree -
 $dot -Tps ast.dot -o ast.ps
 ```
 Open ast.ps to see the Abstract Syntax Tree.
+
+To run the assembly code
+```
+$spim
+load "code.asm"
+run
+```
