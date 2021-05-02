@@ -27,3 +27,7 @@ $spim
 load "code.asm"
 run
 ```
+LIBRARY FUNCTIONS
+use print_int(x) to print integer x
+use print_string(s) to print string s
+use x=scanf() to scan integer into x
