@@ -81,7 +81,7 @@ int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2
                     //do nothing
                 }
                 else{
-                    ret_val = emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, operand_2_place, t, -1);
+                    ret_val = emit(pair<string, Entry *>(tmp_oprtr1, NULL), operand_1_place, operand_2_place, t, -1);
                 }
             }
             else if (real_flag(operand_2_type)){
@@ -93,7 +93,7 @@ int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2
                     //do nothing
                 }
                 else{
-                    emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, t2, t, -1);
+                    ret_val=emit(pair<string, Entry *>(tmp_oprtr1,NULL), operand_1_place, t2, t, -1);
                 }
             }
         }
@@ -102,13 +102,13 @@ int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2
             if (int_flag(operand_2_type))
             {
                 t2 = newlabel_sym(type);
-                ret_val = emit(pair<string, Entry *>("realtoint", NULL), operand_2_place, pair<string, Entry *>("", NULL), t2, -1);
-                tmp_oprtr1.append("int");
+                ret_val = emit(pair<string, Entry *>("inttoreal", NULL), operand_2_place, pair<string, Entry *>("", NULL), t2, -1);
+                tmp_oprtr1.append("real");
                 if(equate){
                     //do nothing
                 }
                 else{
-                    emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, t2, t, -1);
+                    ret_val=emit(pair<string, Entry *>(tmp_oprtr1, NULL), operand_1_place, t2, t, -1);
                 }
                 same_type = false;
             }
@@ -119,16 +119,16 @@ int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2
                     //do nothing
                 }
                 else{
-                    ret_val = emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, operand_2_place, t, -1);
+                    ret_val = emit(pair<string, Entry *>(tmp_oprtr1, NULL), operand_1_place, operand_2_place, t, -1);
                 }
             }
         }
 
         if (!same_type && equate){
-            emit(pair<string, Entry *>("=", lookup("=")), t2, pair<string, Entry *>("", NULL), operand_1_place, -1);
+            ret_val=emit(pair<string, Entry *>("=", NULL), t2, pair<string, Entry *>("", NULL), operand_1_place, -1);
         }
         else{
-            ret_val = emit(pair<string, Entry *>("=", lookup("=")), t, pair<string, Entry *>("", NULL), operand_1_place, -1);
+            ret_val = emit(pair<string, Entry *>("=", NULL), t, pair<string, Entry *>("", NULL), operand_1_place, -1);
         }
     }
 
@@ -163,8 +163,8 @@ int assign_3ac(char* oprtr, string type, string operand_1_type, string operand_2
                 tmp_oprtr2.append(">>");
             }
         }
-        emit(pair<string, Entry *>(tmp_oprtr1, lookup(tmp_oprtr2)), operand_1_place, operand_2_place, t, -1);
-        emit(pair<string, Entry *>("=", lookup("=")), t, pair<string, Entry *>("", NULL), operand_1_place, -1);
+        emit(pair<string, Entry *>(tmp_oprtr1, NULL), operand_1_place, operand_2_place, t, -1);
+        ret_val=emit(pair<string, Entry *>("=", NULL), t, pair<string, Entry *>("", NULL), operand_1_place, -1);
     
     }
 

@@ -6,6 +6,8 @@
 #include "y.tab.h"
 void yyerror (char *s,...);
 
+extern int errorCount;
+extern string nameStruct;
 int yylex();
 void count();
 void print();
@@ -65,7 +67,7 @@ IS			(u|U|l|L)*
 "volatile"		{ count(); yylval.str = strdup(yytext); return VOLATILE; }
 "while"			{ count(); yylval.str = strdup(yytext); return WHILE; }
 
-{L}({L}|{D})*		{ count(); yylval.str = strdup(yytext); return IDENTIFIER; }
+{L}({L}|{D})*		{ count(); yylval.str = strdup(yytext);nameStruct=convert_to_string(yylval.str); return IDENTIFIER; }
 
 0[xX]{H}+{IS}?		{sscanf(yytext+2,"%llx",&yylval.num->integer_value); count(); yylval.num->str = strdup(yytext); int_extract(); return CONSTANT; }
 0{D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->integer_value);count(); yylval.num->str = strdup(yytext); int_extract();return CONSTANT; }
@@ -148,7 +150,6 @@ void int_extract(){
                 yylval.num->num_type++;
        else
              break;
-
    }
 
 
@@ -167,8 +168,7 @@ void real_extract(){
 
 }
 void count(){
-
-	for (int i = 0; yytext[i] != '\0'; i++){
+        for (int i = 0; yytext[i] != '\0'; i++){
 		if (yytext[i] == '\n')
 			col = 1;
 		else if (yytext[i] == '\t')
@@ -188,13 +188,22 @@ void print(char *token, char * lexeme, int column_no){
 void yyerror(char *s,...){
 	va_list args;
   	char buffer[1024];
+        
+        if(s[0]=='E'){
+                errorCount++;
+        }
 
-	va_start(args,s);
+        va_start(args,s);
 	vsnprintf(buffer,1023,s,args);
 	va_end(args);
 
 	fprintf(stderr,"Line:%d Col:%d:: %s\n",yylineno,col,buffer);
-	//printf("Line:%d Col:%d %s\n",yylineno,col,s);
+	
+        if(errorCount>=20){
+                fprintf(stderr,"Too many errors.EXITTING BYE\n");
+                exit(1);
+        }
+        //printf("Line:%d Col:%d %s\n",yylineno,col,s);
 	// exit(1);
 }
 // int main(int argc, char *argv[]){

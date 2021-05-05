@@ -11,7 +11,7 @@ using namespace std;
 
 struct node{
   char* token;
-  unsigned long id;
+  unsigned long id; // for ast id
   int init_flag;
   int expr_type;
   long long size;
@@ -37,7 +37,7 @@ enum ntype {
 };
 
 typedef struct{
-   int num_type; /* int-0 , long-1 , long long-2 , float-3, double-4 , long double-5 */
+   int num_type; /* int-1 , long-2 , long long-3 , float-4, double-5 , long double-6 */
    int unsigned_flag;
    char * str;
    long long int integer_value;
@@ -58,7 +58,7 @@ typedef struct{
 
 
 
-
+vector<int> merging1(vector<int> &l1, vector<int> &l2);
 unsigned long find_id();
 void merging(vector<int> &l1, vector<int> &l2);
 struct node *square(char *str, struct node *node);

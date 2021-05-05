@@ -73,9 +73,9 @@ bool struct_flag(string struct_name)
 
 bool end_struct(string struct_name)
 {
-   if (to_struct_table.find(struct_name) != to_struct_table.end())
-      return false;
-   to_struct_table.insert(pair<string, symbol_table *>("STRUCT_" + struct_name, struct_table));
+   // if (to_struct_table.find("STRUCT_"+struct_name) != to_struct_table.end())
+   //    return false;
+   // to_struct_table.insert(pair<string, symbol_table *>("STRUCT_" + struct_name, struct_table));
    Parent.insert(pair<symbol_table *, symbol_table *>(struct_table, NULL));
    struct_size.insert(pair<string, int>("STRUCT_" + struct_name, structOffset));
    struct_name = "struct_" + struct_name + ".csv";
@@ -121,7 +121,7 @@ void table_initialize()
 
 int structLookup(string struct_name, string idStruct)
 {
-   if (to_struct_table.count(struct_name) != 1)
+   if (to_struct_table.find(struct_name) == to_struct_table.end())
       return 1;
    else if ((*to_struct_table[struct_name]).count(idStruct) != 1)
       return 2;
@@ -150,14 +150,14 @@ string get_sym_type(string key)
       return "";
 }
 
-void insert_symbol(symbol_table &table, string key, string type, ull size, ll offset, int init_flag)
+void insert_symbol(symbol_table &table, string key, string type, ull size, ll offset_type, int init_flag)
 {
    blk_size[blk_num] = blk_size[blk_num] + size;
-   if (offset == 10)
+   if (offset_type == 10)
    {
       table.insert(pair<string, Entry *>(key, add_entry(type, size, offset_nxt[offset_num], init_flag)));
    }
-   else if (offset == -10)
+   else if (offset_type == -10)
    {
       table.insert(pair<string, Entry *>(key, add_entry(type, size, structOffset, init_flag)));
    }
@@ -222,11 +222,11 @@ Entry *lookup(string a)
    tmp = curr;
    while (1)
    {
-      if ((*tmp).find(a) != (*tmp).end())
+      if ((*tmp).find(a) != (*tmp).end()) // if present in curr
       {
          return (*tmp)[a];
       }
-      if (Parent[tmp] != NULL)
+      if (Parent[tmp] != NULL) // goto parent symtable to check
          tmp = Parent[tmp];
       else
          break;

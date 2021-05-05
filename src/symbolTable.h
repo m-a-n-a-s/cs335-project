@@ -20,7 +20,7 @@ typedef struct table_entry{
     ll offset;
     string type;
     int init_flag;
-    int is_array;
+    int is_array; //1 means index is expression. 2 means it is const no.
 } Entry;
 
 typedef unordered_map<string,Entry *> symbol_table;
@@ -38,9 +38,12 @@ extern map<string ,int> item_switch;
 extern map<symbol_table *, int > symbol_tab_types;
 extern map<symbol_table *, symbol_table*> Parent;
 extern map<int, string> statusMap;
+extern map<string, symbol_table *> to_struct_table;
 
 extern symbol_table global_table;
 extern symbol_table *curr;
+extern symbol_table *struct_table;
+
 
 ull get_size (char* id);
 void fprintStruct(Entry *a, FILE *file);

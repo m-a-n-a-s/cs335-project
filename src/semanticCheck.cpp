@@ -118,7 +118,7 @@ char* postfix_type1(string type){
         return NULL;
     }
     else{
-        char* ret_val = new char();
+        char* ret_val= new char();
         strcpy(ret_val, type.c_str());
         ret_val[type.size()-1]='\0';	
         return ret_val;
@@ -221,6 +221,7 @@ int additive_type(string first_type,string second_type){
     else if(real_flag(first_type) && real_flag(second_type))    return 1;
     else if(is_char(first_type) && int_flag(second_type))   return 2;
     else if(int_flag(first_type) && is_char(second_type))   return 2;
+    else if(is_char(first_type) && is_char(second_type)) return 2;
     else    return -1;
 }
 
@@ -264,7 +265,7 @@ int relational_type(string first_type,string second_type){
     // -1 => Error
     // 0 => Warning (ptr and int/char)
     // 1 => OK (int/real/char and int/real/char)
-
+    if(first_type == second_type)   return 1;
     if(is_char(first_type) && int_flag(second_type))   return 1;
     else if(is_char(second_type) && int_flag(first_type))   return 1;
     else if(is_char(first_type) && real_flag(second_type))  return 1;
@@ -279,7 +280,7 @@ int relational_type(string first_type,string second_type){
     else if(is_char(first_type) && is_ptr(second_type))  return 0;
     else if(is_ptr(first_type) && int_flag(second_type)) return 0;
     else if(int_flag(first_type) && is_ptr(second_type)) return 0;
-
+    else if(is_ptr(first_type)&&is_ptr(second_type)) return 0;
     else return -1;
 }
 
@@ -289,7 +290,7 @@ int equality_type(string first_type,string second_type){
     // 1 => OK
     
     if(first_type == second_type)   return 1;
-    else if(is_char(first_type) && int_flag(second_type))   return 1;
+    if(is_char(first_type) && int_flag(second_type))   return 1;
     else if(is_char(second_type) && int_flag(first_type))   return 1;
     else if(is_char(first_type) && real_flag(second_type))  return 1;
     else if(is_char(second_type) && real_flag(first_type))  return 1;
@@ -301,14 +302,14 @@ int equality_type(string first_type,string second_type){
 
     else if(is_ptr(first_type) && int_flag(second_type)) return 0;
     else if(int_flag(first_type) && is_ptr(second_type)) return 0;
-
+    else if(is_ptr(first_type)&&is_ptr(second_type)) return 0;
     else return -1;
 }
 
 int conditional_type(string first_type,string second_type){
     // -1 => Error
     // 1 => OK
-    
+    // 0 => warning    
 
     if(first_type == second_type)   return 1;
     else if(is_char(first_type) && int_flag(second_type))   return 1;
