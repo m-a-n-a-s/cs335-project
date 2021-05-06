@@ -216,6 +216,11 @@ void show_in_file(){
                     setw(15) << emit_list[i].operand_2.first << " " <<
                     setw(15) << emit_list[i].ans.first << '\n';
                 break;}
+        case 7: {IR_file << setw(5) << "[" << i << "]" << ": " << setw(15) << emit_list[i].op.first << " " <<
+                    setw(15) << emit_list[i].operand_1.first << " " <<
+                    setw(15) << emit_list[i].operand_2.first << " " <<
+                    setw(15) << emit_list[i].ans.first << '\n';
+                break;}
         default:{int k = emit_list[i].line_no;
                 while(emit_list[k].op.first == "GOTO" && emit_list[k].operand_1.first == ""){
                     k = emit_list[k].line_no;

@@ -1,12 +1,20 @@
-struct n1{
-    int a;
-    struct n1* b;
-};
-struct n1{
-    int x;
-};
-int main(void) {
-    //struct n2 a;
-    struct n1* x; 
+int main() {
+    // char a[2]={1,'c'};
+    int b=2;
+    switch (2)
+    {
+    case 1:{
+        b=3;
+        
+    }
+    case 2:{
+        b=5;
+        break;
+    }
+    default:{
+        b=6;
+        break;
+    }
+    }
     return 0;
 }
