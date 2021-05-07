@@ -1,20 +1,17 @@
-int main() {
-    // char a[2]={1,'c'};
-    int b=2;
-    switch (2)
-    {
-    case 1:{
-        b=3;
-        
+int max(int x, int y){
+    if(x>y){
+        return x;
     }
-    case 2:{
-        b=5;
-        break;
+    else{
+        return y;
     }
-    default:{
-        b=6;
-        break;
+}
+
+int main(){
+    int a = 2, b = 3, i = 0, j = 1;
+    for (; i <= max(a, b); i=i+1){
+        j *= (j+1);
     }
-    }
+    print_int(j);
     return 0;
 }

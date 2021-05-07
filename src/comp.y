@@ -90,7 +90,7 @@ int structCounter=0;
 %type <ptr> direct_declarator type_qualifier_list parameter_type_list identifier_list parameter_list parameter_declaration
 %type <ptr> abstract_declarator direct_abstract_declarator labeled_statement compound_statement expression_statement declaration_list
 %type <ptr> selection_statement iteration_statement jump_statement external_declaration translation_unit function_definition statement statement_list
-%type <number> M N GOTO_emit
+%type <number> M N N1
 
 %%
 
@@ -182,8 +182,8 @@ postfix_expression
 								//****3AC****
 
 								$$->place = newlabel_sym($$->node_type);
-                                pair <string, Entry*> opT  = pair<string,Entry*>("[]",NULL);
-                                int k = emit(opT, $1->place, $3->place, $$->place, -7);
+                                //pair <string, Entry*> opT  = pair<string,Entry*>("[]",NULL);
+                                //int k = emit(opT, $1->place, $3->place, $$->place, -7);
 							
                                 if($3->place.second!=NULL){
 									//means index is not a const number
@@ -1629,9 +1629,11 @@ direct_declarator
 							}
 	;
 E3
-   :%empty                  {   type_name ="";
+   :%empty                  { 
+	   					  type_name ="";
                           funcArguments = "";
-                           paramTable();  }
+                           paramTable();
+							 }
     ;
 pointer
 	: '*' {$$=term_symb("*");$$->node_type="*";}
@@ -1818,7 +1820,19 @@ labeled_statement
 
 compound_statement
 	: '{' '}' {func_flag=0;$$ = term_symb("{ }");}
-	| E1  statement_list '}'  {if(blockSym){ string s($1);
+	| E1  statement_list '}'  {
+								if(blockSym){ string s($1);
+                                    s=s+".csv";
+                                    string u($1);
+                                    //print_tables(curr,s);
+                                    //update_table(u); blockSym--;
+									
+                                } $$ = $2;
+								
+								
+                               }
+	| E1  declaration_list '}'  {
+								if(blockSym){ string s($1);
                                     s=s+".csv";
                                     string u($1);
                                     //print_tables(curr,s);
@@ -1826,26 +1840,34 @@ compound_statement
 									
                                  } $$ = $2;
                                }
-	| E1  declaration_list '}'  {if(blockSym){ string s($1);
-                                    s=s+".csv";
-                                    string u($1);
-                                    //print_tables(curr,s);
-                                    //update_table(u); blockSym--;
-									
-                                 } $$ = $2;
-                               }
-	| '{' declaration_list M statement_list '}' {$$ = non_term_symb("compound_statement",NULL, $2,$4);backPatch($2->nextlist,$3);}
+	| E1 declaration_list M statement_list '}' {$$ = non_term_symb("compound_statement",NULL, $2,$4);//backPatch($2->nextlist,$3);
+													if(blockSym){ string s($1);
+														s=s+".csv";
+														string u($1);
+														//print_tables(curr,s);
+														//update_table(u); blockSym--;
+														
+                                 					}
+													 
+													//---------------3AC--------------------//
+														
+														backPatch($2->nextlist, $3);
+														$$->nextlist = $4->nextlist;
+
+														
+													//----------------------------------------//
+												}
 	;
 
 E1
-    :  '{'  %prec SR      { if(func_flag==0) {symbol_count++;
+    :  '{'        { if(func_flag==0) {symbol_count++;
                         file_name = /*string("symTableFunc")+to_string(func_symb)*/func_name+"Block"+to_string(symbol_count);
-                        //scope=S_BLOCK;
+                        scope=S_BLOCK;
                         //create_table(file_name,scope,string("12345"));
                         char * y=new char();
                         strcpy(y,file_name.c_str());
                         $$ = y;
-                        //blockSym++;
+                        blockSym++;
                         }
                        func_flag=0;
               }
@@ -1872,14 +1894,17 @@ statement_list
                                          backPatch($1->nextlist, $2);
                                          $$->nextlist = $3->nextlist;
                                          //$1->caselist.merge($3->caselist);
-										 merging($1->caselist, $3->caselist);
-                                         $$->caselist = $1->caselist;
+										//  merging($1->caselist, $3->caselist);
+										 $$->caselist=merging1($1->caselist, $3->caselist);
+                                        //  $$->caselist = $1->caselist;
                                          //$1->continuelist.merge($3->continuelist);
-										 merging($1->continuelist, $3->continuelist);
-                                         //$1->breaklist.merge($3->breaklist);
-										 merging($1->breaklist, $3->breaklist);
-                                         $$->continuelist = $1->continuelist;
-                                         $$->breaklist = $1->breaklist;
+										// merging($1->continuelist, $3->continuelist);
+                                         $$->continuelist=merging1($1->continuelist, $3->continuelist);
+										 //$1->breaklist.merge($3->breaklist);
+										//  merging($1->breaklist, $3->breaklist);
+										 $$->breaklist=merging1($1->breaklist, $3->breaklist);
+                                        //  $$->continuelist = $1->continuelist;
+                                        //  $$->breaklist = $1->breaklist;
                                       //----------------------------------------//
 									  }
 	;
@@ -1891,7 +1916,7 @@ expression_statement
 
 M4
   :  IF '(' expression ')' {
-                        if($3->truelist.begin()==$3->truelist.end()){
+                        if($3->truelist.empty()){
                             int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $3->place, pair<string, Entry*>("", NULL ),0);
                             int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
                             $3->truelist.push_back(k);
@@ -1902,7 +1927,7 @@ M4
   }
   ;
 
-GOTO_emit
+N1
    : %empty {
 
                            $$ = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
@@ -1910,7 +1935,7 @@ GOTO_emit
    ;
 
 selection_statement
-	: M4 M statement ELSE GOTO_emit M statement {
+	: M4 M statement ELSE N1 M statement {
 		$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $1, $3, $7);
 		
 		//----------3AC---------------------//
@@ -1921,14 +1946,17 @@ selection_statement
         backPatch($1->falselist, $6);
         $3->nextlist.push_back($5);
         //$3->nextlist.merge($7->nextlist);
-		merging($3->nextlist, $7->nextlist);
-        $$->nextlist=$3->nextlist;
+		// merging($3->nextlist, $7->nextlist);
+        // $$->nextlist=$3->nextlist;
+		$$->nextlist=merging1($3->nextlist, $7->nextlist);
         //$3->breaklist.merge($7->breaklist);
-		merging($3->breaklist, $7->breaklist);
-        $$->breaklist = $3->breaklist;
+		// merging($3->breaklist, $7->breaklist);
+        // $$->breaklist = $3->breaklist;
+		$$->breaklist =merging1($3->breaklist, $7->breaklist);
         //$3->continuelist.merge($7->continuelist);
-		merging($3->continuelist, $7->continuelist);
-        $$->continuelist = $3->continuelist;
+		// merging($3->continuelist, $7->continuelist);
+        // $$->continuelist = $3->continuelist;
+		$$->continuelist=merging1($3->continuelist, $7->continuelist);
         //-----------------------------------//
 	}
 	| M4 M statement %prec IFX {
@@ -1937,9 +1965,9 @@ selection_statement
 		
         backPatch($1->truelist, $2);
         //$3->nextlist.merge($1->falselist);
-		merging($3->nextlist, $1->falselist);
-		
-        $$->nextlist= $3->nextlist;
+		// merging($3->nextlist, $1->falselist);
+		$$->nextlist=merging1($3->nextlist, $1->falselist);
+        // $$->nextlist= $3->nextlist;
         $$->continuelist = $3->continuelist;
         $$->breaklist = $3->breaklist;
         //------------------------------------//
@@ -1953,8 +1981,9 @@ selection_statement
 			emit_list[$5->caselist[i]].operand_1 = $3->place;
 		}
         //$5->nextlist.merge($5->breaklist);
-		merging($5->nextlist, $5->breaklist);
-        $$->nextlist= $5->nextlist;
+		// merging($5->nextlist, $5->breaklist);
+        // $$->nextlist= $5->nextlist;
+		$$->nextlist=merging1($5->nextlist, $5->breaklist);
         $$->continuelist= $5->continuelist;
         //---------------------------------------------//
 	}
@@ -1988,17 +2017,18 @@ M7
   ;
 
 iteration_statement
-	: WHILE '(' M M6 ')' M statement GOTO_emit {
+	: WHILE '(' M M6 ')' M statement {
 		$$ = non_term_symb_2("WHILE (expr) stmt", NULL, $4, $7);
 		//-----------3AC------------------//
-
+		int k=emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$3);
         backPatch($4->truelist, $6);
-        $7->continuelist.push_back($8);
+        // $7->nextlist.push_back(k);
         backPatch($7->continuelist, $3);
         backPatch($7->nextlist, $3);
-        $$->nextlist = $4->falselist;
+        // $$->nextlist = $4->falselist;
         //$$->nextlist.merge($7->breaklist);
-		merging($$->nextlist, $7->breaklist);
+		// merging($$->nextlist, $7->breaklist);
+		$$->nextlist=merging1($4->falselist, $7->breaklist);
         //--------------------------------//
 	}
 	| DO M statement  WHILE '(' M M6 ')' ';'{
@@ -2009,38 +2039,45 @@ iteration_statement
         backPatch($3->continuelist, $6);
         backPatch($3->nextlist, $6);
         //$7->falselist.merge($3->breaklist);
-		merging($7->falselist, $3->breaklist);
-        $$->nextlist = $7->falselist;
+		// merging($7->falselist, $3->breaklist);
+        // $$->nextlist = $7->falselist;
+		$$->nextlist =merging1($7->falselist, $3->breaklist);
         //-----------------------------------//
 	}
-	| FOR '(' expression_statement M M7 ')' M statement GOTO_emit {
+	| FOR '(' expression_statement M M7 ')' M statement {
 		$$ = non_term_symb_2("FOR (expr_stmt expr_stmt) stmt", $3, $5, $8);
 		//-------------3AC-------------------//
-
-        backPatch($3->nextlist, $4);
+		int k=emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$4);
+        backPatch($3->nextlist, $4);//for ternary op
         backPatch($5->truelist, $7);
         //$5->falselist.merge($8->breaklist);
-		merging($5->falselist, $8->breaklist);
-        $$->nextlist = $5->falselist;
+		// merging($5->falselist, $8->breaklist);
+        // $$->nextlist = $5->falselist;
+		$$->nextlist=merging1($5->falselist, $8->breaklist);
         //$8->nextlist.merge($8->continuelist);
-		merging($8->nextlist, $8->continuelist);
-        $8->nextlist.push_back($9);
+		// merging($8->nextlist, $8->continuelist);
+        // $8->nextlist.push_back($9);
         backPatch($8->nextlist, $4 );
+		backPatch($8->nextlist,$4);
         //------------------------------------//
 	}
-	| FOR '(' expression_statement M M7 M expression GOTO_emit ')' M statement GOTO_emit {
+	| FOR '(' expression_statement M M7 M expression N1 ')' M statement{
 		$$ = non_term_symb_5("FOR (expr_stmt expr_stmt expr) stmt", NULL, $3, $5, $7, $11);
 		//-------------3AC-------------------//
-
+		int k=emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$6);
         backPatch($3->nextlist, $4);
         backPatch($5->truelist, $10);
         //$5->falselist.merge($11->breaklist);
-		merging($5->falselist, $11->breaklist);
-        $$->nextlist = $5->falselist;
+		// merging($5->falselist, $11->breaklist);
+        // $$->nextlist = $5->falselist;
+		$$->nextlist=merging1($5->falselist, $11->breaklist);
+
         //$11->nextlist.merge($11->continuelist);
-		merging($11->nextlist, $11->continuelist);
-        $11->nextlist.push_back($12);
+		// merging($11->nextlist, $11->continuelist);
+        // $11->nextlist.push_back($12);
         backPatch($11->nextlist, $6 );
+		backPatch($11->continuelist,$6);
+
         $7->nextlist.push_back($8);
         backPatch($7->nextlist, $4);
         //------------------------------------//
@@ -2050,9 +2087,10 @@ iteration_statement
 jump_statement
 	: GOTO IDENTIFIER ';' {$$ = non_term_symb("jump_statement", NULL, term_symb("GOTO"), term_symb($2));
 	//-----------3AC---------------------//
-    int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-    //backpatch_listStorage($2, k);
-	backpatch_list[$2].push_back(k);
+	yyerror("Error : Unconditional Jumps not allowed");
+    // int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+    // //backpatch_listStorage($2, k);
+	// backpatch_list[$2].push_back(k);
 	//-----------------------------------//
 	}
 	| CONTINUE ';' {
@@ -2079,6 +2117,9 @@ jump_statement
 		$$ = non_term_symb("jump_statement", NULL, term_symb("return"), $2);
 		//------------3AC----------------//
 		emit(pair<string, Entry*>("RETURN", NULL), $2->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),-1);
+		$$->nextlist=$2->nextlist;
+		
+		
         //------------------------------//
 	}
 	;
@@ -2088,57 +2129,77 @@ translation_unit
 	| translation_unit M external_declaration {
 		$$ = non_term_symb("translation_unit", NULL, $1, $3);
 		//----------3Ac----------------//
-        backPatch($1->nextlist, $2);
+        
+		backPatch($1->nextlist, $2);
         $$->nextlist = $3->nextlist;
+		
         //------------------------------//
 	}
 	;
 
 external_declaration
-	: function_definition {type_name="";$$ = $1;}
+	: function_definition {type_name="";$$ = $1; }
 	| declaration {type_name="";$$ = $1;}
 	;
 
 function_definition
 
 	: declaration_specifiers declarator E2 declaration_list compound_statement
-         {      type_name="";
+         {   $$ = non_term_symb_4("function_definition", $1, $2, $4, $5, NULL);   
+			 $$->nextlist=$5->nextlist;
+			 	type_name="";
                 string s($3);
                 string u = s+".csv";
                 print_tables(curr,u);
                 symbol_count=0;
-               update_table(s);
-                $$ = non_term_symb_4("function_definition", $1, $2, $4, $5, NULL);
+               	update_table(s);
+                
 				//--------------------3AC--------------------------------//
-                if($5->real_value != -5){ string em =  "func end";
-                emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);}
+                //if($5->real_value != -5){ 
+					string em =  "func end";
+                	emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
+				//}
                 //------------------------------------------------------//
          }
-	| declaration_specifiers declarator E2 compound_statement  {
+	| declaration_specifiers declarator E2 compound_statement  {$$ = non_term_symb_2("function_definition", $1, $2, $4);
+			
+			
+			  $$->nextlist=$4->nextlist;
+		
               type_name="";
-              string s($3);string u =s+".csv";
+              string s($3);
+			  string u =s+".csv";
               print_tables(curr,u);
               symbol_count=0;
+			  
               update_table(s);
-              $$ = non_term_symb_2("function_definition", $1, $2, $4);
+			  
+              
 			  //--------------------3AC--------------------------------//
-              if($4->real_value != -5){string em =  "func end";
-              emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3); }
+              //if($4->real_value != -5){
+				  string em =  "func end";
+            	  emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3); 
+				  //}
               //------------------------------------------------------//
-            }
+            
+			}
 	| X1 declarator E2 declaration_list compound_statement { $$ = non_term_symb_2("function_definition",$2,$4,$5);
+															$$->nextlist=$5->nextlist;
 															type_name="";
 															string s($3);string u =s+".csv";
 															print_tables(curr,u);
 															symbol_count=0;
 															update_table(s);
 															//--------------------3AC--------------------------------//
-															if($5->real_value != -5){ string em =  "func end";
-															emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);}
+															//if($5->real_value != -5){ 
+																string em =  "func end";
+																emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
+															//}
 															//------------------------------------------------------//
 															//DOUBTFULL
 													}
 	| X1 declarator E2 compound_statement { $$ = non_term_symb_2("function_definition", $2,NULL,$4);
+											$$->nextlist=$4->nextlist;
 											type_name="";
 											string s($3);string u =s+".csv";
 											print_tables(curr,u);
@@ -2146,8 +2207,10 @@ function_definition
 											update_table(s);
 
 											//--------------------3AC--------------------------------//
-											if($4->real_value != -5){ string em =  "func end";
-											emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);}
+											//if($4->real_value != -5){ 
+												string em =  "func end";
+												emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
+											//}
 											//------------------------------------------------------//			
 									        //DOUBTFULL
 									}
@@ -2215,9 +2278,10 @@ int main(int argc, char * argv[]){
 
 	resetRegister();
 	//cout<<"1\n";
-	//generate();
+	generate_asm();
 	//cout<<"2\n";
-	//print_asm();
+	string asm_name=convert_to_string(argv[1]);
+	print_asm("code.c");
 
     return 0;
 }

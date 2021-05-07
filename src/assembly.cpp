@@ -192,9 +192,12 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
     addLine("lw " + registerTmp + ", 0($s7)");
 }
 
-void print_asm()
-{
-    codeFile.open("code.asm");
+void print_asm(string asm_name)
+{   
+    asm_name.pop_back();
+    asm_name.pop_back();
+    asm_name=asm_name+".asm";
+    codeFile.open(asm_name);
     for (int m = 0; m < dataSection.size(); m++)
     {
         codeFile << dataSection[m] << endl;
@@ -506,7 +509,7 @@ void assign_op_code(int i)
     }
 }
 
-void generate()
+void generate_asm()
 {
     dataCounter = 0;
     dataSection.push_back(".data");

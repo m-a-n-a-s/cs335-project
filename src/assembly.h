@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void generate();
-void print_asm();
+void generate_asm();
+void print_asm(string asm_name);
 void printCodeFunc(string a);
 void resetRegister();

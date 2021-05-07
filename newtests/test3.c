@@ -14,7 +14,9 @@ int main(){
         a = b;
         b = c;
     }
-    //print_int(c);
+    print_int(c);
+    print_string("\n");
+    print_int(d);
     if (n < 2 && d == 1) print_string("Correct\n");
     else if (n >= 2 && d == c) print_string("Correct\n");
     else print_string("Incorrect\n"); 

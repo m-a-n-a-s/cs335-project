@@ -11,21 +11,28 @@ string convert_to_string(char *str)
    return s;
 }
 
-map<string, symbol_table *> to_struct_table;
+map<string, symbol_table *> to_struct_table; // keeping structures and their respective symbol tables
 map<string, string> argsMap;
 map<symbol_table *, symbol_table *> Parent;
-map<symbol_table *, int> symTable_type;
-map<string, int> item_switch;
+map<symbol_table *, int> symTable_type; // farji
+// map<string, int> item_switch;
 map<string, int> struct_size;
 map<int, string> status_map;
 int blk_num;
-int offset_gnum;
-int offset_num;
+
+
+
+int offset_num; //basically hopping between 0 or 1 
+long long offset_nxt[100];// can be replaced by old_offset
+
 long int blk_size[100];
-long long offset_g[100];
-long long offset_nxt[100];
-int count_struct;
-int structOffset;
+
+long long offset_g[100]; 
+int offset_gnum; 
+
+
+// int count_struct;
+int structOffset; //no idea
 int next_flag;
 
 symbol_table *curr;
@@ -33,28 +40,21 @@ symbol_table global_table;
 symbol_table *struct_table;
 symbol_table *struct_table_temp;
 
+//make table for new struct
 void make_struct_table()
 {
    symbol_table *myStruct = new symbol_table;
-   count_struct++;
+   // count_struct++;
    struct_table = myStruct;
-   structOffset = 0;
-}
-
-void paramTable()
-{
-   offset_num++;
-   offset_nxt[offset_num] = offset_g[offset_gnum];
-   create_table("Next", S_FUNC, "");
-   next_flag = 1;
+   structOffset = 0; 
 }
 
 bool insert_sym_struct(string key, string type, ull size, ull offset, int init_flag)
 {
    if ((*struct_table).find(key) != (*struct_table).end())
       return false;
-   insert_symbol(*struct_table, key, type, size, -10, init_flag);
-   structOffset += size;
+   insert_symbol(*struct_table, key, type, size, -10, init_flag); // copy here from insert symbol
+   structOffset += size; //add offset for char as 4 
    return true;
 }
 
@@ -77,11 +77,26 @@ bool end_struct(string struct_name)
    //    return false;
    // to_struct_table.insert(pair<string, symbol_table *>("STRUCT_" + struct_name, struct_table));
    Parent.insert(pair<symbol_table *, symbol_table *>(struct_table, NULL));
-   struct_size.insert(pair<string, int>("STRUCT_" + struct_name, structOffset));
+   struct_size.insert(pair<string, int>("STRUCT_" + struct_name, structOffset)); //create structSize variable 
    struct_name = "struct_" + struct_name + ".csv";
    print_tables(struct_table, struct_name);
    return true;
 }
+
+int structLookup(string struct_name, string idStruct)
+{
+   if (to_struct_table.find(struct_name) == to_struct_table.end())
+      return 1;
+   else if ((*to_struct_table[struct_name]).count(idStruct) != 1)
+      return 2;
+   return 0;
+}
+
+void fprintStruct(Entry *a, FILE *file)
+{
+   fprintf(file, "%s,%lld, %lld, %d\n", a->type.c_str(), a->size, a->offset, a->init_flag);
+}
+
 
 void table_initialize()
 {
@@ -92,7 +107,7 @@ void table_initialize()
    offset_gnum = 0;
    offset_g[offset_gnum] = 0;
    offset_num = 0;
-   count_struct = 0;
+   // count_struct = 0;
    blk_num = 0;
    //itemSwitchMap();
    Parent.insert(make_pair<symbol_table *, symbol_table *>(&global_table, NULL));
@@ -119,13 +134,12 @@ void table_initialize()
    argsMap.insert(pair<string, string>(string("scanf"), string("")));
 }
 
-int structLookup(string struct_name, string idStruct)
+void paramTable()
 {
-   if (to_struct_table.find(struct_name) == to_struct_table.end())
-      return 1;
-   else if ((*to_struct_table[struct_name]).count(idStruct) != 1)
-      return 2;
-   return 0;
+   offset_num++;
+   offset_nxt[offset_num] = offset_g[offset_gnum];
+   create_table("New Func", S_FUNC, "");
+   next_flag = 1;
 }
 
 Entry *add_entry(string type, ull size, ll offset, int init_flag)
@@ -169,27 +183,24 @@ void insert_symbol(symbol_table &table, string key, string type, ull size, ll of
    return;
 }
 
-void fprintStruct(Entry *a, FILE *file)
-{
-   fprintf(file, "%s,%lld, %lld, %d\n", a->type.c_str(), a->size, a->offset, a->init_flag);
-}
+
 
 void create_table(string name, int type, string func_type)
 {
    string f;
-   //if(func_type!="12345") f =convert_to_string("FUNC_")+func_type; else f = convert_to_string("Block");
+   // if(func_type!="12345") f =convert_to_string("FUNC_")+func_type; else f = convert_to_string("Block");
    f = convert_to_string("FUNC_") + func_type;
    if (next_flag == 1)
    {
       insert_symbol(*Parent[curr], name, f, 0, 10, 1);
       offset_num--;
-      (*Parent[curr]).erase(convert_to_string("Next"));
+      // (*Parent[curr]).erase(convert_to_string("Next"));
    }
    else
    {
       blk_num++;
       symbol_table *myTable = new symbol_table;
-      insert_symbol(*curr, name, f, 0, 0, 1);
+      // insert_symbol(*curr, name, f, 0, 0, 1);
       offset_gnum++;
       offset_g[offset_gnum] = 0;
       Parent.insert(pair<symbol_table *, symbol_table *>(myTable, curr));
