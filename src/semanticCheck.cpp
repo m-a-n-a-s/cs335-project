@@ -114,7 +114,7 @@ string getstr_num_type(int num_type){
 }
 
 unsigned long long get_size(string type){
-    if (struct_size.find(type) != struct_size.end())    return struct_size[type];
+    if (struct_size_map.find(type) != struct_size_map.end())    return struct_size_map[type];
     else if (type == "int") return sizeof(int);
     else if (type == "long int")    return sizeof(long int);
     else if (type == "long long int")   return sizeof(long long int);

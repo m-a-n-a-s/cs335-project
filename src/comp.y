@@ -1380,7 +1380,7 @@ struct_or_union_specifier
 	: struct_or_union IDENTIFIER E4 '{' struct_declaration_list '}'	{string tmp_str($2); 
 									$$ = non_term_symb("struct_or_union_specifier", $2, $1, $5);
 									Parent.insert(pair<symbol_table *, symbol_table *>(struct_table, NULL));
-									struct_size.insert({("STRUCT_" + tmp_str), struct_offset}); //create structSize variable 
+									struct_size_map.insert({("STRUCT_" + tmp_str), struct_size}); //create structSize variable 
 									string stmp= "STRUCT_"+tmp_str; 
 									$$->node_type=stmp;
 									tmp_str = "struct_" + tmp_str + ".csv";
@@ -1411,6 +1411,7 @@ E4
 			symbol_table *new_struct_table = new symbol_table;
    			struct_table = new_struct_table;
    			struct_offset = 0; 
+			struct_size = 0;
 		    if (struct_table_map.find("STRUCT_"+tmp) == struct_table_map.end())
 				struct_table_map.insert(pair<string, symbol_table *>("STRUCT_" + tmp, struct_table));
 			else{
@@ -1453,6 +1454,7 @@ struct_declarator
 					insert_symbol3(*struct_table, $1->node_key, $1->node_type, $1->size, 0);
 					if($1->node_type == "char")	struct_offset += 4;
 					else	struct_offset += $1->size;
+					struct_size += $1->size;
 				}
 	}
 	| ':' constant_expression {$$ = $2;}

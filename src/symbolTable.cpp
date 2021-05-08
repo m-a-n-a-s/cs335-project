@@ -14,7 +14,7 @@ string convert_to_string(char *str)
 map<string, symbol_table *> struct_table_map; // maps structs with their symbol tables
 map<string, string> args_map; // maps function with its arguments
 map<symbol_table *, symbol_table *> Parent; // to access parent symbol table
-map<string, int> struct_size; // maps structs with their sizes
+map<string, int> struct_size_map; // maps structs with their sizes
 
 int blk_num;
 long long blk_size[20];
@@ -23,6 +23,7 @@ int offset_arr_index;
 long long offset_arr[20];
 long long old_offset; // to store the previous value of offset
 long long struct_offset;
+long long struct_size;
 bool E3_done;
 
 symbol_table global_table; // global symbol table
@@ -151,12 +152,12 @@ void print_func_args(){
    fclose(file);
 }
 
-void print_tables(symbol_table *a, string filename)
+void print_tables(symbol_table *tab, string filename)
 {
    FILE *file = fopen(filename.c_str(), "w");
    fprintf(file, "Key,Type,Size,Offset,is_Initialized\n");
 
-   for (auto it : *a){
+   for (auto it : *tab){
       fprintf(file, "%s,", it.first.c_str());
       fprintf(file, "%s,%lld, %lld, %d\n", it.second->type.c_str(), it.second->size, it.second->offset, it.second->init_flag);
    }
