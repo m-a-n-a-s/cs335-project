@@ -28,17 +28,21 @@ typedef unordered_map<string,Entry *> symbol_table;
 
 string convert_to_string(char *str);
 
-extern int blk_num;
-extern int offset_gnum;
-extern int next_flag;
-extern long int blk_size[100];
-extern long long offset_g[100];
-extern map<string , string> argsMap;
-extern map<string ,int> item_switch;
-extern map<symbol_table *, int > symbol_tab_types;
+extern map<string, symbol_table *> struct_table_map;
+extern map<string , string> args_map;
 extern map<symbol_table *, symbol_table*> Parent;
-extern map<int, string> statusMap;
-extern map<string, symbol_table *> to_struct_table;
+extern map<string, int> struct_size;
+
+extern int blk_num;
+extern long long blk_size[20];
+
+extern int offset_arr_index;
+extern long long offset_arr[20];
+extern long long old_offset;
+extern long long struct_offset;
+
+extern int next_flag;
+
 
 extern symbol_table global_table;
 extern symbol_table *curr;
@@ -48,7 +52,6 @@ extern symbol_table *struct_table;
 ull get_size (char* id);
 void fprintStruct(Entry *a, FILE *file);
 void table_initialize();
-void addKeywords();
 void paramTable();
 void update_init_flag(string k);
 void create_table(string name,int type,string func_type);
@@ -64,7 +67,7 @@ Entry* lookup(string a);
 Entry* scopeLookup(string a);
 Entry* add_entry(string type, ull size, ll offset,int init_flag);
 bool insert_sym_struct(string k, string type, ull size, ull offset, int init_flag );
-bool end_struct(string struct_name);
+void end_struct(string struct_name);
 bool struct_flag(string struct_name);
 string get_sym_type(string k);
 string func_args_list(string k);

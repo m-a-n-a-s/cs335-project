@@ -11,83 +11,46 @@ string convert_to_string(char *str)
    return s;
 }
 
-map<string, symbol_table *> to_struct_table; // keeping structures and their respective symbol tables
-map<string, string> argsMap;
-map<symbol_table *, symbol_table *> Parent;
-map<symbol_table *, int> symTable_type; // farji
-// map<string, int> item_switch;
-map<string, int> struct_size;
-map<int, string> status_map;
+map<string, symbol_table *> struct_table_map; // maps structs with their symbol tables
+map<string, string> args_map; // maps function with its arguments
+map<symbol_table *, symbol_table *> Parent; // to access parent symbol table
+map<string, int> struct_size; // maps structs with their sizes
+
 int blk_num;
+long long blk_size[20];
 
-
-
-int offset_num; //basically hopping between 0 or 1 
-long long offset_nxt[100];// can be replaced by old_offset
-
-long int blk_size[100];
-
-long long offset_g[100]; 
-int offset_gnum; 
-
-
-// int count_struct;
-int structOffset; //no idea
+int offset_arr_index; 
+long long offset_arr[20];
+long long old_offset; // to store the previous value of offset
+long long struct_offset;
 int next_flag;
 
-symbol_table *curr;
-symbol_table global_table;
-symbol_table *struct_table;
-symbol_table *struct_table_temp;
+symbol_table global_table; // global symbol table
+symbol_table *curr; // current symbol table
+symbol_table *struct_table; // struct symbol table
 
-//make table for new struct
-void make_struct_table()
-{
-   symbol_table *myStruct = new symbol_table;
-   // count_struct++;
-   struct_table = myStruct;
-   structOffset = 0; 
-}
-
-bool insert_sym_struct(string key, string type, ull size, ull offset, int init_flag)
-{
-   if ((*struct_table).find(key) != (*struct_table).end())
-      return false;
-   insert_symbol(*struct_table, key, type, size, -10, init_flag); // copy here from insert symbol
-   structOffset += size; //add offset for char as 4 
-   return true;
-}
-
-string struct_membr_type(string struct_name, string idT)
-{
-   struct_table_temp = to_struct_table[struct_name];
-   Entry *aT = (*struct_table_temp)[idT];
-   return aT->type;
-}
-
-bool struct_flag(string struct_name)
-{
-   if (to_struct_table.find(struct_name) != to_struct_table.end())
-      return true;
-}
-
-bool end_struct(string struct_name)
-{
-   // if (to_struct_table.find("STRUCT_"+struct_name) != to_struct_table.end())
-   //    return false;
-   // to_struct_table.insert(pair<string, symbol_table *>("STRUCT_" + struct_name, struct_table));
-   Parent.insert(pair<symbol_table *, symbol_table *>(struct_table, NULL));
-   struct_size.insert(pair<string, int>("STRUCT_" + struct_name, structOffset)); //create structSize variable 
-   struct_name = "struct_" + struct_name + ".csv";
-   print_tables(struct_table, struct_name);
-   return true;
+// initialize symbol table - called in main
+void table_initialize(){
+   offset_arr_index = 0;
+   offset_arr[offset_arr_index] = 0;
+   old_offset = 0;
+   for (blk_num = 0; blk_num < 20; blk_num++){
+      blk_size[blk_num] = 0;
+   }
+   blk_num = 0;
+   Parent.insert(make_pair<symbol_table *, symbol_table *>(&global_table, NULL));
+   curr = &global_table;
+   next_flag = 0;
+   insert_symbol(*curr, "scanf", "FUNC_int", 8, 0, 1);
+   insert_symbol(*curr, "print_string", "FUNC_void", 8, 0, 1);
+   insert_symbol(*curr, "print_int", "FUNC_void", 8, 0, 1); 
 }
 
 int structLookup(string struct_name, string idStruct)
 {
-   if (to_struct_table.find(struct_name) == to_struct_table.end())
+   if (struct_table_map.find(struct_name) == struct_table_map.end())
       return 1;
-   else if ((*to_struct_table[struct_name]).count(idStruct) != 1)
+   else if ((*struct_table_map[struct_name]).count(idStruct) != 1)
       return 2;
    return 0;
 }
@@ -97,47 +60,9 @@ void fprintStruct(Entry *a, FILE *file)
    fprintf(file, "%s,%lld, %lld, %d\n", a->type.c_str(), a->size, a->offset, a->init_flag);
 }
 
-
-void table_initialize()
-{
-   for (blk_num = 0; blk_num < 100; blk_num++)
-   {
-      blk_size[blk_num] = 0;
-   }
-   offset_gnum = 0;
-   offset_g[offset_gnum] = 0;
-   offset_num = 0;
-   // count_struct = 0;
-   blk_num = 0;
-   //itemSwitchMap();
-   Parent.insert(make_pair<symbol_table *, symbol_table *>(&global_table, NULL));
-   symTable_type.insert(make_pair<symbol_table *, int>(&global_table, 1));
-   curr = &global_table;
-   next_flag = 0;
-   //addKeywords();
-   //insert_symbol(*curr,"printf","FUNC_void",8,0,1);
-   //insert_symbol(*curr,"scanf","FUNC_int",8,0,1);
-   //insert_symbol(*curr, "printf", "FUNC_void", 8, 0, 1); //
-   insert_symbol(*curr, "scanf", "FUNC_int", 8, 0, 1);
-   insert_symbol(*curr, "print_string", "FUNC_void", 8, 0, 1); //
-   //insert_symbol(*curr, "strlen", "FUNC_int", 8, 0, 1);  //
-   insert_symbol(*curr, "print_int", "FUNC_void", 8, 0, 1); //
-   //insert_symbol(*curr, "readFile", "FUNC_int", 8, 0, 1);
-   //insert_symbol(*curr, "writeFile", "FUNC_int", 8, 0, 1);
-
-   //argsMap.insert(pair<string,string>("printf","char*,..."));
-   //  argsMap.insert(pair<string,string>("prints","char*"));
-   //argsMap.insert(pair<string,string>("scanf","char*,..."));
-   argsMap.insert(pair<string, string>(string("print_int"), string("int")));
-   //argsMap.insert(pair<string, string>(string("printf"), string("int")));
-   argsMap.insert(pair<string, string>(string("print_string"), string("char*")));
-   argsMap.insert(pair<string, string>(string("scanf"), string("")));
-}
-
 void paramTable()
 {
-   offset_num++;
-   offset_nxt[offset_num] = offset_g[offset_gnum];
+   old_offset = offset_arr[offset_arr_index];
    create_table("New Func", S_FUNC, "");
    next_flag = 1;
 }
@@ -169,17 +94,17 @@ void insert_symbol(symbol_table &table, string key, string type, ull size, ll of
    blk_size[blk_num] = blk_size[blk_num] + size;
    if (offset_type == 10)
    {
-      table.insert(pair<string, Entry *>(key, add_entry(type, size, offset_nxt[offset_num], init_flag)));
+      table.insert(pair<string, Entry *>(key, add_entry(type, size,old_offset, init_flag)));
    }
    else if (offset_type == -10)
    {
-      table.insert(pair<string, Entry *>(key, add_entry(type, size, structOffset, init_flag)));
+      table.insert(pair<string, Entry *>(key, add_entry(type, size, struct_offset, init_flag)));
    }
    else
    {
-      table.insert(pair<string, Entry *>(key, add_entry(type, size, offset_g[offset_gnum], init_flag)));
+      table.insert(pair<string, Entry *>(key, add_entry(type, size, offset_arr[offset_arr_index], init_flag)));
    }
-   offset_g[offset_gnum] = offset_g[offset_gnum] + size;
+   offset_arr[offset_arr_index] = offset_arr[offset_arr_index] + size;
    return;
 }
 
@@ -193,7 +118,7 @@ void create_table(string name, int type, string func_type)
    if (next_flag == 1)
    {
       insert_symbol(*Parent[curr], name, f, 0, 10, 1);
-      offset_num--;
+      old_offset = 0;
       // (*Parent[curr]).erase(convert_to_string("Next"));
    }
    else
@@ -201,10 +126,9 @@ void create_table(string name, int type, string func_type)
       blk_num++;
       symbol_table *myTable = new symbol_table;
       // insert_symbol(*curr, name, f, 0, 0, 1);
-      offset_gnum++;
-      offset_g[offset_gnum] = 0;
+      offset_arr_index++;
+      offset_arr[offset_arr_index] = 0;
       Parent.insert(pair<symbol_table *, symbol_table *>(myTable, curr));
-      symTable_type.insert(pair<symbol_table *, int>(myTable, type));
       curr = myTable;
    }
    next_flag = 0;
@@ -212,15 +136,15 @@ void create_table(string name, int type, string func_type)
 
 string func_args_list(string key)
 {
-   string a = argsMap[key];
+   string a = args_map[key];
    return a;
 }
 
 void update_table(string key)
 {
    curr = Parent[curr];
-   offset_gnum--;
-   offset_g[offset_gnum] += offset_g[offset_gnum + 1];
+   offset_arr_index--;
+   offset_arr[offset_arr_index] += offset_arr[offset_arr_index + 1];
    update_table_size(key);
    blk_size[blk_num - 1] = blk_size[blk_num] + blk_size[blk_num - 1];
    blk_size[blk_num] = 0;
@@ -328,13 +252,13 @@ void update_table_size(string key)
 
 void insert_args(string a, string b)
 {
-   argsMap.insert(pair<string, string>(a, b));
+   args_map.insert(pair<string, string>(a, b));
 }
 
 void print_func_args()
 {
    FILE *file = fopen("FuncArguments.csv", "w");
-   for (auto it : argsMap)
+   for (auto it : args_map)
    {
       fprintf(file, "%s,", it.first.c_str());
       fprintf(file, "%s\n", it.second.c_str());
