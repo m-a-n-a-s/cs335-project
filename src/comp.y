@@ -503,9 +503,9 @@ unary_expression
 	;
 
 unary_operator
-	: '&'	{$$ = term_symb("&");
+	: '&'	{$$ = term_symb("unary&");
 			$$->name="&";
-			$$->place.first = "&";
+			$$->place.first = "unary&";
 			$$->place.second = NULL;
 			}
 	| '*'	{$$ = term_symb("*");
@@ -782,7 +782,7 @@ shift_expression
 								$$->node_type = $1->node_type;
 								//===========3AC======================//
                           		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                          		int k = emit(pair<string, Entry*>("LEFT_OP", NULL), $1->place, $3->place, t1, -1);
+                          		int k = emit(pair<string, Entry*>("<<", NULL), $1->place, $3->place, t1, -1);
                           		$$->place = t1;
                           		$$->nextlist={};
                         		//====================================//
@@ -798,7 +798,7 @@ shift_expression
 															$$->node_type = $1->node_type;
 															//===========3AC======================//
                                  							pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                                 							int k = emit(pair<string, Entry*>("RIGHT_OP", NULL), $1->place, $3->place, t1, -1);
+                                 							int k = emit(pair<string, Entry*>(">>", NULL), $1->place, $3->place, t1, -1);
                                  							$$->place = t1;
                                  							$$->nextlist={};
                                 							//====================================//	

@@ -193,10 +193,10 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
 }
 
 void print_asm(string asm_name)
-{   
+{
     asm_name.pop_back();
     asm_name.pop_back();
-    asm_name=asm_name+".asm";
+    asm_name = asm_name + ".asm";
     codeFile.open(asm_name);
     for (int m = 0; m < dataSection.size(); m++)
     {
@@ -540,7 +540,8 @@ void generate_asm()
         //cout<<"f3::"<<emit_list[i].line_no<<endl;
         if (emit_list[i].line_no == -2)
         {
-            if(i<emit_list.size()&&emit_list[i+1].line_no==-3){
+            if (i < emit_list.size() && emit_list[i + 1].line_no == -3)
+            {
                 //only func declration (mutual recusrsion)
                 continue;
             }
@@ -584,7 +585,7 @@ void generate_asm()
                 //eqaulity operator
                 assign_op_code(i);
             }
-            else if (emit_list[i].op.first == "&")
+            else if (emit_list[i].op.first == "unary&")
             {
                 reg1 = getNextReg(emit_list[i].ans);
                 int off = emit_list[i].operand_1.second->offset;
@@ -1010,6 +1011,66 @@ void generate_asm()
                 addLine("div " + reg2 + ", " + reg3);
                 addLine("mfhi " + reg1);
             }
+            else if (emit_list[i].op.first == "&" || emit_list[i].op.first == "|" || emit_list[i].op.first == "^"|| emit_list[i].op.first == ">>"|| emit_list[i].op.first == "<<")
+            {
+                reg1 = getNextReg(emit_list[i].ans);
+                string op=emit_list[i].op.first;
+                if (emit_list[i].operand_1.second != NULL)
+                {
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                        reg2 = "$t6";
+                    else
+                        reg2 = getNextReg(emit_list[i].operand_1);
+                    if (emit_list[i].operand_1.second->is_array == 1)
+                    {
+                        loadArrayElement(emit_list[i].operand_1, reg2, 1);
+                    }
+                    else if (emit_list[i].operand_1.second->is_array == 2)
+                    {
+                        loadArrayElement(emit_list[i].operand_1, reg2, 2);
+                    }
+                }
+                else
+                {
+                    reg2 = "$t6";
+                    addLine("addi " + reg2 + ", $0" + ", " + emit_list[i].operand_1.first);
+                    // operand_1 is constant
+                    //op_1 = 1;
+                }
+                if (emit_list[i].operand_2.second != NULL)
+                {
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
+                        reg3 = "$t7";
+                    else
+                        reg3 = getNextReg(emit_list[i].operand_2);
+                    if (emit_list[i].operand_2.second != NULL)
+                    {
+                        if (emit_list[i].operand_2.second->is_array == 1)
+                        {
+                            loadArrayElement(emit_list[i].operand_2, reg3, 1);
+                        }
+                        else if (emit_list[i].operand_2.second->is_array == 2)
+                        {
+                            loadArrayElement(emit_list[i].operand_2, reg3, 2);
+                        }
+                    }
+                }
+                else
+                {
+                    reg3 = "$t7";
+                    addLine("addi " + reg3 + ", $0, " + emit_list[i].operand_2.first);
+                    //addLine("mult " + reg2 + ", $t9");
+                    //addLine("mflo " + reg1);
+                }
+                addLine("div " + reg2 + ", " + reg3);
+                addLine("mflo " + reg1);
+                if(op=="&") addLine("and "+reg1+", "+reg2+", "+reg3);
+                else if(op=="|") addLine("or "+reg1+", "+reg2+", "+reg3);
+                else if(op=="^") addLine("xor "+reg1+", "+reg2+", "+reg3);
+                else if(op=="<<") addLine("sll "+reg1+", "+reg2+", "+reg3);
+                else if(op==">>") addLine("sra "+reg1+", "+reg2+", "+reg3);
+
+            }
             else if (emit_list[i].op.first == "<" || emit_list[i].op.first == ">" || emit_list[i].op.first == "GE_OP" || emit_list[i].op.first == "LE_OP" || emit_list[i].op.first == "EQ_OP" || emit_list[i].op.first == "NE_OP")
             {
                 string op = emit_list[i].op.first;
@@ -1142,7 +1203,8 @@ void generate_asm()
         }
         else if (emit_list[i].line_no == -3 && currFunction != "main")
         {
-            if(i>0&&emit_list[i-1].line_no==-2){
+            if (i > 0 && emit_list[i - 1].line_no == -2)
+            {
                 //just the function definition (mutual recursion )
                 continue;
             }
