@@ -36,7 +36,7 @@ int quicksort(int *arr, int start, int end)
 }
 
 int main()
-{
+{ 
   int arr[100];
   int *a;
   int i,len, k;
@@ -45,26 +45,22 @@ int main()
   len = scanf();
   print_int(len);
   print_string("\n");
-  print_string("Input the array elements -\n");
+  print_string("Input the array elements :\n");
   for (i = 0; i < 6; i = i + 1)
   {
-    //k=scanf();
-    //arr[i]=k;
-    //print_string("i::");
-    print_int(i);
-    print_string("\n");
+    arr[i]=scanf();
   }
-  //i = 0;
-  //a = &arr[i];
-  //quicksort(a, 0, len - 1);
-  // print_string("sorted array - \n");
-  // for (i = 0; i < len; i = i + 1)
-  // {
-  //   k = arr[i];
-  //   print_int(k);
-  //   print_string(" ");
-  // }
-  // print_string("\n");
+  i = 0;
+  a = &arr[i];
+  quicksort(a, 0, len - 1);
+  print_string("sorted array - \n");
+  for (i = 0; i < len; i = i + 1)
+  {
+    k = arr[i];
+    print_int(k);
+    print_string(" ");
+  }
+  print_string("\n");
 
   return 0;
 }

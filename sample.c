@@ -1,17 +1,19 @@
-int max(int x, int y){
-    if(x>y){
-        return x;
-    }
-    else{
-        return y;
-    }
-}
-
 int main(){
-    int a = 2, b = 3, i = 0, j = 1;
-    for (; i <= max(a, b); i=i+1){
-        j *= (j+1);
+    int a[2][2];
+    int i,j,tmp;
+    for(i=0;i<2;i=i+1){
+        for(j=0;j<2;j=j+1){
+            tmp=scanf();
+            a[i][j]=tmp;
+        }
     }
-    print_int(j);
+    for(i=0;i<2;i=i+1){
+        for(j=0;j<2;j=j+1){
+            print_int(a[i][j]);
+            print_string(" ");
+        }
+        print_string("\n");
+    }
+
     return 0;
 }

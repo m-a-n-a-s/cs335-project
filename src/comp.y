@@ -1525,6 +1525,7 @@ direct_declarator
 						// }
 						}
 	| direct_declarator '[' constant_expression ']' {$$ = non_term_symb("direct_declarator", NULL, $1, $3);
+														
 														if(!int_flag($3->node_type)){
 															yyerror("Error : array index not an integer");
 														}
@@ -1538,12 +1539,12 @@ direct_declarator
 																yyerror("Error :array size missig in \'%s\' ",$1->node_key.c_str());
 															}
 															//$$-size=
-															//if($3->integer_value){ $$->size = $1->size * $3->integer_value; }
-															//else { 
+															if($3->integer_value){ $$->size = $1->size * $3->integer_value; }
+															else { 
 																char* a = new char();
 																strcpy(a,($$->node_type).c_str());
 																$$->size = get_size(a); 
-															//}
+															}
 															//------------------3AC---------------------------------//
 															$$->place.first = $$->node_key;
 															$$->place.second = NULL;

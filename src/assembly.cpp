@@ -240,7 +240,7 @@ void func_start_code()
     {
         //cout<<"in main asm\n";
         // set the frame pointer of the callee
-        addLine("sub $sp, $sp, 20");
+        addLine("sub $sp, $sp, 200");
         addLine("la $fp, ($sp)");
         int size_func = lookup("main")->size;
         // allocate space for the registers by updating the stack pointer
