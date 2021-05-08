@@ -222,7 +222,6 @@ postfix_expression
 								string tmp_str(s);
 								$$->node_type =tmp_str;
 								//if($1->expr_type==3){
-									//string funcArgs = func_args_list($1->node_key);
 									string funcArgs = args_map[$1->node_key];// get arguments
 									//----------------------------3AC-------------------------------------------------//
                          			pair <string, Entry*> t = newlabel_sym($$->node_type);
@@ -247,7 +246,6 @@ postfix_expression
 								string tmp_str(s);
 								$$->node_type =tmp_str;
 								if($1->expr_type==3){
-									//string funcArgs = func_args_list($1->node_key);
 									string funcArgs = args_map[$1->node_key];// get arguments
 									//char* a =new char();
 									string temp1 = currArguments; // current arguments passed by caller
@@ -305,27 +303,23 @@ postfix_expression
 	| postfix_expression '.' IDENTIFIER			{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));
 												if($1->init_flag) $$->init_flag=1;
 												string tmp_str($3);
-												int k = structLookup($1->node_type, tmp_str);
 												
-
-												switch(k){
-													case 1: {
-														yyerror("Error : Invalid operator \'.\' on \'%s\'", $1->node_key.c_str() );
-														break;
-													}
-													case 2: {
-														yyerror("Error : \'%s\' does not have member \'%s\'", $1->node_key.c_str() ,$3);
-														break;
-													}
-													default: {
-														Entry* struct_entry = (*(struct_table_map[$1->node_type]))[tmp_str];
-														string stmp = struct_entry->type;
-														$$->node_type=stmp;
-														break;
-													}
+												if(struct_table_map.find($1->node_type) == struct_table_map.end()){
+													yyerror("Error : Invalid operator \'.\' on \'%s\'", $1->node_key.c_str() );
 												}
 
-												string xtmp = $1->node_key+ "." + tmp_str; $$->node_key=xtmp;
+												else if((*struct_table_map[$1->node_type]).find(tmp_str) == (*struct_table_map[$1->node_type]).end()){
+													yyerror("Error : \'%s\' does not have member \'%s\'", $1->node_key.c_str() ,$3);
+												}
+
+												else{
+													Entry* struct_entry = (*(struct_table_map[$1->node_type]))[tmp_str];
+													string stmp = struct_entry->type;
+													$$->node_type=stmp;
+												}
+
+												string xtmp = $1->node_key+ "." + tmp_str; 
+												$$->node_key=xtmp;
 												}
 
 	| postfix_expression PTR_OP IDENTIFIER		{$$ = non_term_symb("->", NULL, $1, term_symb($3));
@@ -337,24 +331,18 @@ postfix_expression
 												else{
 													string as1=convert_to_string(s);
 													
-													int k = structLookup(as1, tmp_str);
-													
+													if(struct_table_map.find(as1) == struct_table_map.end()){
+														yyerror("Error : Invalid operator \'.\' on \'%s\'", $1->node_key.c_str() );
+													}
 
-													switch(k){
-														case 1: {
-															yyerror("Error :Invalid operator  \'%s\' on \'%s\'", $2, $1->node_key.c_str() );
-															break;
-														}
-														case 2: {
-															yyerror("Error : \'%s\' does not have member \'%s\'", $1->node_key.c_str() ,$3);
-															break;
-														}
-														default : {
-															Entry* struct_entry = (*(struct_table_map[as1]))[tmp_str];
-															string stmp = struct_entry->type;
-															$$->node_type=stmp;
-															break;
-														}
+													else if((*struct_table_map[as1]).find(tmp_str) == (*struct_table_map[as1]).end()){
+														yyerror("Error : \'%s\' does not have member \'%s\'", $1->node_key.c_str() ,$3);
+													}
+
+													else{
+														Entry* struct_entry = (*(struct_table_map[as1]))[tmp_str];
+														string stmp = struct_entry->type;
+														$$->node_type=stmp;
 													}
 
 													string xtmp = $1->node_key+ "->" + tmp_str; $$->node_key=xtmp;
@@ -1216,12 +1204,11 @@ assignment_expression
 									}
 									if($1->expr_type==3){ 
 										if($3->init_flag==1){
-											Entry *temp = lookup($1->node_key);
-											if (temp)
-											{
-												temp->init_flag = 1;
+											if(lookup($1->node_key) != NULL){
+												Entry* tmp_entry = lookup($1->node_key);
+												tmp_entry->init_flag = 1;
 											}
-										}//update_init_flag($1->node_key);
+										}
 									 }
 									}
 	;
@@ -1298,7 +1285,7 @@ init_declarator
         	   // yyerror("Error : void declaration \'%s\'",key);
         	//}
 			else {  
-				insert_symbol(*curr,$1->node_key,$1->node_type,$1->size,0,0);
+				insert_symbol1(*curr,$1->node_key,$1->node_type,$1->size,0);
 				$$->place.first = $1->node_key;
 				$$->place.second = lookup($1->node_key);			}
         }
@@ -1319,9 +1306,9 @@ init_declarator
             // }
             else { 
 				// if($$->expr_type==15) { 
-				// 	insert_symbol(*curr,key,t,($4->expr_type*$1->integer_value),0,1); 
+				// 	insert_symbol1(*curr,key,t,($4->expr_type*$1->integer_value),1); 
 				// }
-                insert_symbol(*curr,$1->node_key,$1->node_type,$1->size,0,1);
+                insert_symbol1(*curr,$1->node_key,$1->node_type,$1->size,1);
 				//----------------- 3AC ------------------------//
                 int valid = compatible($1->node_type, $4->node_type);
 				if(valid == -1){
@@ -1463,7 +1450,7 @@ struct_declarator
 					yyerror(" : \'%s\' is already declared in the same struct", $1->node_key.c_str());
 				}
 				else{
-					insert_symbol(*struct_table, $1->node_key, $1->node_type, $1->size, -10, 0);
+					insert_symbol3(*struct_table, $1->node_key, $1->node_type, $1->size, 0);
 					if($1->node_type == "char")	struct_offset += 4;
 					else	struct_offset += $1->size;
 				}
@@ -1505,9 +1492,9 @@ declarator
 								// 	$$->expr_type=1;
 								// } // for normal declaration
 								if($2->expr_type==2){ func_name = $2->node_key; func_type =stmp; } //for functions
-								char* a = new char();
-								strcpy(a,($$->node_type).c_str());
-								$$->size = get_size(a);
+								// char* a = new char();
+								// strcpy(a,($$->node_type).c_str());
+								$$->size = get_size($$->node_type);
 								//------------------3AC---------------------------------//
 								$$->place.first = $$->node_key;
 								// if(lookup($$->node_key)){
@@ -1538,9 +1525,9 @@ direct_declarator
 					$$->node_type=type_name;
 				}
 				else $$->node_type=type_name;
-				char* a =new char();
-                strcpy(a,type_name.c_str());
-				$$->size = get_size(a); // used while inserting in symbol table
+				// char* a =new char();
+                // strcpy(a,type_name.c_str());
+				$$->size = get_size(type_name); // used while inserting in symbol table
 				//------------------3AC---------------------------------//
 				$$->place.first = $$->node_key;
 				$$->place.second = NULL; // getting inserted in init_declarator
@@ -1573,9 +1560,9 @@ direct_declarator
 															//$$-size=
 															//if($3->integer_value){ $$->size = $1->size * $3->integer_value; }
 															//else { 
-																char* a = new char();
-																strcpy(a,($$->node_type).c_str());
-																$$->size = get_size(a); 
+																// char* a = new char();
+																// strcpy(a,($$->node_type).c_str());
+																$$->size = get_size($$->node_type); 
 															//}
 															//------------------3AC---------------------------------//
 															$$->place.first = $$->node_key;
@@ -1591,10 +1578,10 @@ direct_declarator
                     //                  	string stmp=$1->node_type+"*";$$->node_type=stmp;}
 					// char* a = new char();
 					// strcpy(a,($$->node_type).c_str());
-					// $$->size = get_size(a);
+					// $$->size = get_size($$->node_type);
 					// strcpy(a,($1->node_type).c_str());
 					// $$->expr_type=15;
-					// $$->integer_value=get_size(a);
+					// $$->integer_value=get_size($$->node_type);
 					// //------------------3AC---------------------------------//
 					// $$->place.first = $$->node_key;
 					// $$->place.second = NULL;
@@ -1606,12 +1593,11 @@ direct_declarator
 								$$->node_key=$1->node_key;
 								$$->expr_type=2; // for function declaration
 								$$->node_type=$1->node_type;
-								//insert_args($1->node_key,funcArguments); 
 								args_map.insert({$1->node_key,funcArguments});
 								funcArguments="";
-								char* a = new char();
-								strcpy(a,($$->node_type).c_str());
-								$$->size = get_size(a); //aise hi kardiya
+								// char* a = new char();
+								// strcpy(a,($$->node_type).c_str());
+								$$->size = get_size($$->node_type); //aise hi kardiya
 								
 							}
 							//------------------3AC---------------------------------//
@@ -1647,15 +1633,14 @@ direct_declarator
 	| direct_declarator '(' E3 ')' 			{$$ = parentheses("direct_declarator", $1);
 							if($1->expr_type==1){
 								$$->node_key=$1->node_key;
-								//insert_args($1->node_key,"");
 								args_map.insert({$1->node_key,""});
 								$$->expr_type=2;
 								funcArguments = "";
 							}
 							$$->node_type=$1->node_type;
-							char* a = new char();
-							strcpy(a,($$->node_type).c_str());
-							$$->size=get_size(a);
+							// char* a = new char();
+							// strcpy(a,($$->node_type).c_str());
+							$$->size=get_size($$->node_type);
 							//------------------3AC---------------------------------//
 							$$->place.first = $$->node_key;
 							$$->place.second = NULL;
@@ -1665,11 +1650,12 @@ direct_declarator
 							}
 	;
 E3
-   :%empty                  { 
-	   					  type_name ="";
-                          funcArguments = "";
-                           paramTable();
-							 }
+   :%empty                  { type_name ="";
+                          	funcArguments = "";
+                           	old_offset = offset_arr[offset_arr_index];
+   							create_table("New Func", "");
+							E3_done = true;
+							}
     ;
 pointer
 	: '*' {$$=term_symb("*");$$->node_type="*";}
@@ -1705,14 +1691,13 @@ parameter_list
 parameter_declaration
 	: declaration_specifiers declarator {
 			type_name="";
-			//paramTable();
             if($2->expr_type==1){
 			 		// const char *t=new char();
 					// t = ($2->node_type).c_str();
                     // const char *key =new char();
 					// key = ($2->node_key).c_str();
-                    if(scopeLookup($2->node_key)){ yyerror("Error : %s is already declared",$2->node_key.c_str());}
-                    else {  insert_symbol(*curr,$2->node_key,$2->node_type,$2->size,0,1);}
+                    if((*curr).find($2->node_key) != (*curr).end()){ yyerror("Error : %s is already declared",$2->node_key.c_str());}
+                    else {  insert_symbol1(*curr,$2->node_key,$2->node_type,$2->size,1);}
                     if(funcArguments=="")funcArguments=($2->node_type);
                     else funcArguments= funcArguments+","+($2->node_type);
             }
@@ -1899,7 +1884,7 @@ E1
     :  '{'        { if(func_flag==0) {symbol_count++;
                         file_name = /*string("symTableFunc")+to_string(func_symb)*/func_name+"Block"+to_string(symbol_count);
                         scope=S_BLOCK;
-                        //create_table(file_name,scope,string("12345"));
+                        //create_table(file_name,string("12345"));
                         char * y=new char();
                         strcpy(y,file_name.c_str());
                         $$ = y;
@@ -2265,7 +2250,7 @@ E2
 											if((*Parent[curr])[func_name]->init_flag) yyerror("Error : function \"%s\" already declared",func_name.c_str());
 										 }
 										 
-										 create_table(file_name,scope,func_type);
+										 create_table(file_name,func_type);
                                          char* y= new char();
                                          strcpy(y,file_name.c_str());
                                          $$ = y;

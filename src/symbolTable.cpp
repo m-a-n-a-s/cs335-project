@@ -23,7 +23,7 @@ int offset_arr_index;
 long long offset_arr[20];
 long long old_offset; // to store the previous value of offset
 long long struct_offset;
-int next_flag;
+bool E3_done;
 
 symbol_table global_table; // global symbol table
 symbol_table *curr; // current symbol table
@@ -40,225 +40,109 @@ void table_initialize(){
    blk_num = 0;
    Parent.insert(make_pair<symbol_table *, symbol_table *>(&global_table, NULL));
    curr = &global_table;
-   next_flag = 0;
-   insert_symbol(*curr, "scanf", "FUNC_int", 8, 0, 1);
-   insert_symbol(*curr, "print_string", "FUNC_void", 8, 0, 1);
-   insert_symbol(*curr, "print_int", "FUNC_void", 8, 0, 1); 
+   E3_done = false;
+   insert_symbol1(*curr, "scanf", "FUNC_int", 8, 1);
+   insert_symbol1(*curr, "print_string", "FUNC_void", 8, 1);
+   insert_symbol1(*curr, "print_int", "FUNC_void", 8, 1); 
 }
 
-int structLookup(string struct_name, string idStruct)
-{
-   if (struct_table_map.find(struct_name) == struct_table_map.end())
-      return 1;
-   else if ((*struct_table_map[struct_name]).count(idStruct) != 1)
-      return 2;
-   return 0;
-}
+void insert_symbol1(symbol_table &table, string key, string type, unsigned long long size, int init_flag){
+   Entry* tmp_entry = new Entry();
+   tmp_entry->type = type;
+   tmp_entry->size = size;
+   tmp_entry->offset = offset_arr[offset_arr_index];
+   tmp_entry->init_flag = init_flag;
+   table.insert({key, tmp_entry});
 
-void fprintStruct(Entry *a, FILE *file)
-{
-   fprintf(file, "%s,%lld, %lld, %d\n", a->type.c_str(), a->size, a->offset, a->init_flag);
-}
-
-void paramTable()
-{
-   old_offset = offset_arr[offset_arr_index];
-   create_table("New Func", S_FUNC, "");
-   next_flag = 1;
-}
-
-Entry *add_entry(string type, ull size, ll offset, int init_flag)
-{
-   Entry *mynew = new Entry();
-   mynew->type = type;
-   mynew->size = size;
-   mynew->offset = offset;
-   mynew->init_flag = init_flag;
-   return mynew;
-}
-
-string get_sym_type(string key)
-{
-   Entry *temp = lookup(key);
-   if (temp)
-   {
-      string a = temp->type;
-      return a;
-   }
-   else
-      return "";
-}
-
-void insert_symbol(symbol_table &table, string key, string type, ull size, ll offset_type, int init_flag)
-{
    blk_size[blk_num] = blk_size[blk_num] + size;
-   if (offset_type == 10)
-   {
-      table.insert(pair<string, Entry *>(key, add_entry(type, size,old_offset, init_flag)));
-   }
-   else if (offset_type == -10)
-   {
-      table.insert(pair<string, Entry *>(key, add_entry(type, size, struct_offset, init_flag)));
-   }
-   else
-   {
-      table.insert(pair<string, Entry *>(key, add_entry(type, size, offset_arr[offset_arr_index], init_flag)));
-   }
    offset_arr[offset_arr_index] = offset_arr[offset_arr_index] + size;
+   
    return;
 }
 
+void insert_symbol2(symbol_table &table, string key, string type, unsigned long long size, int init_flag){
+   Entry* tmp_entry = new Entry();
+   tmp_entry->type = type;
+   tmp_entry->size = size;
+   tmp_entry->offset = old_offset;
+   tmp_entry->init_flag = init_flag;
+   table.insert({key, tmp_entry});
 
+   blk_size[blk_num] = blk_size[blk_num] + size;
+   offset_arr[offset_arr_index] = offset_arr[offset_arr_index] + size;
+   
+   return;
+}
 
-void create_table(string name, int type, string func_type)
-{
-   string f;
-   // if(func_type!="12345") f =convert_to_string("FUNC_")+func_type; else f = convert_to_string("Block");
-   f = convert_to_string("FUNC_") + func_type;
-   if (next_flag == 1)
-   {
-      insert_symbol(*Parent[curr], name, f, 0, 10, 1);
+void insert_symbol3(symbol_table &table, string key, string type, unsigned long long size, int init_flag){
+   Entry* tmp_entry = new Entry();
+   tmp_entry->type = type;
+   tmp_entry->size = size;
+   tmp_entry->offset = struct_offset;
+   tmp_entry->init_flag = init_flag;
+   table.insert({key, tmp_entry});
+
+   blk_size[blk_num] = blk_size[blk_num] + size;
+   offset_arr[offset_arr_index] = offset_arr[offset_arr_index] + size;
+   
+   return;
+}
+
+void create_table(string name, string func_type){
+   string type = convert_to_string("FUNC_") + func_type;
+   if (E3_done){
+      insert_symbol2(*Parent[curr], name, type, 0, 1);
       old_offset = 0;
-      // (*Parent[curr]).erase(convert_to_string("Next"));
+      E3_done = false;
    }
-   else
-   {
+   else{
+      symbol_table *new_table = new symbol_table;
+      Parent.insert({new_table, curr});
+      curr = new_table;
       blk_num++;
-      symbol_table *myTable = new symbol_table;
-      // insert_symbol(*curr, name, f, 0, 0, 1);
       offset_arr_index++;
       offset_arr[offset_arr_index] = 0;
-      Parent.insert(pair<symbol_table *, symbol_table *>(myTable, curr));
-      curr = myTable;
    }
-   next_flag = 0;
+   return;
 }
 
-string func_args_list(string key)
-{
-   string a = args_map[key];
-   return a;
-}
-
-void update_table(string key,int is_init)
-{
-   curr = Parent[curr];
-   (*curr)[key]->init_flag=is_init;
-   offset_gnum--;
-   offset_g[offset_gnum] += offset_g[offset_gnum + 1];
-   update_table_size(key);
-   blk_size[blk_num - 1] = blk_size[blk_num] + blk_size[blk_num - 1];
+void update_table(string key,int is_init){
+   long long temp = blk_size[blk_num];
    blk_size[blk_num] = 0;
    blk_num--;
+   if(lookup(key) != NULL){
+      Entry* key_entry = lookup(key);
+      key_entry->size = temp;
+   }
+   blk_size[blk_num] += temp;
+   curr = Parent[curr];
+   (*curr)[key]->init_flag=is_init;
+   offset_arr_index--;
+   offset_arr[offset_arr_index] += offset_arr[offset_arr_index + 1];
 }
 
-Entry *lookup(string a)
-{
-   symbol_table *tmp;
-   tmp = curr;
-   while (1)
-   {
-      if ((*tmp).find(a) != (*tmp).end()) // if present in curr
-      {
-         return (*tmp)[a];
-      }
-      if (Parent[tmp] != NULL) // goto parent symtable to check
-         tmp = Parent[tmp];
-      else
+Entry* lookup(string key){
+   symbol_table* fixed;
+   fixed = curr;
+   Entry* ret_val = new Entry();
+   while(curr != NULL){
+      if ((*curr).find(key) != (*curr).end()){
+         ret_val = (*curr)[key];
          break;
+      }
+      curr = Parent[curr];
    }
-   return NULL;
-}
-Entry *scopeLookup(string a)
-{
-   symbol_table *tmp;
-   tmp = curr;
-   if ((*tmp).find(a) != (*tmp).end())
-   {
-      return (*tmp)[a];
+
+   if(curr == NULL){
+      curr = fixed;
+      return NULL;
    }
-   return NULL;
+   curr = fixed;
+   return ret_val;
 }
 
-ull get_size(char *id)
-{
-   // integer
-   string str = convert_to_string(id);
-   if (struct_size.find(id) != struct_size.end())
-      return struct_size[str];
-   if (str == "int")
-      return sizeof(int);
-   if (str == "long int")
-      return sizeof(long int);
-   if (str == "long long")
-      return sizeof(long long);
-   if (str == "long long int")
-      return sizeof(long long int);
-   if (str == "signed int")
-      return sizeof(signed int);
-   if (str == "signed long int")
-      return sizeof(signed long int);
-   if (str == "signed long long")
-      return sizeof(signed long long);
-   if (str == "signed long long int")
-      return sizeof(signed long long int);
-   if (str == "unsigned int")
-      return sizeof(unsigned int);
-   if (str == "unsigned long int")
-      return sizeof(unsigned long int);
-   if (str == "unsigned long long")
-      return sizeof(unsigned long long);
-   if (str == "unsigned long long int")
-      return sizeof(unsigned long long int);
-   if (str == "short")
-      return sizeof(short);
-   if (str == "short int")
-      return sizeof(short int);
-   if (str == "signed short int")
-      return sizeof(signed short int);
-   if (str == "unsigned short int")
-      return sizeof(unsigned short int);
-
-   //float
-   if (str == "float")
-      return sizeof(float);
-   if (str == "double")
-      return sizeof(double);
-   if (str == "long double")
-      return sizeof(long double);
-
-   //char
-   if (str == "char")
-      return sizeof(char);
-
-   return 8;
-}
-
-void update_init_flag(string key)
-{
-   Entry *temp = lookup(key);
-   if (temp)
-   {
-      temp->init_flag = 1;
-   }
-}
-void update_table_size(string key)
-{
-   Entry *temp = lookup(key);
-   if (temp)
-   {
-      temp->size = blk_size[blk_num];
-   }
-}
-
-void insert_args(string a, string b)
-{
-   args_map.insert(pair<string, string>(a, b));
-}
-
-void print_func_args()
-{
-   FILE *file = fopen("FuncArguments.csv", "w");
+void print_func_args(){
+   FILE *file = fopen("FuncArgs.csv", "w");
    for (auto it : args_map)
    {
       fprintf(file, "%s,", it.first.c_str());
@@ -266,15 +150,15 @@ void print_func_args()
    }
    fclose(file);
 }
+
 void print_tables(symbol_table *a, string filename)
 {
    FILE *file = fopen(filename.c_str(), "w");
    fprintf(file, "Key,Type,Size,Offset,is_Initialized\n");
 
-   for (auto it : *a)
-   {
+   for (auto it : *a){
       fprintf(file, "%s,", it.first.c_str());
-      fprintStruct(it.second, file);
+      fprintf(file, "%s,%lld, %lld, %d\n", it.second->type.c_str(), it.second->size, it.second->offset, it.second->init_flag);
    }
    fclose(file);
 }

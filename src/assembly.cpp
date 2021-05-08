@@ -283,7 +283,7 @@ void func_start_code()
         addLine("sub $sp, $sp, " + to_string(size_func));
 
         //copy parameters
-        string parameterList = func_args_list(currFunction);
+        string parameterList = args_map[currFunction];
         int paramNum = 0;
         int paramSize = 76;
         string temp = parameterList;
@@ -303,9 +303,9 @@ void func_start_code()
                     addLine("sub $s7, $fp, " + to_string(paramSize));
                     addLine("sw $a" + to_string(paramNum) + ", 0($s7)");
                 }
-                char a[50];
-                strcpy(a, temp1.c_str());
-                paramSize += get_size(a);
+                // char a[50];
+                // strcpy(a, temp1.c_str());
+                paramSize += get_size(temp1);
                 paramNum++;
             }
             if (paramNum < 4)
@@ -377,10 +377,10 @@ void param_code(int i)
             //////////////////////////////////////////////////////////////////////
             ///////////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////////////
-            char *a = "int"; // to check
+            //char *a = "int"; // to check
             //char a[50];
             //strcpy(a,emit_list[i].operand_1.second->type.c_str());
-            paramSize += counter * get_size(a);
+            paramSize += counter * get_size(convert_to_string("int"));
 
             addLine("li $s6, " + to_string(paramSize));
             addLine("sub $s7, $sp, $s6");
@@ -399,8 +399,8 @@ void param_code(int i)
         {
             int paramNum = 0;
             int paramSize = 76;
-            char *a = "int";
-            paramSize += counter * get_size(a);
+            //char *a = "int";
+            paramSize += counter * get_size(convert_to_string("int"));
             addLine("addi $t9, $0, " + emit_list[i].operand_1.first);
             addLine("li $s6, " + to_string(paramSize));
             addLine("sub $s7, $sp, $s6");

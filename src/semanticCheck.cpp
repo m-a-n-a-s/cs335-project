@@ -113,6 +113,30 @@ string getstr_num_type(int num_type){
     return ret_val;
 }
 
+unsigned long long get_size(string type){
+    if (struct_size.find(type) != struct_size.end())    return struct_size[type];
+    else if (type == "int") return sizeof(int);
+    else if (type == "long int")    return sizeof(long int);
+    else if (type == "long long int")   return sizeof(long long int);
+    else if (type == "signed int")  return sizeof(signed int);
+    else if (type == "signed long int") return sizeof(signed long int);
+    else if (type == "signed long long")    return sizeof(signed long long);
+    else if (type == "signed long long int")    return sizeof(signed long long int);
+    else if (type == "unsigned int")    return sizeof(unsigned int);
+    else if (type == "unsigned long int")   return sizeof(unsigned long int);
+    else if (type == "unsigned long long")  return sizeof(unsigned long long);
+    else if (type == "unsigned long long int")  return sizeof(unsigned long long int);
+    else if (type == "short")   return sizeof(short);
+    else if (type == "short int")   return sizeof(short int);
+    else if (type == "signed short int")    return sizeof(signed short int);
+    else if (type == "unsigned short int")  return sizeof(unsigned short int);
+    else if (type == "float")   return sizeof(float);
+    else if (type == "double")  return sizeof(double);
+    else if (type == "long double") return sizeof(long double);
+    else if (type == "char")    return sizeof(char);
+    else return 8;
+}
+
 char* postfix_type1(string type){
     if(!is_ptr(type)){
         return NULL;

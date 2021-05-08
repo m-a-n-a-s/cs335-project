@@ -44,9 +44,9 @@ string newlabel_var()
 pair<string, Entry *> newlabel_sym(string type)
 {
     string temp_var_str = newlabel_var();
-    char *new_temp_str = new char[type.length() + 1];
-    strcpy(new_temp_str, type.c_str());
-    insert_symbol(*curr, temp_var_str, type, get_size(new_temp_str), 0, 1);
+    // char *new_temp_str = new char[type.length() + 1];
+    // strcpy(new_temp_str, type.c_str());
+    insert_symbol1(*curr, temp_var_str, type, get_size(temp_var_str), 1);
     pair<string, Entry *> new_temp_sym = pair<string, Entry *>(temp_var_str, lookup(temp_var_str));
     return new_temp_sym;
 }
