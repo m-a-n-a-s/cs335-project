@@ -1,9 +1,10 @@
 #!/bin/bash
 
-for i in {1..5}
+testcases=`ls ./newtests/*.c`
+for entry in $testcases
 do 
-./bin/compiler ./newtests/test$i.c -o ast.dot
-echo "$i done"
+./bin/compiler $entry -o ast.dot
+echo "$entry done"
 done
 
 for i in {1..6}

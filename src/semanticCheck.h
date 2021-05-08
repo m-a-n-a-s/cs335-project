@@ -1,8 +1,6 @@
 #include "symbolTable.h"
 using namespace std;
 
-typedef long long ll;
-typedef unsigned long long ull;
 
 bool is_ptr(string type);
 bool void_ptr(string type);
@@ -10,6 +8,7 @@ bool is_char(string type);
 bool is_bool(string type);
 bool int_flag (string type);
 bool real_flag (string type);
+unsigned long long get_size(string type);
 string getstr_num_type(int num_type);
 char* postfix_type1(string type);
 char* postfix_type2(string type);

@@ -1,10 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-//#include <cstring>
-//#include <string>
-//#include <iostream>
-//#include <sstream>
-//#include <vector>
 #include "IR_3ac.h"
 
 using namespace std;
