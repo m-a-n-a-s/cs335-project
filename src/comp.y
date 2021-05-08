@@ -316,10 +316,18 @@ postfix_expression
 													Entry* struct_entry = (*(struct_table_map[$1->node_type]))[tmp_str];
 													string stmp = struct_entry->type;
 													$$->node_type=stmp;
+													///////////3AC//////////////////////////
+													$$->place = newlabel_sym($$->node_type);
+													$$->place.second->size=struct_entry->offset;
+													$$->place.second->offset=$1->place.second->offset;
+													$$->place.second->is_struct=1;
+													////////////////////////////////////////
 												}
 
 												string xtmp = $1->node_key+ "." + tmp_str; 
 												$$->node_key=xtmp;
+												
+												
 												}
 
 	| postfix_expression PTR_OP IDENTIFIER		{$$ = non_term_symb("->", NULL, $1, term_symb($3));
@@ -343,6 +351,12 @@ postfix_expression
 														Entry* struct_entry = (*(struct_table_map[as1]))[tmp_str];
 														string stmp = struct_entry->type;
 														$$->node_type=stmp;
+														///////////3AC//////////////////////////
+														$$->place = newlabel_sym($$->node_type);
+														$$->place.second->size=struct_entry->offset;
+														$$->place.second->offset=$1->place.second->offset;
+														$$->place.second->is_struct=2;
+														////////////////////////////////////////
 													}
 
 													string xtmp = $1->node_key+ "->" + tmp_str; $$->node_key=xtmp;
@@ -1486,6 +1500,7 @@ type_qualifier
 
 declarator
 	: pointer direct_declarator {$$ = non_term_symb("declarator", NULL, $1, $2);
+								
 								string stmp=$2->node_type+$1->node_type;
 								$$->node_type=stmp;
 								$$->node_key = $2->node_key;

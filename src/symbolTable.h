@@ -18,6 +18,7 @@ typedef struct table_entry{
     string type;
     int init_flag;
     int is_array; //1 means index is expression. 2 means it is const no.
+    int is_struct; // 1 means struct. Used in codegen
 } Entry;
 
 typedef unordered_map<string,Entry *> symbol_table;

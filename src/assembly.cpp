@@ -150,7 +150,7 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
 
         else
         {
-            addLine("lw $t8, " + to_string(temporary.second->size));
+            addLine("li $t8, " + to_string(temporary.second->size));
             addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
@@ -178,7 +178,7 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
         }
         else
         {
-            addLine("lw $t8, " + to_string(temporary.second->size));
+            addLine("li $t8, " + to_string(temporary.second->size));
             addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
@@ -188,6 +188,41 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
             addLine("lw $t8, 0($s7)");
             addLine("sub $s7, $t8, $t7");
         }
+    }
+    addLine("lw " + registerTmp + ", 0($s7)");
+}
+
+void loadStructElement(pair<string, Entry *> temporary, string registerTmp,int struct_type)
+{
+    if (currFunction == "main")
+    {
+        if (struct_type == 1)
+        {
+            addLine("li $t8, " + to_string(temporary.second->size));
+            //addLine("li $t7, 4");
+            //addLine("mult $t8, $t7");
+            //addLine("mflo $t7");
+            addLine("li $s6, " + to_string(temporary.second->offset)); // put the offset in s6
+            addLine("sub $s6, $fp, $s6"); // combine the two components of the
+            addLine("add $s7, $s6, $t8");
+            
+        }
+        else
+        {
+            addLine("li $t8, " + to_string(temporary.second->size));
+            //addLine("li $t7, 4");
+            //addLine("mult $t8, $t7");
+            //addLine("mflo $t7");
+            addLine("li $s6, " + to_string(temporary.second->offset)); // put the offset in s6
+            addLine("sub $s6, $fp, $s6");
+            addLine("lw $s6, 0($s6)");
+            addLine("add $s7, $s6, $t8");
+             // combine the two components of the
+        }
+    }
+    else
+    {
+        //baadme dalna hai
     }
     addLine("lw " + registerTmp + ", 0($s7)");
 }
@@ -412,7 +447,7 @@ void param_code(int i)
 
 void assign_op_code(int i)
 {
-    if (emit_list[i].ans.second->is_array == 1 || emit_list[i].ans.second->is_array == 2)
+    if (emit_list[i].ans.second->is_array == 1 || emit_list[i].ans.second->is_array == 2 || emit_list[i].ans.second->is_struct == 1|| emit_list[i].ans.second->is_struct == 2)
         reg3 = "$t7";
     else
     {
@@ -429,6 +464,16 @@ void assign_op_code(int i)
         else if (emit_list[i].operand_1.second->is_array == 2)
         {
             loadArrayElement(emit_list[i].operand_1, "$t6", 2);
+            reg2 = "$t6";
+        }
+        else if (emit_list[i].operand_1.second->is_struct == 1)
+        {
+            loadStructElement(emit_list[i].operand_1, "$t6",1);
+            reg2 = "$t6";
+        }
+        else if (emit_list[i].operand_1.second->is_struct == 2)
+        {
+            loadStructElement(emit_list[i].operand_1, "$t6",2);
             reg2 = "$t6";
         }
         else
@@ -480,7 +525,7 @@ void assign_op_code(int i)
     {
         if (currFunction == "main")
         {
-            addLine("lw $t8, " + emit_list[i].ans.second->size);
+            addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
             addLine("li $t9, 4");
             addLine("mult $t8, $t9");
             addLine("mflo $t9");
@@ -494,7 +539,7 @@ void assign_op_code(int i)
         }
         else
         {
-            addLine("lw $t8, " + emit_list[i].ans.second->size);
+            addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
             addLine("li $t6, 4");
             addLine("mult $t8, $t6");
             addLine("mflo $t6");
@@ -506,6 +551,44 @@ void assign_op_code(int i)
         }
 
         addLine("sw $t7, 0($s7)");
+    }
+    else if (emit_list[i].ans.second->is_struct == 1)
+    {
+        //struct.identifier
+        addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
+        //addLine("li $t9, 4");
+        //addLine("mult $t8, $t9");
+        //addLine("mflo $t9");
+        addLine(
+            "li $s6, " +
+            to_string(
+                emit_list[i].ans.second->offset)); // put the offset in s6
+        addLine("add $s6, $s6, $t8");
+        addLine("sub $s7, $fp, $s6"); // combine the two components of the address
+        addLine("sw $t7, 0($s7)");
+
+
+        //add for non main func also
+    }
+    else if (emit_list[i].ans.second->is_struct == 2)
+    {
+        //struct->identifier size contains id off in struct. offset contains ptr offset in func
+        
+        addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
+        //addLine("li $t9, 4");
+        //addLine("mult $t8, $t9");
+        //addLine("mflo $t9");
+        addLine("li $s6, " +to_string(emit_list[i].ans.second->offset)); // put the offset in s6
+        addLine("sub $s6, $fp, $s6");
+        //addLine("lw $s7, 0($s6)");
+        addLine("lw $s6, 0($s6)");
+        //addLine("lw $s6, 10");
+        addLine("add $s6, $s6, $t8");
+        //addLine(
+        //    "sub $s7, $fp, $s6"); // combine the two components of the address
+        addLine("sw $t7, 0($s6)");
+    
+        //add for non main func also
     }
 }
 
@@ -1011,10 +1094,10 @@ void generate_asm()
                 addLine("div " + reg2 + ", " + reg3);
                 addLine("mfhi " + reg1);
             }
-            else if (emit_list[i].op.first == "&" || emit_list[i].op.first == "|" || emit_list[i].op.first == "^"|| emit_list[i].op.first == ">>"|| emit_list[i].op.first == "<<")
+            else if (emit_list[i].op.first == "&" || emit_list[i].op.first == "|" || emit_list[i].op.first == "^" || emit_list[i].op.first == ">>" || emit_list[i].op.first == "<<")
             {
                 reg1 = getNextReg(emit_list[i].ans);
-                string op=emit_list[i].op.first;
+                string op = emit_list[i].op.first;
                 if (emit_list[i].operand_1.second != NULL)
                 {
                     if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
@@ -1064,12 +1147,16 @@ void generate_asm()
                 }
                 addLine("div " + reg2 + ", " + reg3);
                 addLine("mflo " + reg1);
-                if(op=="&") addLine("and "+reg1+", "+reg2+", "+reg3);
-                else if(op=="|") addLine("or "+reg1+", "+reg2+", "+reg3);
-                else if(op=="^") addLine("xor "+reg1+", "+reg2+", "+reg3);
-                else if(op=="<<") addLine("sll "+reg1+", "+reg2+", "+reg3);
-                else if(op==">>") addLine("sra "+reg1+", "+reg2+", "+reg3);
-
+                if (op == "&")
+                    addLine("and " + reg1 + ", " + reg2 + ", " + reg3);
+                else if (op == "|")
+                    addLine("or " + reg1 + ", " + reg2 + ", " + reg3);
+                else if (op == "^")
+                    addLine("xor " + reg1 + ", " + reg2 + ", " + reg3);
+                else if (op == "<<")
+                    addLine("sll " + reg1 + ", " + reg2 + ", " + reg3);
+                else if (op == ">>")
+                    addLine("sra " + reg1 + ", " + reg2 + ", " + reg3);
             }
             else if (emit_list[i].op.first == "<" || emit_list[i].op.first == ">" || emit_list[i].op.first == "GE_OP" || emit_list[i].op.first == "LE_OP" || emit_list[i].op.first == "EQ_OP" || emit_list[i].op.first == "NE_OP")
             {
