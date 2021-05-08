@@ -216,9 +216,10 @@ string func_args_list(string key)
    return a;
 }
 
-void update_table(string key)
+void update_table(string key,int is_init)
 {
    curr = Parent[curr];
+   (*curr)[key]->init_flag=is_init;
    offset_gnum--;
    offset_g[offset_gnum] += offset_g[offset_gnum + 1];
    update_table_size(key);
