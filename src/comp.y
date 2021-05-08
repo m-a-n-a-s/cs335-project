@@ -1561,21 +1561,12 @@ direct_declarator
 																yyerror("Error :array size missig in \'%s\' ",$1->node_key.c_str());
 															}
 															//$$-size=
-<<<<<<< HEAD
 															if($3->integer_value){ $$->size = $1->size * $3->integer_value; }
 															else { 
 																char* a = new char();
 																strcpy(a,($$->node_type).c_str());
 																$$->size = get_size(a); 
 															}
-=======
-															//if($3->integer_value){ $$->size = $1->size * $3->integer_value; }
-															//else { 
-																// char* a = new char();
-																// strcpy(a,($$->node_type).c_str());
-																$$->size = get_size($$->node_type); 
-															//}
->>>>>>> 3656f4b39ae102865748fa2978aa6f5410e089c0
 															//------------------3AC---------------------------------//
 															$$->place.first = $$->node_key;
 															$$->place.second = NULL;
