@@ -22,6 +22,9 @@ int symbol_count = 0;
 int func_symb=0;
 int blockSym=0;
 
+int func_decl_only=0; // to check whether it is just a func declaration
+
+
 int yylex(void);
 void yyerror(char *s,...);
 
@@ -1852,7 +1855,7 @@ labeled_statement
 	;
 
 compound_statement
-	: '{' '}' {func_flag=0;$$ = term_symb("{ }");}
+	: '{' '}' {func_flag=0;$$ = term_symb("{ }");func_decl_only=1;}
 	| E1  statement_list '}'  {
 								if(blockSym){ string s($1);
                                     s=s+".csv";
@@ -2185,7 +2188,8 @@ function_definition
                 string u = s+".csv";
                 print_tables(curr,u);
                 symbol_count=0;
-               	update_table(s);
+               	update_table(s,!func_decl_only);
+			  	func_decl_only=0;
                 
 				//--------------------3AC--------------------------------//
                 //if($5->real_value != -5){ 
@@ -2198,15 +2202,15 @@ function_definition
 			
 			
 			  $$->nextlist=$4->nextlist;
-		
+				
               type_name="";
               string s($3);
 			  string u =s+".csv";
               print_tables(curr,u);
               symbol_count=0;
 			  
-              update_table(s);
-			  
+              update_table(s,!func_decl_only);
+			  func_decl_only=0;
               
 			  //--------------------3AC--------------------------------//
               //if($4->real_value != -5){
@@ -2222,7 +2226,8 @@ function_definition
 															string s($3);string u =s+".csv";
 															print_tables(curr,u);
 															symbol_count=0;
-															update_table(s);
+															update_table(s,!func_decl_only);
+			  												func_decl_only=0;
 															//--------------------3AC--------------------------------//
 															//if($5->real_value != -5){ 
 																string em =  "func end";
@@ -2237,7 +2242,8 @@ function_definition
 											string s($3);string u =s+".csv";
 											print_tables(curr,u);
 											symbol_count=0;
-											update_table(s);
+											update_table(s,!func_decl_only);
+			  								func_decl_only=0;
 
 											//--------------------3AC--------------------------------//
 											//if($4->real_value != -5){ 
@@ -2255,7 +2261,8 @@ E2
                                          func_symb++;
                                          file_name = func_name;//string("symTableFunc")+to_string(func_symb);
                                          if((*Parent[curr]).find(func_name)!=(*Parent[curr]).end()){
-											 yyerror("Error : function \"%s\" already declared",func_name.c_str());
+											
+											if((*Parent[curr])[func_name]->init_flag) yyerror("Error : function \"%s\" already declared",func_name.c_str());
 										 }
 										 
 										 create_table(file_name,scope,func_type);

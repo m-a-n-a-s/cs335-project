@@ -56,7 +56,7 @@ void paramTable();
 void update_init_flag(string k);
 void create_table(string name,int type,string func_type);
 void insert_args(string a,string b);
-void update_table(string k);
+void update_table(string k,int is_init);
 void insert_symbol(symbol_table& table,string k,string type,ull size,ll offset,int init_flag);
 void print_tables(symbol_table *a, string filename);
 void print_func_args();

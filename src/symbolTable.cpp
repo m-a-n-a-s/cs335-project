@@ -140,11 +140,12 @@ string func_args_list(string key)
    return a;
 }
 
-void update_table(string key)
+void update_table(string key,int is_init)
 {
    curr = Parent[curr];
-   offset_arr_index--;
-   offset_arr[offset_arr_index] += offset_arr[offset_arr_index + 1];
+   (*curr)[key]->init_flag=is_init;
+   offset_gnum--;
+   offset_g[offset_gnum] += offset_g[offset_gnum + 1];
    update_table_size(key);
    blk_size[blk_num - 1] = blk_size[blk_num] + blk_size[blk_num - 1];
    blk_size[blk_num] = 0;

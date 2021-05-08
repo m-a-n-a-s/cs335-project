@@ -540,6 +540,10 @@ void generate_asm()
         //cout<<"f3::"<<emit_list[i].line_no<<endl;
         if (emit_list[i].line_no == -2)
         {
+            if(i<emit_list.size()&&emit_list[i+1].line_no==-3){
+                //only func declration (mutual recusrsion)
+                continue;
+            }
             //function starting
             counter = 0;
             currFunction = emit_list[i].op.first;
@@ -1138,6 +1142,10 @@ void generate_asm()
         }
         else if (emit_list[i].line_no == -3 && currFunction != "main")
         {
+            if(i>0&&emit_list[i-1].line_no==-2){
+                //just the function definition (mutual recursion )
+                continue;
+            }
             add_comment(i);
             //returns  from non main function
             addLine(currFunction + "end:");
