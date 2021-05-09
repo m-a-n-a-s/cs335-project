@@ -113,7 +113,7 @@ struct node *non_term_symb_5(char *str,struct node *node1,struct node *node2, st
 }
 
 struct node *non_term_symb_enum(char *str,char *op1,char *op2, struct node *node1,char *op3) {
-  struct node *head = new node;
+  struct node *head = new node();
   ul size1 = strlen(str);
   head->token = (char*)malloc(size1 + 1);
   strcpy(head->token, str);
