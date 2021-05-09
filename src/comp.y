@@ -188,7 +188,15 @@ postfix_expression
 								$$->place = newlabel_sym($$->node_type);
                                 //pair <string, Entry*> opT  = pair<string,Entry*>("[]",NULL);
                                 //int k = emit(opT, $1->place, $3->place, $$->place, -7);
-								
+									
+								if(s[0]=='S'){
+									//means $1 is struct type
+									string tmp(s);
+									$$->place.second->struct_size=struct_size_map[tmp];
+									$$->place.second->is_struct=1;
+									
+								}
+
                                 if($3->place.second!=NULL){
 									//means index is not a const number
 									$$->place.second->size = $3->place.second->offset;
@@ -353,6 +361,12 @@ postfix_expression
 													$$->place.second->size=struct_entry->offset;
 													$$->place.second->offset=$1->place.second->offset;
 													$$->place.second->is_struct=1;
+
+													if($1->place.second->is_array>0){
+														$$->place.second->is_struct_array=$1->place.second->is_array; 
+														$$->place.second->off=$1->place.second->size; // load the i's val/offset in the expr a[i].val;
+														$$->place.second->struct_size=$1->place.second->struct_size;
+													}
 													////////////////////////////////////////
 												}
 

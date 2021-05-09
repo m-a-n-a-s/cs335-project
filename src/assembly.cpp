@@ -150,7 +150,12 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
                 addLine("mflo $t7");
                 addLine("add $t8, $t8, $t7"); //i*n2+j
             }
-            addLine("li $t7, 4");
+            if (temporary.second->is_struct != 0)
+            {
+                addLine("li $t7, " + to_string(temporary.second->struct_size));
+            }
+            else
+                addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
             addLine("li $s6, " + to_string(temporary.second->offset)); // put the offset in s6
@@ -169,7 +174,12 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
                 addLine("mflo $t7");
                 addLine("add $t8, $t8, $t7"); //i*n2+j
             }
-            addLine("li $t7, 4");
+            if (temporary.second->is_struct != 0)
+            {
+                addLine("li $t7, " + to_string(temporary.second->struct_size));
+            }
+            else
+                addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
             addLine("li $s6, " + to_string(temporary.second->offset)); // put the offset in s6
@@ -196,7 +206,12 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
                 addLine("mflo $t7");
                 addLine("add $t8, $t8, $t7"); //i*n2+j
             }
-            addLine("li $t7, 4");
+            if (temporary.second->is_struct != 0)
+            {
+                addLine("li $t7, " + to_string(temporary.second->struct_size));
+            }
+            else
+                addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
             addLine("li $s6, " + to_string(temporary.second->offset));
@@ -216,7 +231,12 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
                 addLine("mflo $t7");
                 addLine("add $t8, $t8, $t7"); //i*n2+j
             }
-            addLine("li $t7, 4");
+            if (temporary.second->is_struct != 0)
+            {
+                addLine("li $t7, " + to_string(temporary.second->struct_size));
+            }
+            else
+                addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
             addLine("li $s6, " + to_string(temporary.second->offset));
@@ -240,7 +260,25 @@ void loadStructElement(pair<string, Entry *> temporary, string registerTmp, int 
             //addLine("mult $t8, $t7");
             //addLine("mflo $t7");
             addLine("li $s6, " + to_string(temporary.second->offset)); // put the offset in s6
-            addLine("sub $s6, $fp, $s6");                              // combine the two components of the
+            if (temporary.second->is_struct_array == 1)
+            {
+                addLine("li $s7, " + to_string(temporary.second->off)); // i offset in a[i].val
+                addLine("sub $s7, $fp, $s7");
+                addLine("lw $s7, 0($s7)");                                      //val of i
+                addLine("li $t9, " + to_string(temporary.second->struct_size)); // i*struct_size
+                addLine("mult $s7, $t9");
+                addLine("mflo $s7");
+                addLine("add $s6, $s6, $s7"); // a+i*struct_size
+            }
+            else if (temporary.second->is_struct_array == 2)
+            {
+                addLine("li $s7, " + to_string(temporary.second->off));         // 2 in a[2].val
+                addLine("li $t9, " + to_string(temporary.second->struct_size)); // 2*struct_size
+                addLine("mult $s7, $t9");
+                addLine("mflo $s7");
+                addLine("add $s6, $s6, $s7"); // a+2*struct_size
+            }
+            addLine("sub $s6, $fp, $s6"); // combine the two components of the
             addLine("add $s7, $s6, $t8");
         }
         else
@@ -265,6 +303,25 @@ void loadStructElement(pair<string, Entry *> temporary, string registerTmp, int 
             //addLine("mult $t8, $t7");
             //addLine("mflo $t7");
             addLine("li $s6, " + to_string(temporary.second->offset)); // put the offset in s6
+            if (temporary.second->is_array == 1)
+            {
+                addLine("li $s7, " + to_string(temporary.second->off)); // i offset in a[i].val
+                addLine("addi $s7, 76");
+                addLine("sub $s7, $fp, $s7");
+                addLine("lw $s7, 0($s7)");                                      //val of i
+                addLine("li $t9, " + to_string(temporary.second->struct_size)); // i*struct_size
+                addLine("mult $s7, $t9");
+                addLine("mflo $s7");
+                addLine("add $s6, $s6, $s7"); // a+i*struct_size
+            }
+            else if (temporary.second->is_array == 2)
+            {
+                addLine("li $s7, " + to_string(temporary.second->off));         // 2 in a[2].val
+                addLine("li $t9, " + to_string(temporary.second->struct_size)); // 2*struct_size
+                addLine("mult $s7, $t9");
+                addLine("mflo $s7");
+                addLine("add $s6, $s6, $s7"); // a+2*struct_size
+            }
             addLine("addi $s6, 76");
             addLine("sub $s6, $fp, $s6"); // combine the two components of the
             addLine("add $s7, $s6, $t8");
@@ -434,7 +491,13 @@ void param_code(int i)
                     addLine("mflo $t9");
                     addLine("add $t8, $t8, $t9"); //i*n2+j
                 }
-                addLine("li $t9, 4");
+                if (emit_list[i].operand_1.second->is_struct != 0)
+                {
+                    addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size));
+                }
+                else
+                    addLine("li $t9, 4");
+
                 addLine("mult $t8, $t9");
                 addLine("mflo $t9");                                                    //a[i]   i*4
                 addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
@@ -457,7 +520,12 @@ void param_code(int i)
                     addLine("mflo $t9");
                     addLine("add $t8, $t8, $t9"); //i*n2+j
                 }
-                addLine("li $t9, 4");
+                if (emit_list[i].operand_1.second->is_struct != 0)
+                {
+                    addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size));
+                }
+                else
+                    addLine("li $t9, 4");
                 addLine("mult $t8, $t9");
                 addLine("mflo $t9");                                                    //a[i]   i*4
                 addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
@@ -474,7 +542,25 @@ void param_code(int i)
                 //addLine("mult $t8, $t7");
                 //addLine("mflo $t7");
                 addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
-                addLine("sub $s6, $fp, $s6");                                           // combine the two components of the
+                if (emit_list[i].operand_1.second->is_struct_array == 1)
+                {
+                    addLine("li $s7, " + to_string(emit_list[i].operand_1.second->off)); // i offset in a[i].val
+                    addLine("sub $s7, $fp, $s7");
+                    addLine("lw $s7, 0($s7)");                                             //val of i
+                    addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size)); // i*struct_size
+                    addLine("mult $s7, $t9");
+                    addLine("mflo $s7");
+                    addLine("add $s6, $s6, $s7"); // a+i*struct_size
+                }
+                else if (emit_list[i].operand_1.second->is_struct_array == 2)
+                {
+                    addLine("li $s7, " + to_string(emit_list[i].operand_1.second->off));         // 2 in a[2].val
+                    addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size)); // 2*struct_size
+                    addLine("mult $s7, $t9");
+                    addLine("mflo $s7");
+                    addLine("add $s6, $s6, $s7"); // a+2*struct_size
+                }
+                addLine("sub $s6, $fp, $s6"); // combine the two components of the
                 addLine("add $s7, $s6, $t8");
                 addLine("lw $t6, 0($s7)");
             }
@@ -579,7 +665,7 @@ void assign_op_code(int i)
     }
     else
     {
-        addLine("addi" + reg3 + ", $0, " + emit_list[i].operand_1.first);
+        addLine("addi " + reg3 + ", $0, " + emit_list[i].operand_1.first);
     }
 
     if (emit_list[i].ans.second->is_array == 1)
@@ -599,13 +685,15 @@ void assign_op_code(int i)
                 addLine("mflo $t9");
                 addLine("add $t8, $t8, $t9"); //i*n2+j
             }
-            addLine("li $t9, 4");
+            if (emit_list[i].ans.second->is_struct != 0)
+            {
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->struct_size));
+            }
+            else
+                addLine("li $t9, 4");
             addLine("mult $t8, $t9");
             addLine("mflo $t9");
-            addLine(
-                "li $s6, " +
-                to_string(
-                    emit_list[i].ans.second->offset)); // put the offset in s6
+            addLine("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
             addLine("add $s6, $s6, $t9");
             addLine(
                 "sub $s7, $fp, $s6"); // combine the two components of the address
@@ -627,7 +715,12 @@ void assign_op_code(int i)
                 addLine("mflo $t9");
                 addLine("add $t8, $t8, $t9"); //i*n2+j
             }
-            addLine("li $t6, 4");
+            if (emit_list[i].ans.second->is_struct != 0)
+            {
+                addLine("li $t6, " + to_string(emit_list[i].ans.second->struct_size));
+            }
+            else
+                addLine("li $t6, 4");
             addLine("mult $t8, $t6");
             addLine("mflo $t6");
             addLine("li $s6, " + to_string(emit_list[i].ans.second->offset));
@@ -652,7 +745,12 @@ void assign_op_code(int i)
                 addLine("mflo $t9");
                 addLine("add $t8, $t8, $t9"); //i*n2+j
             }
-            addLine("li $t9, 4");
+            if (emit_list[i].ans.second->is_struct != 0)
+            {
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->struct_size));
+            }
+            else
+                addLine("li $t9, 4");
             addLine("mult $t8, $t9");
             addLine("mflo $t9");
             addLine("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
@@ -671,7 +769,12 @@ void assign_op_code(int i)
                 addLine("mflo $t9");
                 addLine("add $t8, $t8, $t9"); //i*n2+j
             }
-            addLine("li $t6, 4");
+            if (emit_list[i].ans.second->is_struct != 0)
+            {
+                addLine("li $t6, " + to_string(emit_list[i].ans.second->struct_size));
+            }
+            else
+                addLine("li $t6, 4");
             addLine("mult $t8, $t6");
             addLine("mflo $t6");
             addLine("li $s6, " + to_string(emit_list[i].ans.second->offset));
@@ -694,6 +797,24 @@ void assign_op_code(int i)
             //addLine("mult $t8, $t9");
             //addLine("mflo $t9");
             addLine("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
+            if (emit_list[i].ans.second->is_struct_array == 1)
+            {
+                addLine("li $s7, " + to_string(emit_list[i].ans.second->off)); // i offset in a[i].val
+                addLine("sub $s7, $fp, $s7");
+                addLine("lw $s7, 0($s7)");                                             //val of i
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->struct_size)); // i*struct_size
+                addLine("mult $s7, $t9");
+                addLine("mflo $s7");
+                addLine("add $s6, $s6, $s7"); // a+i*struct_size
+            }
+            else if (emit_list[i].ans.second->is_struct_array == 2)
+            {
+                addLine("li $s7, " + to_string(emit_list[i].ans.second->off));         // 2 in a[2].val
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->struct_size)); // 2*struct_size
+                addLine("mult $s7, $t9");
+                addLine("mflo $s7");
+                addLine("add $s6, $s6, $s7"); // a+2*struct_size
+            }
             addLine("sub $s6, $fp, $s6");
             addLine("add $s7, $s6, $t8");
             addLine("sw $t7, 0($s7)");
@@ -705,6 +826,25 @@ void assign_op_code(int i)
             //addLine("mult $t8, $t9");
             //addLine("mflo $t9");
             addLine("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
+            if (emit_list[i].ans.second->is_struct_array == 1)
+            {
+                addLine("li $s7, " + to_string(emit_list[i].ans.second->off)); // i offset in a[i].val
+                addLine("addi $s7, 76");
+                addLine("sub $s7, $fp, $s7");
+                addLine("lw $s7, 0($s7)");                                             //val of i
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->struct_size)); // i*struct_size
+                addLine("mult $s7, $t9");
+                addLine("mflo $s7");
+                addLine("add $s6, $s6, $s7"); // a+i*struct_size
+            }
+            else if (emit_list[i].ans.second->is_struct_array == 2)
+            {
+                addLine("li $s7, " + to_string(emit_list[i].ans.second->off));         // 2 in a[2].val
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->struct_size)); // 2*struct_size
+                addLine("mult $s7, $t9");
+                addLine("mflo $s7");
+                addLine("add $s6, $s6, $s7"); // a+2*struct_size
+            }
             addLine("addi $s6, 76");
             addLine("sub $s6, $fp, $s6"); // combine the two components of the address
             addLine("add $s7, $s6, $t8");
@@ -855,7 +995,12 @@ void generate_asm()
                         addLine("mflo $t7");
                         addLine("add $t8, $t8, $t7"); //i*n2+j
                     }
-                    addLine("li $t7, 4");
+                    if (emit_list[i].operand_1.second->is_struct != 0)
+                    {
+                        addLine("li $t7, " + to_string(emit_list[i].operand_1.second->struct_size));
+                    }
+                    else
+                        addLine("li $t7, 4");
                     addLine("mult $t8, $t7");
                     addLine("mflo $t7");
                     addLine("addi $t7, " + to_string(off));
@@ -866,7 +1011,7 @@ void generate_asm()
                 else if (emit_list[i].operand_1.second->is_array == 2)
                 {
 
-                    addLine("lw $s8, " + to_string(emit_list[i].operand_1.second->size));
+                    addLine("li $s8, " + to_string(emit_list[i].operand_1.second->size));
                     if (emit_list[i].operand_1.second->dim > 1)
                     {
                         addLine("li $t7, " + to_string(emit_list[i].operand_1.second->off)); //i in a[i][j]
@@ -875,7 +1020,12 @@ void generate_asm()
                         addLine("mflo $t7");
                         addLine("add $t8, $t8, $t7"); //i*n2+j
                     }
-                    addLine("li $t7, 4");
+                    if (emit_list[i].operand_1.second->is_struct != 0)
+                    {
+                        addLine("li $t7, " + to_string(emit_list[i].operand_1.second->struct_size));
+                    }
+                    else
+                        addLine("li $t7, 4");
                     addLine("mult $t8, $t7");
                     addLine("mflo $t7");
                     addLine("addi $t7, " + to_string(off));
@@ -888,6 +1038,24 @@ void generate_asm()
 
                     addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
                     addLine("li $t7, " + to_string(off));
+                    if (emit_list[i].operand_1.second->is_struct_array == 1)
+                    {
+                        addLine("li $s7, " + to_string(emit_list[i].operand_1.second->off)); // i offset in a[i].val
+                        addLine("sub $s7, $fp, $s7");
+                        addLine("lw $s7, 0($s7)");                                                   //val of i
+                        addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size)); // i*struct_size
+                        addLine("mult $s7, $t9");
+                        addLine("mflo $s7");
+                        addLine("add $t7 $t7, $s7"); // a+i*struct_size
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct_array == 2)
+                    {
+                        addLine("li $s7, " + to_string(emit_list[i].operand_1.second->off));         // 2 in a[2].val
+                        addLine("li $t9, " + to_string(emit_list[i].operand_2.second->struct_size)); // 2*struct_size
+                        addLine("mult $s7, $t9");
+                        addLine("mflo $s7");
+                        addLine("add $t7, $t7, $s7"); // a+2*struct_size
+                    }
                     addLine("sub $t7, $fp, $t7");
                     addLine("add " + reg1 + ", $s6, $t7");
                 }
@@ -934,7 +1102,12 @@ void generate_asm()
                             addLine("mflo $t9");
                             addLine("add $t8, $t8, $t9"); //i*n2+j
                         }
-                        addLine("li $t9, 4");
+                        if (emit_list[i].operand_1.second->is_struct != 0)
+                        {
+                            addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size));
+                        }
+                        else
+                            addLine("li $t9, 4");
                         addLine("mult $t8, $t9");
                         addLine("mflo $t9");
                         addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
@@ -954,7 +1127,12 @@ void generate_asm()
                             addLine("mflo $t9");
                             addLine("add $t8, $t8, $t9"); //i*n2+j
                         }
-                        addLine("li $t9, 4");
+                        if (emit_list[i].operand_1.second->is_struct != 0)
+                        {
+                            addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size));
+                        }
+                        else
+                            addLine("li $t9, 4");
                         addLine("mult $t8, $t9");
                         addLine("mflo $t9");
                         addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6

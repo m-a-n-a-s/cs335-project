@@ -1,36 +1,55 @@
+struct node
+{
+    int val;
+    struct node *next;
+};
 int main()
 {
-    int a[2][2],b[2][2],c[2][2];
-    int i,j,k;
-    int tmp;
-    print_string("Enter 4 elements for matrix a:\n");
-    for(i=0;i<2;i=i+1){
-        for(j=0;j<2;j=j+1){
-            a[i][j]=scanf();
-        }
+    int x;
+    struct node a[5];
+    struct node *tmp;
+    int i;
+    int t=0;
+    for(i=0;i<4;i=i+1){
+        a[i].next=&a[i+1];
     }
-    print_string("Enter 4 elements for matrix b:\n");
-    for(i=0;i<2;i=i+1){
-        for(j=0;j<2;j=j+1){
-            b[i][j]=scanf();
-        }
+    //print_string("enter 5 values:\n");
+    for(i=0;i<5;i=i+1){
+        a[i].val=i;
     }
-    for (i = 0; i < 2; i=i+1) {
-        for (j = 0; j < 2; j=j+1) {
-            c[i][j] = 0;
-            for (k = 0; k < 2; k=k+1){
-                tmp=c[i][j];
-                c[i][j]=tmp+(a[i][k]*b[k][j]);
-            }
-        }
-    }
-    print_string("res of a X b is:\n");
-    for(i=0;i<2;i=i+1){
-        for(j=0;j<2;j=j+1){
-            print_int(c[i][j]);
-            print_string(" ");
-        }
-        print_string("\n");
-    }
+    a[4].next=&a[1];
+    // tmp=a[0].next;
+    // print_int(tmp->val);
+    //print_string("enter value to find:\n");
+    //x=scanf();
+    i=0;
+    x=2;
+    tmp=a[4].next;
+    x=tmp->val;
+    print_int(x);
+    // tmp=a[1].next;
+    // print_int(tmp->val);
+    // tmp=tmp->next;
+    // print_int(tmp->val);
+    // tmp=tmp->next;
+    // print_int(tmp->val);
+    // while(i<5){
+    //     // if(x==tmp->val){
+    //     //     t=1;
+    //     // }
+    //     // else{
+    //     //     tmp=tmp->next;
+    //     // }
+    //     print_int(tmp->val);
+    //     tmp=tmp->next;
+    //     i=i+1;
+    // }
+    // if(x==1){
+    //     print_string("FOUND\n");
+    // }
+    // else{
+    //     print_string("NOT FOUND\n");
+    // }
+
     return 0;
 }

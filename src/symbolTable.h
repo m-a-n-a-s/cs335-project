@@ -25,6 +25,7 @@ typedef struct table_entry{
     int off;//for mult dim
 
     int struct_size;
+    int is_struct_array;
     //vector<int> dim; //ith dim col size
     //vector<int> off; //offset of the ith index
 } Entry;
