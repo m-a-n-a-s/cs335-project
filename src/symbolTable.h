@@ -61,5 +61,4 @@ void insert_symbol3(symbol_table &table, string key, string type, unsigned long 
 void create_table(string name,string func_type);
 void update_table(string key,int is_init);
 Entry* lookup(string key);
-void print_func_args();
 void print_tables(symbol_table *tab, string filename);

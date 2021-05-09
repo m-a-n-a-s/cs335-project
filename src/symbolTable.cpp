@@ -142,16 +142,6 @@ Entry* lookup(string key){
    return ret_val;
 }
 
-void print_func_args(){
-   FILE *file = fopen("FuncArgs.csv", "w");
-   for (auto it : args_map)
-   {
-      fprintf(file, "%s,", it.first.c_str());
-      fprintf(file, "%s\n", it.second.c_str());
-   }
-   fclose(file);
-}
-
 void print_tables(symbol_table *tab, string filename)
 {
    FILE *file = fopen(filename.c_str(), "w");

@@ -21,8 +21,6 @@ int multiplicative_type1(string first_type, string second_type);
 int multiplicative_type2(string first_type, string second_type);
 int multiplicative_type3(string first_type, string second_type);
 int relational_type(string first_type,string second_type);
-int equality_type(string first_type,string second_type);
-int conditional_type(string first_type,string second_type);
 int bitwise_type(string first_type,string second_type);
 int assignment_type1(string first_type, string second_type);
 int assignment_type2(string first_type, string second_type);

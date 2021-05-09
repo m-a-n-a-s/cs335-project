@@ -822,7 +822,7 @@ additive_expression
 
 shift_expression
 	: additive_expression							{$$ = $1;}
-	| shift_expression LEFT_OP additive_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
+	| shift_expression LEFT_OP additive_expression	{$$ = non_term_symb_3($2, $1, NULL, $3);
 							//char* a = shift_type($1->node_type,$3->node_type);                        
 							if(int_flag($1->node_type) && int_flag($3->node_type)){
 								$$->node_type = $1->node_type;
@@ -837,8 +837,8 @@ shift_expression
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
 
-	| shift_expression RIGHT_OP additive_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
-														//$$ = non_term_symb_2(">>", $1, NULL, $3);
+	| shift_expression RIGHT_OP additive_expression	{$$ = non_term_symb_3($2, $1, NULL, $3);
+														//$$ = non_term_symb_3(">>", $1, NULL, $3);
 														//char* a = shift_type($1->node_type,$3->node_type);
 														if(int_flag($1->node_type) && int_flag($3->node_type)){
 															$$->node_type = $1->node_type;
@@ -944,8 +944,7 @@ relational_expression
 
 equality_expression
   : relational_expression   {$$ = $1;}
-  | equality_expression EQ_OP relational_expression {$$ = non_term_symb_2("==", $1, NULL, $3);
-						    //int eq_type = equality_type($1->node_type,$3->node_type);
+  | equality_expression EQ_OP relational_expression {$$ = non_term_symb_3("==", $1, NULL, $3);
 						    int eq_type = relational_type($1->node_type,$3->node_type);
 							if(eq_type == -1){
 								yyerror("Error :Invalid operands to ==");
@@ -965,8 +964,7 @@ equality_expression
 						   	if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
                                                    }
 
-  | equality_expression NE_OP relational_expression {$$ = non_term_symb_2("!=", $1, NULL, $3);
-						    //int eq_type = equality_type($1->node_type,$3->node_type);
+  | equality_expression NE_OP relational_expression {$$ = non_term_symb_3("!=", $1, NULL, $3);
 						    int eq_type = relational_type($1->node_type,$3->node_type);
 							if(eq_type == -1){
 								yyerror("Error :Invalid operands to ==");
@@ -1090,7 +1088,7 @@ M
    
 logical_and_expression
 	: inclusive_or_expression								{$$ = $1;}
-	| M1 M inclusive_or_expression	{$$ = non_term_symb_2("&&", $1, NULL, $3);
+	| M1 M inclusive_or_expression	{$$ = non_term_symb_3("&&", $1, NULL, $3);
 								$$->node_type == "bool";
 								//===========3AC======================//
 
@@ -1105,7 +1103,7 @@ logical_and_expression
                            		//$1->falselist.merge($3->falselist);
 								//merging($1->falselist, $3->falselist);
                            		//$$->falselist = $1->falselist;
-                           		$$->falselist=merging1($1->falselist,$3->falselist);
+                           		$$->falselist=merging($1->falselist,$3->falselist);
 								
 								$$->nextlist ={};
                        			//====================================//
@@ -1128,7 +1126,7 @@ M2
 
 logical_or_expression
 	: logical_and_expression								{$$ = $1;}
-	| M2 M logical_and_expression	{$$ = non_term_symb_2("||", $1, NULL, $3);
+	| M2 M logical_and_expression	{$$ = non_term_symb_3("||", $1, NULL, $3);
 	
 								if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 								$$->node_type == "bool";
@@ -1143,7 +1141,7 @@ logical_or_expression
                          		$$->falselist = $3->falselist;
                          		//$1->truelist.merge($3->truelist);
 								// merging($1->truelist, $3->truelist);
-								$$->truelist= merging1($1->truelist, $3->truelist);
+								$$->truelist= merging($1->truelist, $3->truelist);
                          		//$$->truelist = $1->truelist;
                          		$$->nextlist = {};
                         		//====================================//
@@ -1172,7 +1170,7 @@ N
 
 conditional_expression
 	: logical_or_expression												{$$ = $1;}
-	| M3 M expression ':' N conditional_expression {$$ = non_term_symb_2("logical_expr ? expr : conditional_expr", $1, $3, $6);
+	| M3 M expression ':' N conditional_expression {$$ = non_term_symb_3("logical_expr ? expr : conditional_expr", $1, $3, $6);
 										$$->real_value = -11;
 										int cond_type = relational_type($3->node_type,$6->node_type);
 										if(cond_type == -1){
@@ -1208,7 +1206,7 @@ conditional_expression
 
 assignment_expression
 	: conditional_expression										{$$ = $1;}
-	| unary_expression assignment_operator assignment_expression	{$$ = non_term_symb_2($2, $1, NULL, $3);
+	| unary_expression assignment_operator assignment_expression	{$$ = non_term_symb_3($2, $1, NULL, $3);
 									string tmp_str = convert_to_string($2);
 									int assign_type;
 									if(tmp_str == "="){
@@ -1517,8 +1515,8 @@ struct_declarator
 
 enum_specifier
 	: ENUM '{' enumerator_list '}' {$$ = non_term_symb("enum_specifier", $1, NULL, $3);}
-	| ENUM IDENTIFIER '{' enumerator_list '}' {$$ = non_term_symb_3("enum_specifier", $1,$2, $4,NULL);}
-	| ENUM IDENTIFIER {$$ = non_term_symb_3("enum_specifier",$1, $2,NULL, NULL);}
+	| ENUM IDENTIFIER '{' enumerator_list '}' {$$ = non_term_symb_enum("enum_specifier", $1,$2, $4,NULL);}
+	| ENUM IDENTIFIER {$$ = non_term_symb_enum("enum_specifier",$1, $2,NULL, NULL);}
 	;
 
 enumerator_list
@@ -1632,7 +1630,7 @@ direct_declarator
 														}
 													}
 										//DOUBTFULL}
-	| direct_declarator '[' ']'    {$$ = square("direct_declarator", $1);
+	| direct_declarator '[' ']'    {$$ = non_term_symb("direct_declarator", "[ ]", $1, NULL);
 						yyerror("Error : Not allowed variable size array");
 				    //  	if($1->expr_type==1){ $$->expr_type=1;
                     //                  	$$->node_key=$1->node_key;
@@ -1691,7 +1689,7 @@ direct_declarator
                         	// //-------------------------------------------------------//
 							}
 
-	| direct_declarator '(' E3 ')' 			{$$ = parentheses("direct_declarator", $1);
+	| direct_declarator '(' E3 ')' 			{$$ = non_term_symb("direct_declarator", "( )", $1, NULL);
 							if($1->expr_type==1){
 								$$->node_key=$1->node_key;
 								args_map.insert({$1->node_key,""});
@@ -1878,12 +1876,12 @@ labeled_statement
         //=====================================//
 	}
 	| M5 M statement {
-		$$ = non_term_symb_2("labeled_statement", term_symb("CASE"), $1, $3);
+		$$ = non_term_symb_3("labeled_statement", term_symb("CASE"), $1, $3);
 		//-----------3AC--------------------//
         backPatch($1->truelist, $2);
         //$3->nextlist.merge($1->falselist);
 		//merging($3->nextlist, $1->falselist);
-		$$->nextlist=merging1($3->nextlist, $1->falselist);
+		$$->nextlist=merging($3->nextlist, $1->falselist);
         $$->breaklist = $3->breaklist;
         //$$->nextlist = $3->nextlist;
         $$->caselist = $1->caselist;
@@ -1977,14 +1975,14 @@ statement_list
                                          $$->nextlist = $3->nextlist;
                                          //$1->caselist.merge($3->caselist);
 										//  merging($1->caselist, $3->caselist);
-										 $$->caselist=merging1($1->caselist, $3->caselist);
+										 $$->caselist=merging($1->caselist, $3->caselist);
                                         //  $$->caselist = $1->caselist;
                                          //$1->continuelist.merge($3->continuelist);
 										// merging($1->continuelist, $3->continuelist);
-                                         $$->continuelist=merging1($1->continuelist, $3->continuelist);
+                                         $$->continuelist=merging($1->continuelist, $3->continuelist);
 										 //$1->breaklist.merge($3->breaklist);
 										//  merging($1->breaklist, $3->breaklist);
-										 $$->breaklist=merging1($1->breaklist, $3->breaklist);
+										 $$->breaklist=merging($1->breaklist, $3->breaklist);
                                         //  $$->continuelist = $1->continuelist;
                                         //  $$->breaklist = $1->breaklist;
                                       //----------------------------------------//
@@ -2018,7 +2016,7 @@ N1
 
 selection_statement
 	: M4 M statement ELSE N1 M statement {
-		$$ = non_term_symb_2("IF (expr) stmt ELSE stmt", $1, $3, $7);
+		$$ = non_term_symb_3("IF (expr) stmt ELSE stmt", $1, $3, $7);
 		
 		//----------3AC---------------------//
 		
@@ -2030,32 +2028,32 @@ selection_statement
         //$3->nextlist.merge($7->nextlist);
 		// merging($3->nextlist, $7->nextlist);
         // $$->nextlist=$3->nextlist;
-		$$->nextlist=merging1($3->nextlist, $7->nextlist);
+		$$->nextlist=merging($3->nextlist, $7->nextlist);
         //$3->breaklist.merge($7->breaklist);
 		// merging($3->breaklist, $7->breaklist);
         // $$->breaklist = $3->breaklist;
-		$$->breaklist =merging1($3->breaklist, $7->breaklist);
+		$$->breaklist =merging($3->breaklist, $7->breaklist);
         //$3->continuelist.merge($7->continuelist);
 		// merging($3->continuelist, $7->continuelist);
         // $$->continuelist = $3->continuelist;
-		$$->continuelist=merging1($3->continuelist, $7->continuelist);
+		$$->continuelist=merging($3->continuelist, $7->continuelist);
         //-----------------------------------//
 	}
 	| M4 M statement %prec IFX {
-		$$ = non_term_symb_2("IF (expr) stmt", NULL, $1, $3);
+		$$ = non_term_symb_3("IF (expr) stmt", NULL, $1, $3);
 		//---------------3AC-------------------//
 		
         backPatch($1->truelist, $2);
         //$3->nextlist.merge($1->falselist);
 		// merging($3->nextlist, $1->falselist);
-		$$->nextlist=merging1($3->nextlist, $1->falselist);
+		$$->nextlist=merging($3->nextlist, $1->falselist);
         // $$->nextlist= $3->nextlist;
         $$->continuelist = $3->continuelist;
         $$->breaklist = $3->breaklist;
         //------------------------------------//
 	}
 	| SWITCH '(' expression ')' statement{
-		$$ = non_term_symb_2("SWITCH (expr) stmt", NULL, $3, $5);
+		$$ = non_term_symb_3("SWITCH (expr) stmt", NULL, $3, $5);
 		//--------------3AC---------------------------//
         //setListId1($5->caselist, $3->place);
 		for (int i = 0; i < $5->caselist.size(); ++i){
@@ -2065,7 +2063,7 @@ selection_statement
         //$5->nextlist.merge($5->breaklist);
 		// merging($5->nextlist, $5->breaklist);
         // $$->nextlist= $5->nextlist;
-		$$->nextlist=merging1($5->nextlist, $5->breaklist);
+		$$->nextlist=merging($5->nextlist, $5->breaklist);
         $$->continuelist= $5->continuelist;
         //---------------------------------------------//
 	}
@@ -2100,7 +2098,7 @@ M7
 
 iteration_statement
 	: WHILE '(' M M6 ')' M statement {
-		$$ = non_term_symb_2("WHILE (expr) stmt", NULL, $4, $7);
+		$$ = non_term_symb_3("WHILE (expr) stmt", NULL, $4, $7);
 		//-----------3AC------------------//
 		int k=emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$3);
         backPatch($4->truelist, $6);
@@ -2110,11 +2108,11 @@ iteration_statement
         // $$->nextlist = $4->falselist;
         //$$->nextlist.merge($7->breaklist);
 		// merging($$->nextlist, $7->breaklist);
-		$$->nextlist=merging1($4->falselist, $7->breaklist);
+		$$->nextlist=merging($4->falselist, $7->breaklist);
         //--------------------------------//
 	}
 	| DO M statement  WHILE '(' M M6 ')' ';'{
-		$$ = non_term_symb_2("DO stmt WHILE (expr)", NULL, $3, $7);
+		$$ = non_term_symb_3("DO stmt WHILE (expr)", NULL, $3, $7);
 		//--------3AC-------------------------//
 
         backPatch($7->truelist, $2);
@@ -2123,11 +2121,11 @@ iteration_statement
         //$7->falselist.merge($3->breaklist);
 		// merging($7->falselist, $3->breaklist);
         // $$->nextlist = $7->falselist;
-		$$->nextlist =merging1($7->falselist, $3->breaklist);
+		$$->nextlist = merging($7->falselist, $3->breaklist);
         //-----------------------------------//
 	}
 	| FOR '(' expression_statement M M7 ')' M statement {
-		$$ = non_term_symb_2("FOR (expr_stmt expr_stmt) stmt", $3, $5, $8);
+		$$ = non_term_symb_3("FOR (expr_stmt expr_stmt) stmt", $3, $5, $8);
 		//-------------3AC-------------------//
 		int k=emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$4);
         backPatch($3->nextlist, $4);//for ternary op
@@ -2135,7 +2133,7 @@ iteration_statement
         //$5->falselist.merge($8->breaklist);
 		// merging($5->falselist, $8->breaklist);
         // $$->nextlist = $5->falselist;
-		$$->nextlist=merging1($5->falselist, $8->breaklist);
+		$$->nextlist=merging($5->falselist, $8->breaklist);
         //$8->nextlist.merge($8->continuelist);
 		// merging($8->nextlist, $8->continuelist);
         // $8->nextlist.push_back($9);
@@ -2152,7 +2150,7 @@ iteration_statement
         //$5->falselist.merge($11->breaklist);
 		// merging($5->falselist, $11->breaklist);
         // $$->nextlist = $5->falselist;
-		$$->nextlist=merging1($5->falselist, $11->breaklist);
+		$$->nextlist=merging($5->falselist, $11->breaklist);
 
         //$11->nextlist.merge($11->continuelist);
 		// merging($11->nextlist, $11->continuelist);
@@ -2244,7 +2242,7 @@ function_definition
 				//}
                 //------------------------------------------------------//
          }
-	| declaration_specifiers declarator E2 compound_statement  {$$ = non_term_symb_2("function_definition", $1, $2, $4);
+	| declaration_specifiers declarator E2 compound_statement  {$$ = non_term_symb_3("function_definition", $1, $2, $4);
 			
 			
 			  $$->nextlist=$4->nextlist;
@@ -2266,7 +2264,7 @@ function_definition
               //------------------------------------------------------//
             
 			}
-	| X1 declarator E2 declaration_list compound_statement { $$ = non_term_symb_2("function_definition",$2,$4,$5);
+	| X1 declarator E2 declaration_list compound_statement { $$ = non_term_symb_3("function_definition",$2,$4,$5);
 															$$->nextlist=$5->nextlist;
 															type_name="";
 															string s($3);string u =s+".csv";
@@ -2282,7 +2280,7 @@ function_definition
 															//------------------------------------------------------//
 															//DOUBTFULL
 													}
-	| X1 declarator E2 compound_statement { $$ = non_term_symb_2("function_definition", $2,NULL,$4);
+	| X1 declarator E2 compound_statement { $$ = non_term_symb_3("function_definition", $2,NULL,$4);
 											$$->nextlist=$4->nextlist;
 											type_name="";
 											string s($3);string u =s+".csv";
@@ -2363,7 +2361,7 @@ int main(int argc, char * argv[]){
 	// }
 	file_name = "global_table.csv";
   	print_tables(curr,file_name);
-  	print_func_args();
+  	// print_func_args();
 	show_in_file();
 
 	resetRegister();
