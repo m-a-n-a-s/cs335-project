@@ -308,48 +308,6 @@ int relational_type(string first_type,string second_type){
     else return -1;
 }
 
-int equality_type(string first_type,string second_type){
-    // -1 => Error
-    // 0 => Warning
-    // 1 => OK
-    
-    if(first_type == second_type)   return 1;
-    if(is_char(first_type) && int_flag(second_type))   return 1;
-    else if(is_char(second_type) && int_flag(first_type))   return 1;
-    else if(is_char(first_type) && real_flag(second_type))  return 1;
-    else if(is_char(second_type) && real_flag(first_type))  return 1;
-    else if(is_char(first_type) && is_char(second_type))    return 1;
-    else if(int_flag(first_type) && int_flag(second_type))  return 1;
-    else if(real_flag(first_type) && real_flag(second_type))    return 1;
-    else if(int_flag(first_type) && real_flag(second_type)) return 1;
-    else if(real_flag(first_type) && int_flag(second_type)) return 1;
-
-    else if(is_ptr(first_type) && int_flag(second_type)) return 0;
-    else if(int_flag(first_type) && is_ptr(second_type)) return 0;
-    else if(is_ptr(first_type)&&is_ptr(second_type)) return 0;
-    else return -1;
-}
-
-int conditional_type(string first_type,string second_type){
-    // -1 => Error
-    // 1 => OK
-    // 0 => warning    
-
-    if(first_type == second_type)   return 1;
-    else if(is_char(first_type) && int_flag(second_type))   return 1;
-    else if(is_char(second_type) && int_flag(first_type))   return 1;
-    else if(is_char(first_type) && real_flag(second_type))  return 1;
-    else if(is_char(second_type) && real_flag(first_type))  return 1;
-    else if(is_char(first_type) && is_char(second_type))    return 1;
-    else if(int_flag(first_type) && int_flag(second_type))  return 1;
-    else if(real_flag(first_type) && real_flag(second_type))    return 1;
-    else if(int_flag(first_type) && real_flag(second_type)) return 1;
-    else if(real_flag(first_type) && int_flag(second_type)) return 1;
-    else if(is_ptr(first_type) && is_ptr(second_type))  return 1;
-
-    else return -1;
-}
-
 int bitwise_type(string first_type,string second_type){ // ^,&,|
     // -1 => Error
     // 0 => OK (bool and int type)
