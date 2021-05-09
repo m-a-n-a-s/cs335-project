@@ -1458,7 +1458,7 @@ E4
 	  		string tmp=nameStruct;
 	  	    const char *c=new char();
 			c=tmp.c_str();
-			symbol_table *new_struct_table = new symbol_table;
+			symbol_table *new_struct_table = new symbol_table();
    			struct_table = new_struct_table;
    			struct_offset = 0; 
 			struct_size = 0;
