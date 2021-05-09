@@ -27,6 +27,10 @@ $spim
 load "code.asm"
 run
 ```
+or<br/>
+```
+$spim -file "code.asm"
+```
 LIBRARY FUNCTIONS<br /> 
 use print_int(x) to print integer x<br /> 
 use print_string(s) to print string s<br /> 
