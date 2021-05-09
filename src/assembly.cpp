@@ -192,7 +192,7 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
     addLine("lw " + registerTmp + ", 0($s7)");
 }
 
-void loadStructElement(pair<string, Entry *> temporary, string registerTmp,int struct_type)
+void loadStructElement(pair<string, Entry *> temporary, string registerTmp, int struct_type)
 {
     if (currFunction == "main")
     {
@@ -203,9 +203,8 @@ void loadStructElement(pair<string, Entry *> temporary, string registerTmp,int s
             //addLine("mult $t8, $t7");
             //addLine("mflo $t7");
             addLine("li $s6, " + to_string(temporary.second->offset)); // put the offset in s6
-            addLine("sub $s6, $fp, $s6"); // combine the two components of the
+            addLine("sub $s6, $fp, $s6");                              // combine the two components of the
             addLine("add $s7, $s6, $t8");
-            
         }
         else
         {
@@ -217,11 +216,35 @@ void loadStructElement(pair<string, Entry *> temporary, string registerTmp,int s
             addLine("sub $s6, $fp, $s6");
             addLine("lw $s6, 0($s6)");
             addLine("add $s7, $s6, $t8");
-             // combine the two components of the
+            // combine the two components of the
         }
     }
     else
     {
+        if (struct_type == 1)
+        {
+            addLine("li $t8, " + to_string(temporary.second->size));
+            //addLine("li $t7, 4");
+            //addLine("mult $t8, $t7");
+            //addLine("mflo $t7");
+            addLine("li $s6, " + to_string(temporary.second->offset)); // put the offset in s6
+            addLine("addi $s6, 76");
+            addLine("sub $s6, $fp, $s6"); // combine the two components of the
+            addLine("add $s7, $s6, $t8");
+        }
+        else
+        {
+            addLine("li $t8, " + to_string(temporary.second->size));
+            //addLine("li $t7, 4");
+            //addLine("mult $t8, $t7");
+            //addLine("mflo $t7");
+            addLine("li $s6, " + to_string(temporary.second->offset)); // put the offset in s6
+            addLine("addi $s6, 76");
+            addLine("sub $s6, $fp, $s6");
+            addLine("lw $s6, 0($s6)");
+            addLine("add $s7, $s6, $t8");
+            // combine the two components of the
+        }
         //baadme dalna hai
     }
     addLine("lw " + registerTmp + ", 0($s7)");
@@ -394,8 +417,32 @@ void param_code(int i)
                                               // address
                 addLine("lw $t6, 0($s7)");
             }
+            else if (emit_list[i].operand_1.second->is_struct == 1)
+            {
+                //addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
+                addLine("li $t8, " + to_string(emit_list[i].operand_1.second->size));
+                //addLine("li $t7, 4");
+                //addLine("mult $t8, $t7");
+                //addLine("mflo $t7");
+                addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
+                addLine("sub $s6, $fp, $s6");                                           // combine the two components of the
+                addLine("add $s7, $s6, $t8");
+                addLine("lw $t6, 0($s7)");
+            }
+            else if (emit_list[i].operand_1.second->is_struct == 2)
+            {
+                addLine("li $t8, " + to_string(emit_list[i].operand_1.second->size));
+                //addLine("li $t7, 4");
+                //addLine("mult $t8, $t7");
+                //addLine("mflo $t7");
+                addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
+                addLine("sub $s6, $fp, $s6");
+                addLine("lw $s6, 0($s6)");
+                addLine("add $s7, $s6, $t8");
+                addLine("lw $t6, 0($s7)");
+            }
         }
-        if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+        if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
             reg1 = "$t6";
         else
             ////cout<<"in\n";
@@ -447,7 +494,7 @@ void param_code(int i)
 
 void assign_op_code(int i)
 {
-    if (emit_list[i].ans.second->is_array == 1 || emit_list[i].ans.second->is_array == 2 || emit_list[i].ans.second->is_struct == 1|| emit_list[i].ans.second->is_struct == 2)
+    if (emit_list[i].ans.second->is_array == 1 || emit_list[i].ans.second->is_array == 2 || emit_list[i].ans.second->is_struct == 1 || emit_list[i].ans.second->is_struct == 2)
         reg3 = "$t7";
     else
     {
@@ -468,12 +515,12 @@ void assign_op_code(int i)
         }
         else if (emit_list[i].operand_1.second->is_struct == 1)
         {
-            loadStructElement(emit_list[i].operand_1, "$t6",1);
+            loadStructElement(emit_list[i].operand_1, "$t6", 1);
             reg2 = "$t6";
         }
         else if (emit_list[i].operand_1.second->is_struct == 2)
         {
-            loadStructElement(emit_list[i].operand_1, "$t6",2);
+            loadStructElement(emit_list[i].operand_1, "$t6", 2);
             reg2 = "$t6";
         }
         else
@@ -555,39 +602,70 @@ void assign_op_code(int i)
     else if (emit_list[i].ans.second->is_struct == 1)
     {
         //struct.identifier
-        addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
-        //addLine("li $t9, 4");
-        //addLine("mult $t8, $t9");
-        //addLine("mflo $t9");
-        addLine(
-            "li $s6, " +
-            to_string(
-                emit_list[i].ans.second->offset)); // put the offset in s6
-        addLine("add $s6, $s6, $t8");
-        addLine("sub $s7, $fp, $s6"); // combine the two components of the address
-        addLine("sw $t7, 0($s7)");
 
+        if (currFunction == "main")
+        {
+            addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
+            //addLine("li $t9, 4");
+            //addLine("mult $t8, $t9");
+            //addLine("mflo $t9");
+            addLine("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
+            addLine("sub $s6, $fp, $s6");
+            addLine("add $s7, $s6, $t8");
+            addLine("sw $t7, 0($s7)");
+        }
+        else
+        {
+            addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
+            //addLine("li $t9, 4");
+            //addLine("mult $t8, $t9");
+            //addLine("mflo $t9");
+            addLine("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
+            addLine("addi $s6, 76");
+            addLine("sub $s6, $fp, $s6"); // combine the two components of the address
+            addLine("add $s7, $s6, $t8");
+            addLine("sw $t7, 0($s7)");
+        }
 
         //add for non main func also
     }
     else if (emit_list[i].ans.second->is_struct == 2)
     {
         //struct->identifier size contains id off in struct. offset contains ptr offset in func
-        
-        addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
-        //addLine("li $t9, 4");
-        //addLine("mult $t8, $t9");
-        //addLine("mflo $t9");
-        addLine("li $s6, " +to_string(emit_list[i].ans.second->offset)); // put the offset in s6
-        addLine("sub $s6, $fp, $s6");
-        //addLine("lw $s7, 0($s6)");
-        addLine("lw $s6, 0($s6)");
-        //addLine("lw $s6, 10");
-        addLine("add $s6, $s6, $t8");
-        //addLine(
-        //    "sub $s7, $fp, $s6"); // combine the two components of the address
-        addLine("sw $t7, 0($s6)");
-    
+        if (currFunction == "main")
+        {
+            addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
+            //addLine("li $t9, 4");
+            //addLine("mult $t8, $t9");
+            //addLine("mflo $t9");
+            addLine("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
+            addLine("sub $s6, $fp, $s6");
+            //addLine("lw $s7, 0($s6)");
+            addLine("lw $s6, 0($s6)");
+            //addLine("lw $s6, 10");
+            addLine("add $s6, $s6, $t8");
+            //addLine(
+            //    "sub $s7, $fp, $s6"); // combine the two components of the address
+            addLine("sw $t7, 0($s6)");
+        }
+        else
+        {
+            addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
+            //addLine("li $t9, 4");
+            //addLine("mult $t8, $t9");
+            //addLine("mflo $t9");
+            addLine("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
+            addLine("addi $s6, 76");
+            addLine("sub $s6, $fp, $s6");
+            //addLine("lw $s7, 0($s6)");
+            addLine("lw $s6, 0($s6)");
+            //addLine("lw $s6, 10");
+            addLine("add $s6, $s6, $t8");
+            //addLine(
+            //    "sub $s7, $fp, $s6"); // combine the two components of the address
+            addLine("sw $t7, 0($s6)");
+        }
+
         //add for non main func also
     }
 }
@@ -678,7 +756,7 @@ void generate_asm()
 
                 if (emit_list[i].operand_1.second->is_array == 1)
                 {
-                    //for main function only
+
                     addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
                     addLine("sub $s7, $fp, $s6");
                     addLine("lw $t8, 0($s7)");
@@ -692,7 +770,7 @@ void generate_asm()
                 }
                 else if (emit_list[i].operand_1.second->is_array == 2)
                 {
-                    //for main function only
+
                     addLine("lw $s8, " + to_string(emit_list[i].operand_1.second->size));
                     addLine("li $t7, 4");
                     addLine("mult $t8, $t7");
@@ -701,6 +779,26 @@ void generate_asm()
                     addLine("neg $t7, $t7");
                     //u = string("$t7");
                     addLine("add " + reg1 + ", $fp, $t7");
+                }
+                else if (emit_list[i].operand_1.second->is_struct == 1)
+                {
+
+                    addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
+                    addLine("li $t7, " + to_string(off));
+                    addLine("sub $t7, $fp, $t7");
+                    addLine("add " + reg1 + ", $s6, $t7");
+                }
+                else if (emit_list[i].operand_1.second->is_struct == 2)
+                {
+
+                    addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
+                    //addLine("li $t7, 4");
+                    //addLine("mult $t8, $t7");
+                    //addLine("mflo $t7");
+                    addLine("li $t7, " + to_string(off)); // put the offset in s6
+                    addLine("sub $t7, $fp, $t7");
+                    addLine("lw $t7, 0($t7)");
+                    addLine("add " + reg1 + ", $s6, $t7");
                 }
                 else
                 {
@@ -712,7 +810,7 @@ void generate_asm()
             else if (emit_list[i].op.first == "unary*")
             {
                 reg1 = getNextReg(emit_list[i].ans);
-                if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                     reg2 = "$t6";
                 else
                     reg2 = getNextReg(emit_list[i].operand_1);
@@ -726,28 +824,45 @@ void generate_asm()
                         addLine("li $t9, 4");
                         addLine("mult $t8, $t9");
                         addLine("mflo $t9");
-                        addLine(
-                            "li $s6, " +
-                            to_string(
-                                emit_list[i].operand_1.second->offset)); // put the offset in s6
+                        addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
                         addLine("add $s6, $s6, $t9");
                         addLine("sub $s7, $fp, $s6"); // combine the two components of the
                                                       // address
                         addLine("lw $t6, 0($s7)");
                     }
-                    if (emit_list[i].operand_1.second->is_array == 2)
+                    else if (emit_list[i].operand_1.second->is_array == 2)
                     {
                         addLine("lw $s8, " + to_string(emit_list[i].operand_1.second->size));
                         addLine("li $t9, 4");
                         addLine("mult $t8, $t9");
                         addLine("mflo $t9");
-                        addLine(
-                            "li $s6, " +
-                            to_string(
-                                emit_list[i].operand_1.second->offset)); // put the offset in s6
+                        addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
                         addLine("add $s6, $s6, $t9");
                         addLine("sub $s7, $fp, $s6"); // combine the two components of the
                                                       // address
+                        addLine("lw $t6, 0($s7)");
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct == 1)
+                    {
+                        addLine("li $t9, " + to_string(emit_list[i].operand_1.second->size));
+                        
+                        addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
+                        
+                        addLine("sub $s7, $fp, $s6"); // combine the two components of the
+                                                      // address
+                        addLine("add $s7, $t9, $s7");                              
+                        addLine("lw $t6, 0($s7)");
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct == 2)
+                    {
+                        addLine("li $t9, " + to_string(emit_list[i].operand_1.second->size));
+                        
+                        addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
+                        
+                        addLine("sub $s7, $fp, $s6"); // combine the two components of the
+                                                      // address
+                        addLine("lw $s7, 0($s7)");
+                        addLine("add $s7, $t9, $s7");
                         addLine("lw $t6, 0($s7)");
                     }
                 }
@@ -759,7 +874,7 @@ void generate_asm()
                 reg1 = getNextReg(emit_list[i].ans);
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -773,6 +888,14 @@ void generate_asm()
                         {
                             loadArrayElement(emit_list[i].operand_1, reg2, 2);
                         }
+                        if (emit_list[i].operand_1.second->is_struct == 1)
+                        {
+                            loadStructElement(emit_list[i].operand_1, reg2, 1);
+                        }
+                        else if (emit_list[i].operand_1.second->is_struct == 2)
+                        {
+                            loadStructElement(emit_list[i].operand_1, reg2, 2);
+                        }
                     }
                     addLine("neg " + reg1 + ", " + reg2);
                 }
@@ -785,7 +908,7 @@ void generate_asm()
 
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -797,6 +920,14 @@ void generate_asm()
                     else if (emit_list[i].operand_1.second->is_array == 2)
                     {
                         loadArrayElement(emit_list[i].operand_1, reg2, 2);
+                    }
+                    if (emit_list[i].operand_1.second->is_struct == 1)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 1);
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct == 2)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 2);
                     }
                     addLine("lw " + reg1 + ", " + reg2);
                 }
@@ -827,12 +958,12 @@ void generate_asm()
             }
             else if (emit_list[i].op.first == "+int")
             {
-                ////not considered if operand_1 is constant
+                
                 reg1 = getNextReg(emit_list[i].ans);
                 int op_1 = 0, op_2 = 0; // to check whether they are constants
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -844,6 +975,14 @@ void generate_asm()
                     {
                         loadArrayElement(emit_list[i].operand_1, reg2, 2);
                     }
+                    if (emit_list[i].operand_1.second->is_struct == 1)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 1);
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct == 2)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 2);
+                    }
                 }
                 else
                 {
@@ -854,7 +993,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -867,6 +1006,14 @@ void generate_asm()
                         else if (emit_list[i].operand_2.second->is_array == 2)
                         {
                             loadArrayElement(emit_list[i].operand_2, reg3, 2);
+                        }
+                        if (emit_list[i].operand_2.second->is_struct == 1)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 1);
+                        }
+                        else if (emit_list[i].operand_2.second->is_struct == 2)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 2);
                         }
                     }
                     //addLine("add " + reg1 + ", " + reg2 + ", " + reg3);
@@ -885,7 +1032,7 @@ void generate_asm()
                 int op_1 = 0, op_2 = 0; // to check whether they are constants
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -897,6 +1044,14 @@ void generate_asm()
                     {
                         loadArrayElement(emit_list[i].operand_1, reg2, 2);
                     }
+                    if (emit_list[i].operand_1.second->is_struct == 1)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 1);
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct == 2)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 2);
+                    }
                 }
                 else
                 {
@@ -907,7 +1062,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -920,6 +1075,14 @@ void generate_asm()
                         else if (emit_list[i].operand_2.second->is_array == 2)
                         {
                             loadArrayElement(emit_list[i].operand_2, reg3, 2);
+                        }
+                        if (emit_list[i].operand_2.second->is_struct == 1)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 1);
+                        }
+                        else if (emit_list[i].operand_2.second->is_struct == 2)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 2);
                         }
                     }
                     //addLine("add " + reg1 + ", " + reg2 + ", " + reg3);
@@ -938,7 +1101,7 @@ void generate_asm()
 
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -950,6 +1113,14 @@ void generate_asm()
                     {
                         loadArrayElement(emit_list[i].operand_1, reg2, 2);
                     }
+                    if (emit_list[i].operand_1.second->is_struct == 1)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 1);
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct == 2)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 2);
+                    }
                 }
                 else
                 {
@@ -960,7 +1131,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -974,7 +1145,16 @@ void generate_asm()
                         {
                             loadArrayElement(emit_list[i].operand_2, reg3, 2);
                         }
+                        if (emit_list[i].operand_2.second->is_struct == 1)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 1);
+                        }
+                        else if (emit_list[i].operand_2.second->is_struct == 2)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 2);
+                        }
                     }
+                    
                 }
                 else
                 {
@@ -992,7 +1172,7 @@ void generate_asm()
 
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -1004,6 +1184,14 @@ void generate_asm()
                     {
                         loadArrayElement(emit_list[i].operand_1, reg2, 2);
                     }
+                    if (emit_list[i].operand_1.second->is_struct == 1)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 1);
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct == 2)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 2);
+                    }
                 }
                 else
                 {
@@ -1014,7 +1202,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -1027,6 +1215,14 @@ void generate_asm()
                         else if (emit_list[i].operand_2.second->is_array == 2)
                         {
                             loadArrayElement(emit_list[i].operand_2, reg3, 2);
+                        }
+                        if (emit_list[i].operand_2.second->is_struct == 1)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 1);
+                        }
+                        else if (emit_list[i].operand_2.second->is_struct == 2)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 2);
                         }
                     }
                 }
@@ -1046,7 +1242,7 @@ void generate_asm()
 
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -1058,6 +1254,14 @@ void generate_asm()
                     {
                         loadArrayElement(emit_list[i].operand_1, reg2, 2);
                     }
+                    if (emit_list[i].operand_1.second->is_struct == 1)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 1);
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct == 2)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 2);
+                    }
                 }
                 else
                 {
@@ -1068,7 +1272,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -1081,6 +1285,14 @@ void generate_asm()
                         else if (emit_list[i].operand_2.second->is_array == 2)
                         {
                             loadArrayElement(emit_list[i].operand_2, reg3, 2);
+                        }
+                        if (emit_list[i].operand_2.second->is_struct == 1)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 1);
+                        }
+                        else if (emit_list[i].operand_2.second->is_struct == 2)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 2);
                         }
                     }
                 }
@@ -1100,7 +1312,7 @@ void generate_asm()
                 string op = emit_list[i].op.first;
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -1112,6 +1324,14 @@ void generate_asm()
                     {
                         loadArrayElement(emit_list[i].operand_1, reg2, 2);
                     }
+                    if (emit_list[i].operand_1.second->is_array == 1)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 1);
+                    }
+                    else if (emit_list[i].operand_1.second->is_struct == 2)
+                    {
+                        loadStructElement(emit_list[i].operand_1, reg2, 2);
+                    }
                 }
                 else
                 {
@@ -1122,7 +1342,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -1135,6 +1355,14 @@ void generate_asm()
                         else if (emit_list[i].operand_2.second->is_array == 2)
                         {
                             loadArrayElement(emit_list[i].operand_2, reg3, 2);
+                        }
+                        if (emit_list[i].operand_2.second->is_array == 1)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 1);
+                        }
+                        else if (emit_list[i].operand_2.second->is_struct == 2)
+                        {
+                            loadStructElement(emit_list[i].operand_2, reg3, 2);
                         }
                     }
                 }
@@ -1176,6 +1404,16 @@ void generate_asm()
                     reg1 = "$t6";
                     loadArrayElement(emit_list[i].operand_2, reg1, 2);
                 }
+                else if (emit_list[i].operand_2.second->is_struct == 1)
+                {
+                    reg1 = "$t6";
+                    loadStructElement(emit_list[i].operand_2, reg1, 1);
+                }
+                else if (emit_list[i].operand_2.second->is_struct == 2)
+                {
+                    reg1 = "$t6";
+                    loadStructElement(emit_list[i].operand_2, reg1, 2);
+                }
                 else
                     reg1 = getNextReg(emit_list[i].operand_2);
 
@@ -1193,6 +1431,16 @@ void generate_asm()
                 {
                     reg2 = "$t7";
                     loadArrayElement(emit_list[i].operand_1, reg2, 2);
+                }
+                else if (emit_list[i].operand_1.second->is_struct == 1)
+                {
+                    reg2 = "$t7";
+                    loadStructElement(emit_list[i].operand_1, reg2, 1);
+                }
+                else if (emit_list[i].operand_1.second->is_struct == 2)
+                {
+                    reg2 = "$t7";
+                    loadStructElement(emit_list[i].operand_1, reg2, 2);
                 }
                 else
                     reg2 = getNextReg(emit_list[i].operand_1);
