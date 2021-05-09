@@ -97,7 +97,7 @@ void create_table(string name, string func_type){
       E3_done = false;
    }
    else{
-      symbol_table *new_table = new symbol_table;
+      symbol_table *new_table = new symbol_table();
       Parent.insert({new_table, curr});
       curr = new_table;
       blk_num++;

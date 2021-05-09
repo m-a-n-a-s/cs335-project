@@ -178,6 +178,7 @@ postfix_expression
 							
 							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							char *s=postfix_type1($1->node_type);// returns type removing the last "*"
+							
 							if(s&&int_flag($3->node_type)){
 								string tmp_str(s);
 								$$->node_type=tmp_str;
@@ -187,19 +188,49 @@ postfix_expression
 								$$->place = newlabel_sym($$->node_type);
                                 //pair <string, Entry*> opT  = pair<string,Entry*>("[]",NULL);
                                 //int k = emit(opT, $1->place, $3->place, $$->place, -7);
-							
+								
                                 if($3->place.second!=NULL){
 									//means index is not a const number
 									$$->place.second->size = $3->place.second->offset;
-                                	$$->place.second->offset = $1->place.second->offset;
+                                	
+									//$$->place.second->off=$1->place.second->off;
+									//$$->place.second->off.push_back($3->place.second->offset);
+									
+									if($1->place.second->dim==0){
+										$$->place.second->off=$3->place.second->offset;//loaction of i in a[i][j]
+									}
+									else{
+										$$->place.second->off=$1->place.second->off; //loaction of i in a[i][j]
+									}
+									
+									$$->place.second->col=$1->place.second->col;
+
+									$$->place.second->offset = $1->place.second->offset;
 									$$->place.second->is_array=1;
 								}
 								else{
 									//means const number
 									$$->place.second->size=stoi($3->place.first);
+									
+									//$$->place.second->off=$1->place.second->off;
+									//$$->place.second->off.push_back(stoi($3->place.first));
+
+									if($1->place.second->dim==0){
+										$$->place.second->off=stoi($3->place.first);// i in a[i][j]
+									}
+									else{
+										$$->place.second->off=$1->place.second->off; // i in a[i][j]
+									}
+
+
+									$$->place.second->col=$1->place.second->col;
+
 									$$->place.second->offset=$1->place.second->offset;
 									$$->place.second->is_array=2;
 								}
+								$$->place.second->dim=$1->place.second->dim+1;
+								//cout<<"off :"<<$$->place.second->off<<endl;
+
                                 $$->place.second->init_flag = 1;
 								
                                 $$->nextlist = {};
@@ -303,7 +334,8 @@ postfix_expression
 	| postfix_expression '.' IDENTIFIER			{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));
 												if($1->init_flag) $$->init_flag=1;
 												string tmp_str($3);
-												
+												//cout<<$1->node_type<<endl;
+												//cout<<struct_size_map[$1->node_type]<<endl;
 												if(struct_table_map.find($1->node_type) == struct_table_map.end()){
 													yyerror("Error : Invalid operator \'.\' on \'%s\'", $1->node_key.c_str() );
 												}
@@ -1301,7 +1333,13 @@ init_declarator
 			else {  
 				insert_symbol1(*curr,$1->node_key,$1->node_type,$1->size,0);
 				$$->place.first = $1->node_key;
-				$$->place.second = lookup($1->node_key);			}
+				$$->place.second = lookup($1->node_key);
+				
+				$$->place.second->col=$1->col;
+				
+				//$$->place.second->dim=$1->dim;
+						
+			}
         }
 	}
 	| declarator '=' M initializer	{
@@ -1576,7 +1614,12 @@ direct_declarator
 																yyerror("Error :array size missig in \'%s\' ",$1->node_key.c_str());
 															}
 															//$$-size=
-															if($3->integer_value){ $$->size = $1->size * $3->integer_value; }
+															if($3->integer_value){
+																$$->size = $1->size * $3->integer_value; 
+																$$->col=$3->integer_value;
+																//if(!$1->dim.empty()){$$->dim=$1->dim;} 
+																//($$->dim).push_back($3->integer_value);
+															}
 															else { 
 																char* a = new char();
 																strcpy(a,($$->node_type).c_str());

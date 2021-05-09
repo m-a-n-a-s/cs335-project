@@ -24,7 +24,11 @@ struct node{
   vector<int> breaklist;
   vector<int> continuelist;
   vector<int> caselist;
+  
+  int col;
+  //vector<int> dim; //ith dimnesion columns size for mutidimensional array
   ///////////////////////////
+  
 };
 
 enum ntype {

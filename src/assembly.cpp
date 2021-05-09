@@ -140,6 +140,16 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
             addLine("li $s6, " + to_string(temporary.second->size));
             addLine("sub $s7, $fp, $s6");
             addLine("lw $t8, 0($s7)");
+            if (temporary.second->dim > 1)
+            {
+                addLine("li $t7, " + to_string(temporary.second->off)); //offset of i in a[i][j]
+                addLine("sub $t7, $fp, $t7");
+                addLine("lw $t7, 0($t7)");                              //val of i
+                addLine("li $s6, " + to_string(temporary.second->col)); // n2 a[n1][n2]
+                addLine("mult $t7, $s6");
+                addLine("mflo $t7");
+                addLine("add $t8, $t8, $t7"); //i*n2+j
+            }
             addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
@@ -151,6 +161,14 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
         else
         {
             addLine("li $t8, " + to_string(temporary.second->size));
+            if (temporary.second->dim > 1)
+            {
+                addLine("li $t7, " + to_string(temporary.second->off)); //i in a[i][j]
+                addLine("li $s6, " + to_string(temporary.second->col)); // n2 a[n1][n2]
+                addLine("mult $t7, $s6");
+                addLine("mflo $t7");
+                addLine("add $t8, $t8, $t7"); //i*n2+j
+            }
             addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
@@ -167,6 +185,17 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
             addLine("addi $s6, 76");
             addLine("sub $s7, $fp, $s6");
             addLine("lw $t8, 0($s7)");
+            if (temporary.second->dim > 1)
+            {
+                addLine("li $t7, " + to_string(temporary.second->off)); //offset of i in a[i][j]
+                addLine("addi $s6, 76");
+                addLine("sub $t7, $fp, $t7");
+                addLine("lw $t7, 0($t7)");                              //val of i
+                addLine("li $s6, " + to_string(temporary.second->col)); // n2 a[n1][n2]
+                addLine("mult $t7, $s6");
+                addLine("mflo $t7");
+                addLine("add $t8, $t8, $t7"); //i*n2+j
+            }
             addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
@@ -179,6 +208,14 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
         else
         {
             addLine("li $t8, " + to_string(temporary.second->size));
+            if (temporary.second->dim > 1)
+            {
+                addLine("li $t7, " + to_string(temporary.second->off)); //i in a[i][j]
+                addLine("li $s6, " + to_string(temporary.second->col)); // n2 a[n1][n2]
+                addLine("mult $t7, $s6");
+                addLine("mflo $t7");
+                addLine("add $t8, $t8, $t7"); //i*n2+j
+            }
             addLine("li $t7, 4");
             addLine("mult $t8, $t7");
             addLine("mflo $t7");
@@ -387,13 +424,20 @@ void param_code(int i)
                 //addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
                 addLine("sub $s7, $fp, " + to_string(emit_list[i].operand_1.second->size));
                 addLine("lw $t8, 0($s7)");
+                if (emit_list[i].operand_1.second->dim > 1)
+                {
+                    addLine("li $t9, " + to_string(emit_list[i].operand_1.second->off)); //offset of i in a[i][j]
+                    addLine("sub $t9, $fp, $t9");
+                    addLine("lw $t9, 0($t9)");                                           //val of i
+                    addLine("li $s6, " + to_string(emit_list[i].operand_1.second->col)); // n2 a[n1][n2]
+                    addLine("mult $t9, $s6");
+                    addLine("mflo $t9");
+                    addLine("add $t8, $t8, $t9"); //i*n2+j
+                }
                 addLine("li $t9, 4");
                 addLine("mult $t8, $t9");
-                addLine("mflo $t9"); //a[i]   i*4
-                addLine(
-                    "li $s6, " +
-                    to_string(
-                        emit_list[i].operand_1.second->offset)); // put the offset in s6
+                addLine("mflo $t9");                                                    //a[i]   i*4
+                addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
                 addLine("add $s6, $s6, $t9");
                 addLine("sub $s7, $fp, $s6"); // combine the two components of the
                                               // address
@@ -405,13 +449,18 @@ void param_code(int i)
                 //addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
                 //addLine("sub $s7, $fp, "+to_string(emit_list[i].operand_1.second));
                 addLine("li $t8, " + to_string(emit_list[i].operand_1.second->size));
+                if (emit_list[i].operand_1.second->dim > 1)
+                {
+                    addLine("li $t9, " + to_string(emit_list[i].operand_1.second->off)); //i in a[i][j]
+                    addLine("li $s6, " + to_string(emit_list[i].operand_1.second->col)); // n2 a[n1][n2]
+                    addLine("mult $t9, $s6");
+                    addLine("mflo $t9");
+                    addLine("add $t8, $t8, $t9"); //i*n2+j
+                }
                 addLine("li $t9, 4");
                 addLine("mult $t8, $t9");
-                addLine("mflo $t9"); //a[i]   i*4
-                addLine(
-                    "li $s6, " +
-                    to_string(
-                        emit_list[i].operand_1.second->offset)); // put the offset in s6
+                addLine("mflo $t9");                                                    //a[i]   i*4
+                addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
                 addLine("add $s6, $s6, $t9");
                 addLine("sub $s7, $fp, $s6"); // combine the two components of the
                                               // address
@@ -494,6 +543,7 @@ void param_code(int i)
 
 void assign_op_code(int i)
 {
+    //cout<<"dim:"<<emit_list[i].ans.first<<" "<<emit_list[i].ans.second->dim<<endl;
     if (emit_list[i].ans.second->is_array == 1 || emit_list[i].ans.second->is_array == 2 || emit_list[i].ans.second->is_struct == 1 || emit_list[i].ans.second->is_struct == 2)
         reg3 = "$t7";
     else
@@ -539,6 +589,16 @@ void assign_op_code(int i)
             addLine("li $s6, " + to_string(emit_list[i].ans.second->size));
             addLine("sub $s7, $fp, $s6");
             addLine("lw $t8, 0($s7)");
+            if (emit_list[i].ans.second->dim > 1)
+            {
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->off)); //offset of i in a[i][j]
+                addLine("sub $t9, $fp, $t9");
+                addLine("lw $t9, 0($t9)");                                     //val of i
+                addLine("li $s6, " + to_string(emit_list[i].ans.second->col)); // n2 a[n1][n2]
+                addLine("mult $t9, $s6");
+                addLine("mflo $t9");
+                addLine("add $t8, $t8, $t9"); //i*n2+j
+            }
             addLine("li $t9, 4");
             addLine("mult $t8, $t9");
             addLine("mflo $t9");
@@ -556,6 +616,17 @@ void assign_op_code(int i)
             addLine("addi $s6, 76");
             addLine("sub $s7, $fp, $s6");
             addLine("lw $t8, 0($s7)");
+            if (emit_list[i].ans.second->dim > 1)
+            {
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->off)); //offset of i in a[i][j]
+                addLine("addi $s6, 76");
+                addLine("sub $t9, $fp, $t9");
+                addLine("lw $t9, 0($t9)");                                     //val of i
+                addLine("li $s6, " + to_string(emit_list[i].ans.second->col)); // n2 a[n1][n2]
+                addLine("mult $t9, $s6");
+                addLine("mflo $t9");
+                addLine("add $t8, $t8, $t9"); //i*n2+j
+            }
             addLine("li $t6, 4");
             addLine("mult $t8, $t6");
             addLine("mflo $t6");
@@ -573,13 +644,18 @@ void assign_op_code(int i)
         if (currFunction == "main")
         {
             addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
+            if (emit_list[i].ans.second->dim > 1)
+            {
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->off)); //i in a[i][j]
+                addLine("li $s6, " + to_string(emit_list[i].ans.second->col)); // n2 a[n1][n2]
+                addLine("mult $t9, $s6");
+                addLine("mflo $t9");
+                addLine("add $t8, $t8, $t9"); //i*n2+j
+            }
             addLine("li $t9, 4");
             addLine("mult $t8, $t9");
             addLine("mflo $t9");
-            addLine(
-                "li $s6, " +
-                to_string(
-                    emit_list[i].ans.second->offset)); // put the offset in s6
+            addLine("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
             addLine("add $s6, $s6, $t9");
             addLine(
                 "sub $s7, $fp, $s6"); // combine the two components of the address
@@ -587,6 +663,14 @@ void assign_op_code(int i)
         else
         {
             addLine("li $t8, " + to_string(emit_list[i].ans.second->size));
+            if (emit_list[i].ans.second->dim > 1)
+            {
+                addLine("li $t9, " + to_string(emit_list[i].ans.second->off)); //i in a[i][j]
+                addLine("li $s6, " + to_string(emit_list[i].ans.second->col)); // n2 a[n1][n2]
+                addLine("mult $t9, $s6");
+                addLine("mflo $t9");
+                addLine("add $t8, $t8, $t9"); //i*n2+j
+            }
             addLine("li $t6, 4");
             addLine("mult $t8, $t6");
             addLine("mflo $t6");
@@ -744,6 +828,7 @@ void generate_asm()
             {
                 //cout<<"in\n";
                 //eqaulity operator
+
                 assign_op_code(i);
             }
             else if (emit_list[i].op.first == "unary&")
@@ -760,6 +845,16 @@ void generate_asm()
                     addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
                     addLine("sub $s7, $fp, $s6");
                     addLine("lw $t8, 0($s7)");
+                    if (emit_list[i].operand_1.second->dim > 1)
+                    {
+                        addLine("li $t7, " + to_string(emit_list[i].operand_1.second->off)); //offset of i in a[i][j]
+                        addLine("sub $t7, $fp, $t7");
+                        addLine("lw $t7, 0($t7)");                                           //val of i
+                        addLine("li $s6, " + to_string(emit_list[i].operand_1.second->col)); // n2 a[n1][n2]
+                        addLine("mult $t7, $s6");
+                        addLine("mflo $t7");
+                        addLine("add $t8, $t8, $t7"); //i*n2+j
+                    }
                     addLine("li $t7, 4");
                     addLine("mult $t8, $t7");
                     addLine("mflo $t7");
@@ -772,6 +867,14 @@ void generate_asm()
                 {
 
                     addLine("lw $s8, " + to_string(emit_list[i].operand_1.second->size));
+                    if (emit_list[i].operand_1.second->dim > 1)
+                    {
+                        addLine("li $t7, " + to_string(emit_list[i].operand_1.second->off)); //i in a[i][j]
+                        addLine("li $s6, " + to_string(emit_list[i].operand_1.second->col)); // n2 a[n1][n2]
+                        addLine("mult $t7, $s6");
+                        addLine("mflo $t7");
+                        addLine("add $t8, $t8, $t7"); //i*n2+j
+                    }
                     addLine("li $t7, 4");
                     addLine("mult $t8, $t7");
                     addLine("mflo $t7");
@@ -810,7 +913,7 @@ void generate_asm()
             else if (emit_list[i].op.first == "unary*")
             {
                 reg1 = getNextReg(emit_list[i].ans);
-                if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
+                if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                     reg2 = "$t6";
                 else
                     reg2 = getNextReg(emit_list[i].operand_1);
@@ -821,6 +924,16 @@ void generate_asm()
                         addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
                         addLine("sub $s7, $fp, $s6");
                         addLine("lw $t8, 0($s7)");
+                        if (emit_list[i].operand_1.second->dim > 1)
+                        {
+                            addLine("li $t9, " + to_string(emit_list[i].operand_1.second->off)); //offset of i in a[i][j]
+                            addLine("sub $t9, $fp, $t9");
+                            addLine("lw $t9, 0($t9)");                                           //val of i
+                            addLine("li $s6, " + to_string(emit_list[i].operand_1.second->col)); // n2 a[n1][n2]
+                            addLine("mult $t9, $s6");
+                            addLine("mflo $t9");
+                            addLine("add $t8, $t8, $t9"); //i*n2+j
+                        }
                         addLine("li $t9, 4");
                         addLine("mult $t8, $t9");
                         addLine("mflo $t9");
@@ -833,6 +946,14 @@ void generate_asm()
                     else if (emit_list[i].operand_1.second->is_array == 2)
                     {
                         addLine("lw $s8, " + to_string(emit_list[i].operand_1.second->size));
+                        if (emit_list[i].operand_1.second->dim > 1)
+                        {
+                            addLine("li $t9, " + to_string(emit_list[i].operand_1.second->off)); //i in a[i][j]
+                            addLine("li $s6, " + to_string(emit_list[i].operand_1.second->col)); // n2 a[n1][n2]
+                            addLine("mult $t9, $s6");
+                            addLine("mflo $t9");
+                            addLine("add $t8, $t8, $t9"); //i*n2+j
+                        }
                         addLine("li $t9, 4");
                         addLine("mult $t8, $t9");
                         addLine("mflo $t9");
@@ -845,20 +966,20 @@ void generate_asm()
                     else if (emit_list[i].operand_1.second->is_struct == 1)
                     {
                         addLine("li $t9, " + to_string(emit_list[i].operand_1.second->size));
-                        
+
                         addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
-                        
+
                         addLine("sub $s7, $fp, $s6"); // combine the two components of the
                                                       // address
-                        addLine("add $s7, $t9, $s7");                              
+                        addLine("add $s7, $t9, $s7");
                         addLine("lw $t6, 0($s7)");
                     }
                     else if (emit_list[i].operand_1.second->is_struct == 2)
                     {
                         addLine("li $t9, " + to_string(emit_list[i].operand_1.second->size));
-                        
+
                         addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
-                        
+
                         addLine("sub $s7, $fp, $s6"); // combine the two components of the
                                                       // address
                         addLine("lw $s7, 0($s7)");
@@ -874,7 +995,7 @@ void generate_asm()
                 reg1 = getNextReg(emit_list[i].ans);
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -908,7 +1029,7 @@ void generate_asm()
 
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -958,12 +1079,12 @@ void generate_asm()
             }
             else if (emit_list[i].op.first == "+int")
             {
-                
+
                 reg1 = getNextReg(emit_list[i].ans);
                 int op_1 = 0, op_2 = 0; // to check whether they are constants
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -993,7 +1114,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2 || emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -1032,7 +1153,7 @@ void generate_asm()
                 int op_1 = 0, op_2 = 0; // to check whether they are constants
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -1062,7 +1183,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2 || emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -1101,7 +1222,7 @@ void generate_asm()
 
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -1131,7 +1252,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2 || emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -1154,7 +1275,6 @@ void generate_asm()
                             loadStructElement(emit_list[i].operand_2, reg3, 2);
                         }
                     }
-                    
                 }
                 else
                 {
@@ -1172,7 +1292,7 @@ void generate_asm()
 
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -1202,7 +1322,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2 || emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -1242,7 +1362,7 @@ void generate_asm()
 
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -1272,7 +1392,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2 || emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);
@@ -1312,7 +1432,7 @@ void generate_asm()
                 string op = emit_list[i].op.first;
                 if (emit_list[i].operand_1.second != NULL)
                 {
-                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2||emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
+                    if (emit_list[i].operand_1.second->is_array == 1 || emit_list[i].operand_1.second->is_array == 2 || emit_list[i].operand_1.second->is_struct == 1 || emit_list[i].operand_1.second->is_struct == 2)
                         reg2 = "$t6";
                     else
                         reg2 = getNextReg(emit_list[i].operand_1);
@@ -1342,7 +1462,7 @@ void generate_asm()
                 }
                 if (emit_list[i].operand_2.second != NULL)
                 {
-                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2||emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
+                    if (emit_list[i].operand_2.second->is_array == 1 || emit_list[i].operand_2.second->is_array == 2 || emit_list[i].operand_2.second->is_struct == 1 || emit_list[i].operand_2.second->is_struct == 2)
                         reg3 = "$t7";
                     else
                         reg3 = getNextReg(emit_list[i].operand_2);

@@ -46,7 +46,7 @@ int main()
   print_int(len);
   print_string("\n");
   print_string("Input the array elements :\n");
-  for (i = 0; i < 6; i = i + 1)
+  for (i = 0; i < len; i = i + 1)
   {
     arr[i]=scanf();
   }

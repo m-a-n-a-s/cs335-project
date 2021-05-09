@@ -3,7 +3,7 @@
 #include <map>
 #include <cstring>
 #include <string>
-
+#include <vector>
 using namespace std;
 
 enum symbol_tab_types{
@@ -19,6 +19,14 @@ typedef struct table_entry{
     int init_flag;
     int is_array; //1 means index is expression. 2 means it is const no.
     int is_struct; // 1 means struct. Used in codegen
+    
+    int col;//for mult dim
+    int dim;//for mult dim
+    int off;//for mult dim
+
+    int struct_size;
+    //vector<int> dim; //ith dim col size
+    //vector<int> off; //offset of the ith index
 } Entry;
 
 typedef unordered_map<string,Entry *> symbol_table;
