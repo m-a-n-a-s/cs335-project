@@ -469,7 +469,7 @@ void func_start_code()
             }
             if (paramNum < 4)
             {
-                
+
                 if (temp[0] == 'S')
                 {
                     int k = temp.find('*');
@@ -627,11 +627,12 @@ void param_code(int i)
             //char a[50];
             //strcpy(a,emit_list[i].operand_1.second->type.c_str());
             //paramSize += counter * get_size(convert_to_string("int"));
-            string x=emit_list[i].operand_1.second->type;
-            if(x[0]=='S'){
-                int k=x.find('*');
-                string tmp=x.substr(0,k);
-                paramOff+=get_size(tmp);
+            string x = emit_list[i].operand_1.second->type;
+            if (x[0] == 'S')
+            {
+                int k = x.find('*');
+                string tmp = x.substr(0, k);
+                paramOff += get_size(tmp);
             }
             paramSize += paramOff;
             addLine("li $s6, " + to_string(paramSize));
@@ -710,6 +711,7 @@ void assign_op_code(int i)
     }
     else
     {
+
         addLine("addi " + reg3 + ", $0, " + emit_list[i].operand_1.first);
     }
 
@@ -1833,13 +1835,22 @@ void generate_asm()
 
             else if (emit_list[i].op.first == "CALL" && emit_list[i].operand_1.first == "print_int")
             {
-                // printing one integer without newline
+                //printing one integer
                 addLine("li $v0, 1");
                 addLine("syscall");
                 counter = 0;
                 paramOff = 0;
             }
-
+            else if (emit_list[i].op.first == "CALL" && emit_list[i].operand_1.first == "print_char")
+            {
+                // printing one char
+                addLine("li $v0, 11");
+                addLine("syscall");
+                counter = 0;
+                paramOff = 0;
+                //addLine("li $v0, 11");
+                //addLine("syscall");
+            }
             else if (emit_list[i].op.first == "CALL" && emit_list[i].operand_1.first == "print_string")
             {
                 // printing string
@@ -1853,6 +1864,13 @@ void generate_asm()
             {
                 reg1 = getNextReg(emit_list[i].ans);
                 addLine("li $v0, 5");
+                addLine("syscall");
+                addLine("move " + reg1 + ", $v0");
+            }
+            else if (emit_list[i].op.first == "CALL" && emit_list[i].operand_1.first == "scan_char")
+            {
+                reg1 = getNextReg(emit_list[i].ans);
+                addLine("li $v0, 12");
                 addLine("syscall");
                 addLine("move " + reg1 + ", $v0");
             }

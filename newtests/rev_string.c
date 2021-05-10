@@ -23,7 +23,6 @@ int main()
     for(i=0;i<n;i=i+1){
         a[i]=scan_char();
     }
-    a[0]='z';
     rev(&a[0],n);
     for(i=0;i<n;i=i+1){
         print_char(a[i]);

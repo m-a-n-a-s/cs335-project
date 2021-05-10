@@ -133,7 +133,8 @@ unsigned long long get_size(string type){
     else if (type == "float")   return sizeof(float);
     else if (type == "double")  return sizeof(double);
     else if (type == "long double") return sizeof(long double);
-    else if (type == "char")    return sizeof(char);
+    // else if (type == "char")    return sizeof(char);
+    else if (type == "char")    return 4;
     else return 8;
 }
 
