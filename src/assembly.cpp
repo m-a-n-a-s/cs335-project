@@ -150,7 +150,7 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
                 addLine("mflo $t7");
                 addLine("add $t8, $t8, $t7"); //i*n2+j
             }
-            if (temporary.second->is_struct != 0)
+            if (temporary.second->is_struct == 1)
             {
                 addLine("li $t7, " + to_string(temporary.second->struct_size));
             }
@@ -174,7 +174,7 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
                 addLine("mflo $t7");
                 addLine("add $t8, $t8, $t7"); //i*n2+j
             }
-            if (temporary.second->is_struct != 0)
+            if (temporary.second->is_struct == 1)
             {
                 addLine("li $t7, " + to_string(temporary.second->struct_size));
             }
@@ -206,7 +206,7 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
                 addLine("mflo $t7");
                 addLine("add $t8, $t8, $t7"); //i*n2+j
             }
-            if (temporary.second->is_struct != 0)
+            if (temporary.second->is_struct == 1)
             {
                 addLine("li $t7, " + to_string(temporary.second->struct_size));
             }
@@ -231,7 +231,7 @@ void loadArrayElement(pair<string, Entry *> temporary, string registerTmp, int a
                 addLine("mflo $t7");
                 addLine("add $t8, $t8, $t7"); //i*n2+j
             }
-            if (temporary.second->is_struct != 0)
+            if (temporary.second->is_struct == 1)
             {
                 addLine("li $t7, " + to_string(temporary.second->struct_size));
             }
@@ -491,7 +491,7 @@ void param_code(int i)
                     addLine("mflo $t9");
                     addLine("add $t8, $t8, $t9"); //i*n2+j
                 }
-                if (emit_list[i].operand_1.second->is_struct != 0)
+                if (emit_list[i].operand_1.second->is_struct == 1)
                 {
                     addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size));
                 }
@@ -520,7 +520,7 @@ void param_code(int i)
                     addLine("mflo $t9");
                     addLine("add $t8, $t8, $t9"); //i*n2+j
                 }
-                if (emit_list[i].operand_1.second->is_struct != 0)
+                if (emit_list[i].operand_1.second->is_struct == 1)
                 {
                     addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size));
                 }
@@ -1011,7 +1011,7 @@ void generate_asm()
                 else if (emit_list[i].operand_1.second->is_array == 2)
                 {
 
-                    addLine("li $s8, " + to_string(emit_list[i].operand_1.second->size));
+                    addLine("li $t8, " + to_string(emit_list[i].operand_1.second->size));
                     if (emit_list[i].operand_1.second->dim > 1)
                     {
                         addLine("li $t7, " + to_string(emit_list[i].operand_1.second->off)); //i in a[i][j]
@@ -1118,7 +1118,7 @@ void generate_asm()
                     }
                     else if (emit_list[i].operand_1.second->is_array == 2)
                     {
-                        addLine("lw $s8, " + to_string(emit_list[i].operand_1.second->size));
+                        addLine("lw $t8, " + to_string(emit_list[i].operand_1.second->size));
                         if (emit_list[i].operand_1.second->dim > 1)
                         {
                             addLine("li $t9, " + to_string(emit_list[i].operand_1.second->off)); //i in a[i][j]
