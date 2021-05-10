@@ -1,27 +1,17 @@
-int ackermann(int a, int l)
-{
+int ack(int var1, int var2){
   int k;
-  if (a == 0)
-    return l + 1;
-  if ((a > 0) && (l == 0))
-    return ackermann(a - 1, 1);
-  if (a > 0 && l > 0)
-  {
-    k = ackermann(a, l - 1);
-    return ackermann(a - 1, k);
+  if (var1 == 0) return var2 + 1;
+  else if ((var1 > 0) && (var2 == 0)) return ack(var1 - 1, 1);
+  else if (var1 > 0 && var2 > 0){
+    k = ack(var1, var2 - 1);
+    return ack(var1 - 1, k);
   }
-  return 1;
 }
 
 int main()
 {
-  int m, n;
-  print_string("Input m : ");
-  m = scanf();
-  print_string("Input n : ");
-  n = scanf();
-  print_string("The Ackermann value is : ");
-  print_int(ackermann(m, n));
-  print_string("\n");
+  int var = ack(1, 2);
+  if(var == 4) print_string("ackermann working!!!\n");
+  else print_string("ackermann not working\n");
   return 0;
 }
