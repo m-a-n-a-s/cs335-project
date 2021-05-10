@@ -4,7 +4,7 @@ int main(){
     char f = 'x';
     double g = a + b;
     if (f < 100) print_string("Working\n");
-    else if (a + d > 2) print_string("Working again\n");
+    else if (a * d > 2) print_string("Working again\n");
     else if (c / e > 0) print_string("Working\n"); 
     return 0;
 }
