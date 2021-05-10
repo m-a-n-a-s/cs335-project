@@ -31,8 +31,8 @@ IS			(u|U|l|L)*
 
 %%
 
-"/*"(.|\n)*"*/"		{/*a C comment*/}
-"//"(.)*(\n)		{/*a C comment*/}
+"/*"([^*]|\*+[^*/])*\*+"/"	{/*a C comment*/}
+"//"(.)*(\n)			{/*a C comment*/}
 
 "auto"			{ count(); yylval.str = strdup(yytext); return AUTO; }
 "break"			{ count(); yylval.str = strdup(yytext); return BREAK; }
