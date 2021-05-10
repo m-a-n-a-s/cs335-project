@@ -54,7 +54,15 @@ void insert_symbol1(symbol_table &table, string key, string type, unsigned long 
    tmp_entry->offset = offset_arr[offset_arr_index];
    tmp_entry->init_flag = init_flag;
    table.insert({key, tmp_entry});
-
+   
+   if(type[0]=='S'){
+      int k=type.find('*');
+      string tmp=type.substr(0,k);
+      int x= struct_size_map[tmp];
+      tmp_entry->offset=tmp_entry->offset+x;
+      offset_arr[offset_arr_index] = offset_arr[offset_arr_index] + x;
+      blk_size[blk_num] = blk_size[blk_num] + x;
+   }
    blk_size[blk_num] = blk_size[blk_num] + size;
    offset_arr[offset_arr_index] = offset_arr[offset_arr_index] + size;
    
@@ -68,7 +76,6 @@ void insert_symbol2(symbol_table &table, string key, string type, unsigned long 
    tmp_entry->offset = old_offset;
    tmp_entry->init_flag = init_flag;
    table.insert({key, tmp_entry});
-
    blk_size[blk_num] = blk_size[blk_num] + size;
    offset_arr[offset_arr_index] = offset_arr[offset_arr_index] + size;
    

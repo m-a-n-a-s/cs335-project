@@ -1,48 +1,45 @@
 struct node
 {
     int val;
-    struct node *next;
+    int b;
 };
+
+void foo(struct node *tmp){
+    tmp->val=3333;
+    tmp->b=4;
+    return;
+}
+struct node foobar(int val){
+    struct node x;
+    x.val=val;
+    x.b=val+1;
+    return x;
+}
+struct node foobar1(struct node x){
+    x.val=2324;
+    x.b=50;
+    return x;
+}
 int main()
 {
-    struct node a[5];
-    struct node *tmp;
-    int i;
-    int x;
-    int t = 0;
-    for (i = 0; i < 4; i = i + 1)
-    {
-        a[i].next = &a[i + 1];
-    }
-    print_string("enter 5 values:\n");
-    for (i = 0; i < 5; i = i + 1)
-    {
-        a[i].val = scanf();
-    }
-
-    print_string("enter value to find:\n");
-    x=scanf();
-
-    tmp=&a[0];
-    i=0;
-    while(i<5){
-        if(x==tmp->val){
-            t=1;
-            break;
-        }
-        else{
-            tmp=tmp->next;
-        }
-        //print_int(tmp->val);
-        //tmp=tmp->next;
-        i=i+1;
-    }
-    if(t==1){
-        print_string("FOUND\n");
-    }
-    else{
-        print_string("NOT FOUND\n");
-    }
-
+    struct node a;
+    //struct node arr[10];
+    a.val=2;
+    print_int(a.val);
+    print_string("\n");
+    foo(&a);
+    print_int(a.val);
+    print_string(" ");
+    print_int(a.b);
+    print_string("\n");
+    a=foobar(500);
+    print_int(a.val);
+    print_int(a.b);
+    print_string("\n");
+    a=foobar1(a);
+    print_int(a.val);
+    print_int(a.b);
+    print_string("\n");
+    
     return 0;
 }

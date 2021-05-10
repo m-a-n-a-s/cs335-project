@@ -1,5 +1,6 @@
 #include "assembly.h"
 
+int paramOff;
 int counter;
 int dataCounter; //to keep track of data section items
 string reg1, reg2, reg3;
@@ -451,6 +452,12 @@ void func_start_code()
                 f1 = temp.find_first_of(delim);
                 if (paramNum < 4)
                 {
+                    if (temp1[0] == 'S')
+                    {
+                        int k = temp1.find('*');
+                        string x = temp1.substr(0, k);
+                        paramSize += get_size(x);
+                    }
                     //addLine("li $s6, " + to_string(paramSize));
                     addLine("sub $s7, $fp, " + to_string(paramSize));
                     addLine("sw $a" + to_string(paramNum) + ", 0($s7)");
@@ -462,6 +469,13 @@ void func_start_code()
             }
             if (paramNum < 4)
             {
+                
+                if (temp[0] == 'S')
+                {
+                    int k = temp.find('*');
+                    string x = temp.substr(0, k);
+                    paramSize += get_size(x);
+                }
                 //addLine("li $s6, " + to_string(paramSize));
                 addLine("sub $s7, $fp, " + to_string(paramSize));
                 addLine("sw $a" + to_string(paramNum) + ", 0($s7)");
@@ -478,12 +492,16 @@ void param_code(int i)
         {
             if (emit_list[i].operand_1.second->is_array == 1)
             { //array
-                //addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
-                addLine("sub $s7, $fp, " + to_string(emit_list[i].operand_1.second->size));
+                addLine("li $s6, " + to_string(emit_list[i].operand_1.second->size));
+                if (currFunction != "main")
+                    addLine("addi $s6, 76");
+                addLine("sub $s7, $fp, $s6");
                 addLine("lw $t8, 0($s7)");
                 if (emit_list[i].operand_1.second->dim > 1)
                 {
                     addLine("li $t9, " + to_string(emit_list[i].operand_1.second->off)); //offset of i in a[i][j]
+                    if (currFunction != "main")
+                        addLine("addi $t9, 76");
                     addLine("sub $t9, $fp, $t9");
                     addLine("lw $t9, 0($t9)");                                           //val of i
                     addLine("li $s6, " + to_string(emit_list[i].operand_1.second->col)); // n2 a[n1][n2]
@@ -502,6 +520,8 @@ void param_code(int i)
                 addLine("mflo $t9");                                                    //a[i]   i*4
                 addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
                 addLine("add $s6, $s6, $t9");
+                if (currFunction != "main")
+                    addLine("addi $s6, 76");
                 addLine("sub $s7, $fp, $s6"); // combine the two components of the
                                               // address
                 addLine("lw $t6, 0($s7)");
@@ -530,6 +550,8 @@ void param_code(int i)
                 addLine("mflo $t9");                                                    //a[i]   i*4
                 addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
                 addLine("add $s6, $s6, $t9");
+                if (currFunction != "main")
+                    addLine("addi $s6, 76");
                 addLine("sub $s7, $fp, $s6"); // combine the two components of the
                                               // address
                 addLine("lw $t6, 0($s7)");
@@ -545,8 +567,10 @@ void param_code(int i)
                 if (emit_list[i].operand_1.second->is_struct_array == 1)
                 {
                     addLine("li $s7, " + to_string(emit_list[i].operand_1.second->off)); // i offset in a[i].val
+                    if (currFunction != "main")
+                        addLine("addi $s7, 76");
                     addLine("sub $s7, $fp, $s7");
-                    addLine("lw $s7, 0($s7)");                                             //val of i
+                    addLine("lw $s7, 0($s7)");                                                   //val of i
                     addLine("li $t9, " + to_string(emit_list[i].operand_1.second->struct_size)); // i*struct_size
                     addLine("mult $s7, $t9");
                     addLine("mflo $s7");
@@ -560,6 +584,8 @@ void param_code(int i)
                     addLine("mflo $s7");
                     addLine("add $s6, $s6, $s7"); // a+2*struct_size
                 }
+                if (currFunction != "main")
+                    addLine("addi $s6, 76");
                 addLine("sub $s6, $fp, $s6"); // combine the two components of the
                 addLine("add $s7, $s6, $t8");
                 addLine("lw $t6, 0($s7)");
@@ -571,6 +597,8 @@ void param_code(int i)
                 //addLine("mult $t8, $t7");
                 //addLine("mflo $t7");
                 addLine("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
+                if (currFunction != "main")
+                    addLine("addi $s6, 76");
                 addLine("sub $s6, $fp, $s6");
                 addLine("lw $s6, 0($s6)");
                 addLine("add $s7, $s6, $t8");
@@ -585,6 +613,7 @@ void param_code(int i)
         ////cout<<"::"<<reg1<<"\n";
         if (counter < 4)
         {
+            //paramOff+=get_size(emit_list[i].operand_1.second->type);
             addLine("move $a" + to_string(counter) + ", " + reg1);
         }
         else
@@ -597,11 +626,23 @@ void param_code(int i)
             //char *a = "int"; // to check
             //char a[50];
             //strcpy(a,emit_list[i].operand_1.second->type.c_str());
-            paramSize += counter * get_size(convert_to_string("int"));
-
+            //paramSize += counter * get_size(convert_to_string("int"));
+            string x=emit_list[i].operand_1.second->type;
+            if(x[0]=='S'){
+                int k=x.find('*');
+                string tmp=x.substr(0,k);
+                paramOff+=get_size(tmp);
+            }
+            paramSize += paramOff;
             addLine("li $s6, " + to_string(paramSize));
             addLine("sub $s7, $sp, $s6");
             addLine("sw " + reg1 + ", 0($s7)");
+        }
+        if (emit_list[i].operand_1.second->type == "char")
+            paramOff += 4;
+        else
+        {
+            paramOff += get_size(emit_list[i].operand_1.second->type);
         }
         counter++;
     }
@@ -617,12 +658,16 @@ void param_code(int i)
             int paramNum = 0;
             int paramSize = 76;
             //char *a = "int";
-            paramSize += counter * get_size(convert_to_string("int"));
+            //paramSize += counter * get_size(convert_to_string("int"));
+            paramSize += paramOff;
+            //cout << paramSize << " " << paramOff + 76 << endl;
             addLine("addi $t9, $0, " + emit_list[i].operand_1.first);
             addLine("li $s6, " + to_string(paramSize));
             addLine("sub $s7, $sp, $s6");
             addLine("sw $t9, 0($s7)");
         }
+        //if(emit_list[i].operand_1.second->type=="char") paramOff+=4;
+        paramOff += get_size("int");
         counter++;
     }
 }
@@ -932,6 +977,7 @@ void generate_asm()
             }
             //function starting
             counter = 0;
+            paramOff = 0;
             currFunction = emit_list[i].op.first;
             //cout<<"is::::"<<currFunction<<endl;
             currFunction.erase(currFunction.begin(), currFunction.begin() + 5);
@@ -1785,38 +1831,25 @@ void generate_asm()
             }
             //library functions implementation
 
-            else if (emit_list[i].op.first == "CALL" &&
-                     emit_list[i].operand_1.first == "printf")
-            {
-                // printing one integer with newline
-                addLine("li $v0, 1");
-                addLine("syscall");
-                addLine("li $v0, 4");
-                addLine("la $a0, _newline");
-                addLine("syscall");
-                counter = 0;
-            }
-
-            else if (emit_list[i].op.first == "CALL" &&
-                     emit_list[i].operand_1.first == "print_int")
+            else if (emit_list[i].op.first == "CALL" && emit_list[i].operand_1.first == "print_int")
             {
                 // printing one integer without newline
                 addLine("li $v0, 1");
                 addLine("syscall");
                 counter = 0;
+                paramOff = 0;
             }
 
-            else if (emit_list[i].op.first == "CALL" &&
-                     emit_list[i].operand_1.first == "print_string")
+            else if (emit_list[i].op.first == "CALL" && emit_list[i].operand_1.first == "print_string")
             {
                 // printing string
                 // string is already in a0;
                 addLine("li $v0, 4");
                 addLine("syscall");
                 counter = 0;
+                paramOff = 0;
             }
-            else if (emit_list[i].op.first == "CALL" &&
-                     emit_list[i].operand_1.first == "scanf")
+            else if (emit_list[i].op.first == "CALL" && emit_list[i].operand_1.first == "scanf")
             {
                 reg1 = getNextReg(emit_list[i].ans);
                 addLine("li $v0, 5");
@@ -1831,6 +1864,7 @@ void generate_asm()
                     reg1 = getNextReg(emit_list[i].ans);
                     addLine("move " + reg1 + ", $v0");
                     counter = 0;
+                    paramOff = 0;
                 }
             }
         }
