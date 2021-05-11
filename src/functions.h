@@ -56,7 +56,8 @@ typedef struct{
 } expr_node;
 
 
-void make_trurfalse_lists(struct node* node1);
+void make_truefalse_lists(struct node* node1);
+void set_place(struct node* node0, struct node* node1, string op, struct node* node3);
 vector<int> merging(vector<int> &l1, vector<int> &l2);
 unsigned long find_id();
 struct node *term_symb(char *str);

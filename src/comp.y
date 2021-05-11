@@ -378,7 +378,7 @@ postfix_expression
 	| postfix_expression PTR_OP IDENTIFIER		{$$ = non_term_symb("->", NULL, $1, term_symb($3));
 												string tmp_str($3);
 												if($1->init_flag) $$->init_flag=1;
-												//string as1 = ($1->node_type).substr(0,($1->node_type).length()-1); //removing *
+												//string as1 = ($1->node_type).substr(0,($1->node_type).length()()-1); //removing *
 												char *s=postfix_type1($1->node_type);
 												if(s==NULL) yyerror("Error :Invalid operator  \'%s\' on \'%s\'", $2, $1->node_key.c_str() );
 												else{
@@ -871,94 +871,85 @@ shift_expression
 relational_expression
 	: shift_expression								{$$ = $1;}
 	| relational_expression '<' shift_expression	{$$ = non_term_symb("<", NULL, $1, $3);
+							if($1->init_flag==1 && $3->init_flag==1){
+								$$->init_flag=1;
+							}
 							int rel_type = relational_type($1->node_type,$3->node_type);
 							if(rel_type == -1){
 								yyerror("Error : invalid operands to <");
 							}
 							else{ 
-								if(rel_type == 1) $$->node_type = "bool";
-								else{
-									$$->node_type = "bool";
+								if(rel_type != 1){
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
-								//===========3AC======================//
-                        		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                        		int k =  emit(pair<string, Entry*>("<", NULL), $1->place, $3->place, t1, -1);
-                        		$$->place = t1;
-                        		$$->nextlist={};
-                       			//====================================//
+								$$->node_type = "bool";
+                           		string op = "<";
+								set_place($$,$1,op,$3);
 							}	
-							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
-							}
+						}
 
 	| relational_expression '>' shift_expression	{$$ = non_term_symb(">", NULL, $1, $3);
+							if($1->init_flag==1 && $3->init_flag==1){
+								$$->init_flag=1;
+							}
 							int rel_type = relational_type($1->node_type,$3->node_type);
 							if(rel_type == -1){
-								yyerror("Error : invalid operands to <");
+								yyerror("Error : invalid operands to >");
 							}
 							else{ 
-								if(rel_type == 1) $$->node_type = "bool";
-								else{
-									$$->node_type = "bool";
+								if(rel_type != 1){
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
-								//===========3AC======================//
-                           		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                           		int k = emit(pair<string, Entry*>(">", NULL), $1->place, $3->place, t1, -1);
-                           		$$->place = t1;
-                           		$$->nextlist = {};
-                       			//====================================//
+								$$->node_type = "bool";
+                           		string op = ">";
+								set_place($$,$1,op,$3);
 							}
-							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
-							}
+						}
 
 	| relational_expression LE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);
+							if($1->init_flag==1 && $3->init_flag==1){
+								$$->init_flag=1;
+							}
 							int rel_type = relational_type($1->node_type,$3->node_type);
 							if(rel_type == -1){
-								yyerror("Error : invalid operands to <");
+								yyerror("Error : invalid operands to <=");
 							}
 							else{ 
-								if(rel_type == 1) $$->node_type = "bool";
-								else{
-									$$->node_type = "bool";
+								if(rel_type != 1){
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
-								//===========3AC======================//
-                          	 	pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                          		int k= emit(pair<string, Entry*>("LE_OP", NULL), $1->place, $3->place, t1, -1);
-                           		$$->place = t1;
-                           		$$->nextlist = {};
-                       			//====================================//
+								$$->node_type = "bool";
+                           		string op = "LE_OP";
+								set_place($$,$1,op,$3);
 							}
-							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
-							}
+						}
 
 	| relational_expression GE_OP shift_expression	{$$ = non_term_symb($2, NULL, $1, $3);
+							if($1->init_flag==1 && $3->init_flag==1){
+								$$->init_flag=1;
+							}
 							int rel_type = relational_type($1->node_type,$3->node_type);
 							if(rel_type == -1){
-								yyerror("Error : invalid operands to <");
+								yyerror("Error : invalid operands to >=");
 							}
 							else{ 
-								if(rel_type == 1) $$->node_type = "bool";
-								else{
-									$$->node_type = "bool";
+								if(rel_type != 1){
 									yyerror("Warning : Invalid Comparison : pointer and Integer");
 								}
-								//===========3AC======================//
-                           		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                           		int k = emit(pair<string, Entry*>("GE_OP", NULL), $1->place, $3->place, t1, -1);
-                           		$$->place = t1;
-                           		$$->nextlist ={};
-                       			//====================================//	
+								$$->node_type = "bool";
+                           		string op = "GE_OP";
+								set_place($$,$1,op,$3);
 							}
-							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
-							}
+						}
 	;
 
 equality_expression
   : relational_expression   {$$ = $1;}
   | equality_expression EQ_OP relational_expression {$$ = non_term_symb_3("==", $1, NULL, $3);
-						    int eq_type = relational_type($1->node_type,$3->node_type);
+						    if($1->init_flag==1 && $3->init_flag==1){
+								$$->init_flag=1;
+							}
+							int eq_type = relational_type($1->node_type,$3->node_type);
 							if(eq_type == -1){
 								yyerror("Error :Invalid operands to ==");
 							}
@@ -967,18 +958,16 @@ equality_expression
 							    	yyerror("Warning : Invalid Comparison : pointer and Integer");
 							    }
 							    $$->node_type = "bool";
-								//===========3AC======================//
-                           		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                           		int k = emit(pair<string, Entry*>("EQ_OP", NULL), $1->place, $3->place, t1, -1);
-                           		$$->place = t1;
-                           		$$->nextlist = {};
-                       			//====================================//
+                           		string op = "EQ_OP";
+								set_place($$,$1,op,$3);
 						    }
-						   	if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
-                                                   }
+                        }
 
   | equality_expression NE_OP relational_expression {$$ = non_term_symb_3("!=", $1, NULL, $3);
-						    int eq_type = relational_type($1->node_type,$3->node_type);
+						    if($1->init_flag==1 && $3->init_flag==1){
+								$$->init_flag=1;
+							}
+							int eq_type = relational_type($1->node_type,$3->node_type);
 							if(eq_type == -1){
 								yyerror("Error :Invalid operands to ==");
 							}
@@ -987,21 +976,19 @@ equality_expression
 							    	yyerror("Warning : Invalid Comparison : pointer and Integer");
 							    }
 							    $$->node_type = "bool";
-								//===========3AC======================//
-                           		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                           		int k = emit(pair<string, Entry*>("NE_OP", NULL), $1->place, $3->place, t1, -1);
-                           		$$->place = t1;
-                           		$$->nextlist ={};
-                       			//====================================//
+								string op = "NE_OP";
+								set_place($$,$1,op,$3);
 						    }
-						   if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
-                                                   }
+                        }
   ;
 
 and_expression
   : equality_expression  { $$ = $1;}
   | and_expression '&' equality_expression  {
                	$$ = non_term_symb("&",NULL, $1, $3);
+				if($1->init_flag==1 && $3->init_flag==1){
+					$$->init_flag=1;
+				}
 				int bit_type = bitwise_type($1->node_type,$3->node_type);
                	if(bit_type == -1){
 					yyerror("Error :Invalid operands to the &");
@@ -1011,50 +998,44 @@ and_expression
 						$$->node_type = "bool"; 
 					}
 					else{   
-						$$->node_type = "long long";
+						$$->node_type = "int";
 					}
-				  //===========3AC======================//
-                  pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  int k= emit(pair<string, Entry*>("&", NULL), $1->place, $3->place, t1, -1);
-                  $$->place = t1;
-                  $$->nextlist={};
-                  //====================================//	
-				  
+                  	string op = "&";
+					set_place($$,$1,op,$3);
                }
-                 if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
           }
   ;
 
 exclusive_or_expression
   : and_expression   { $$ = $1;}
   | exclusive_or_expression '^' and_expression  {
-           $$ = non_term_symb("^", NULL, $1, $3);
-               	int bit_type = bitwise_type($1->node_type,$3->node_type);
-               	if(bit_type == -1){
-					yyerror("Error :Invalid operands to the ^");
-				}
-				else{
-					if(bit_type == 1){
-						$$->node_type = "bool"; 
+           			$$ = non_term_symb("^", NULL, $1, $3);
+					if($1->init_flag==1 && $3->init_flag==1){
+						$$->init_flag=1;
 					}
-					else{   
-						$$->node_type = "long long";
+				   	int bit_type = bitwise_type($1->node_type,$3->node_type);
+					if(bit_type == -1){
+						yyerror("Error : Invalid operands to the ^");
 					}
-				  //===========3AC======================//
-                  pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  int k = emit(pair<string, Entry*>("^", NULL), $1->place, $3->place, t1, -1);
-                  $$->place = t1;
-                  $$->nextlist={};
-                  //====================================//
-               }
-                 if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
-
-        }
+					else{
+						if(bit_type == 1){
+							$$->node_type = "bool"; 
+						}
+						else{   
+							$$->node_type = "int";
+						}
+						string op = "^";
+						set_place($$,$1,op,$3);
+               		}
+        		}
   ;
 
 inclusive_or_expression
 	: exclusive_or_expression								{$$ = $1;}
 	| inclusive_or_expression '|' exclusive_or_expression	{$$ = non_term_symb("|", NULL, $1, $3);
+								if($1->init_flag==1 && $3->init_flag==1){
+									$$->init_flag=1;
+								}
 								int bit_type = bitwise_type($1->node_type,$3->node_type);
 								if(bit_type == -1){
 									yyerror("Error :Invalid operands to the |");
@@ -1064,31 +1045,17 @@ inclusive_or_expression
 										$$->node_type = "bool"; 
 									}
 									else{   
-										$$->node_type = "long long";
+										$$->node_type = "int";
 									}
-									//===========3AC======================//
-                           			pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                           			int k =  emit(pair<string, Entry*>("|", NULL), $1->place, $3->place, t1, -1);
-                           			$$->place = t1;
-                           			$$->nextlist={};
-                       				//====================================//
-						
+                           			string op = "|";
+									set_place($$,$1,op,$3);
 								}
-									if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
-							
-								}
+							}
 	;
 
 M1
   : logical_and_expression AND_OP {
-                        if($1->truelist.empty()){
-							// if already not processed then no truelist/falselist present
-						    int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                            $1->truelist.push_back(k);
-                            $1->falselist.push_back(k1);
-
-                        }
+                        make_truefalse_lists($1); // if already not processed then no truelist/falselist present
                         $$ = $1;
   }
   ;
@@ -1102,31 +1069,20 @@ M
 logical_and_expression
 	: inclusive_or_expression								{$$ = $1;}
 	| M1 M inclusive_or_expression	{$$ = non_term_symb_3("&&", $1, NULL, $3);
+								if($1->init_flag==1 && $3->init_flag==1){
+									$$->init_flag=1;
+								}
 								$$->node_type == "bool";
-								//===========3AC======================//
-
-                            	if($3->truelist.empty()){
-                                	int k2 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $3->place, pair<string, Entry*>("", NULL ),0);
-                                	int k3 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                                	$3->truelist.push_back(k2);
-                                	$3->falselist.push_back(k3);
-                        		}
+                            	make_truefalse_lists($3);
                            		backPatch($1->truelist,$2);
                            		$$->truelist = $3->truelist;
-                           		//$1->falselist.merge($3->falselist);
-								//merging($1->falselist, $3->falselist);
-                           		//$$->falselist = $1->falselist;
                            		$$->falselist=merging($1->falselist,$3->falselist);
-								
-								$$->nextlist ={};
-                       			//====================================//
-								if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 								}
 	;
 
 M2
   : logical_or_expression OR_OP {
-                        make_trurfalse_lists($1);
+                        make_truefalse_lists($1);
                         $$ = $1;
   }
   ;
@@ -1134,30 +1090,20 @@ M2
 logical_or_expression
 	: logical_and_expression								{$$ = $1;}
 	| M2 M logical_and_expression	{$$ = non_term_symb_3("||", $1, NULL, $3);
-	
-								if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
+								if($1->init_flag==1 && $3->init_flag==1){
+									$$->init_flag=1;
+								}
 								$$->node_type == "bool";
-								//===========3AC======================//
-                         		if($3->truelist.begin()==$3->truelist.end()){
-                                	int k2 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $3->place, pair<string, Entry*>("", NULL ),0);
-                                	int k3 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                                	$3->truelist.push_back(k2);
-                                	$3->falselist.push_back(k3);
-                        		}
+                         		make_truefalse_lists($3);
                          		backPatch($1->falselist, $2);
                          		$$->falselist = $3->falselist;
-                         		//$1->truelist.merge($3->truelist);
-								// merging($1->truelist, $3->truelist);
 								$$->truelist= merging($1->truelist, $3->truelist);
-                         		//$$->truelist = $1->truelist;
-                         		$$->nextlist = {};
-                        		//====================================//
-								}
+							}
 	;
 
 M3
   : logical_or_expression '?' {
-                        make_trurfalse_lists($1);
+                        make_truefalse_lists($1);
                         $$ = $1;
   }
   ;
@@ -1172,37 +1118,29 @@ N
 conditional_expression
 	: logical_or_expression												{$$ = $1;}
 	| M3 M expression ':' N conditional_expression {$$ = non_term_symb_3("logical_expr ? expr : conditional_expr", $1, $3, $6);
-										$$->real_value = -11;
+										if($1->init_flag==1 && $3->init_flag==1 && $6->init_flag==1){
+											$$->init_flag=1;
+										}
 										int cond_type = relational_type($3->node_type,$6->node_type);
 										if(cond_type == -1){
 											yyerror("Error :Type Mismatch in ternary statement");
 										}
 										else{
 											if(cond_type==0){
-												yyerror("Warning :Type Mismatch in ternary statement");
+												yyerror("Warning : Type Mismatch in ternary statement");
 											}
 											$$->node_type = "int";
-											
-											//--------------------3AC--------------------------//
-                    						pair <string, Entry*> t = newlabel_sym($$->node_type);
-                    						int kx=emit(pair<string, Entry*>("=", NULL), $6->place, pair<string, Entry*>("", NULL), t, -1);
-                    						//int k2 = emit(pair<string, Entry*>("GOTO", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), 0);
+                    						pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
+                    						emit(pair<string, Entry*>("=", NULL), $6->place, pair<string, Entry*>("", NULL), newlabel, -1);
                     						backPatch($1->truelist , $2);
                     						backPatch($1->falselist , $5+1);
-                    						//setId1($5-1 , $3->place);
 											emit_list[$5-1].operand_1 = $3->place;
-                    						//setResult($5-1 , t);
-											emit_list[$5-1].ans = t;
+											emit_list[$5-1].ans = newlabel;
                     						$$->nextlist = $3->nextlist;
                     						$$->nextlist.push_back($5);
-											
-                    						//emit_list[$5].line_no=$7;
-											//$$->nextlist.push_back(k2);
-                    						$$->place = t;
-                 							//--------------------------------------------------//
-										}
-										if($1->init_flag==1 && $3->init_flag==1 && $6->init_flag==1) $$->init_flag=1;																		
-										}
+                    						$$->place = newlabel;
+										}																		
+									}
 	;
 
 assignment_expression
@@ -1239,13 +1177,9 @@ assignment_expression
 										if(assign_type == 0){
 											yyerror("Warning : Incompatible pointer type assignment");
 										}
-										//-------------3AC------------------------------------//
-                      					int k;
-										k = assign_3ac($2, $$->node_type,$1->node_type, $3->node_type, $1->place, $3->place);
+                      					int k = assign_3ac($2, $$->node_type,$1->node_type, $3->node_type, $1->place, $3->place);
 										$$->place = $1->place;
-										
 										backPatch($3->nextlist, k); //for ternary operator like expression
-                       					//-------------------------------------------------------//		
 									}
 									if($1->expr_type==3){ 
 										if($3->init_flag==1){
@@ -1274,11 +1208,9 @@ assignment_operator
 
 expression
 	: assignment_expression					{$$ = $1;}
-	| expression ',' M assignment_expression	{$$ = non_term_symb("expression ','", NULL, $1, $4);//$$->node_type = "void";
-											//--------------3AC--------------------//
+	| expression ',' M assignment_expression	{$$ = non_term_symb("expression ','", NULL, $1, $4);
                     						backPatch($1->nextlist,$3);
                     						$$->nextlist = $4->nextlist;
-                 							//-------------------------------------//
 											}
 	;
 
@@ -1287,11 +1219,12 @@ constant_expression
 	;
 
 declaration
-	: declaration_specifiers ';' {type_name="";$$=$1;}
-	| declaration_specifiers init_declarator_list ';'	{type_name="";$$ = non_term_symb("declaration", NULL, $1, $2);
-														//----------------3AC-----------------------//
-                                                        $$->nextlist = $2->nextlist;
-                                                      	//-----------------------------------------//	
+	: declaration_specifiers ';' {$$=$1;
+								type_name="";
+								}
+	| declaration_specifiers init_declarator_list ';'	{$$ = non_term_symb("declaration", NULL, $1, $2);
+                                                        type_name="";
+														$$->nextlist = $2->nextlist;
 														}
 	;
 
@@ -1308,59 +1241,31 @@ init_declarator_list
 	: init_declarator							{$$ = $1;}
 	| init_declarator_list ',' M init_declarator	{
 												$$ = non_term_symb("init_declarator_list", NULL, $1, $4);
-												//-----------3AC------------------//
                                                  backPatch($1->nextlist, $3); //for ternary op like expression 
                                                  $$->nextlist = $4->nextlist;
-                                               //--------------------------------//
 												}
 	;
 
 init_declarator
 	: declarator{
 		$$ = $1;
-		if($1->expr_type==1){ 
-			const char *t=new char();
-			t = ($1->node_type).c_str();
-        	const char *key =new char();
-			key = ($1->node_key).c_str();
-
-        	if((*curr).find($1->node_key) != (*curr).end()){
-                yyerror("Error : \'%s\' already declared",key);
-        	}//else if($1->node_type=="void"){
-        	   // yyerror("Error : void declaration \'%s\'",key);
-        	//}
-			else {  
+		if($1->expr_type==1){
+        	if((*curr).find($1->node_key) == (*curr).end()){
 				insert_symbol1(*curr,$1->node_key,$1->node_type,$1->size,0);
 				$$->place.first = $1->node_key;
 				$$->place.second = lookup($1->node_key);
-				
 				$$->place.second->col=$1->col;
-				
-				//$$->place.second->dim=$1->dim;
-						
+        	}
+			else{  
+				yyerror("Error : \'%s\' already declared",($1->node_key).c_str());
 			}
         }
 	}
-	| declarator '=' M initializer	{
-		
+	| declarator '=' M initializer	{	
 		$$ = non_term_symb("=", NULL, $1, $4);
 		if($1->expr_type==1||$1->expr_type==15){ 
-			const char *t=new char();
-			t = ($1->node_type).c_str();
-            const char *key =new char();
-			key = ($1->node_key).c_str();
-        	if((*curr).find($1->node_key) != (*curr).end()){
-				yyerror("Error : \'%s\' already declared",key);
-            }
-			// else if($1->node_type=="void"){
-            //      yyerror("Error : void declaration \'%s\'",key);
-            // }
-            else { 
-				// if($$->expr_type==15) { 
-				// 	insert_symbol1(*curr,key,t,($4->expr_type*$1->integer_value),1); 
-				// }
-                insert_symbol1(*curr,$1->node_key,$1->node_type,$1->size,1);
-				//----------------- 3AC ------------------------//
+        	if((*curr).find($1->node_key) == (*curr).end()){
+				insert_symbol1(*curr,$1->node_key,$1->node_type,$1->size,1);
                 int valid = compatible($1->node_type, $4->node_type);
 				if(valid == -1){
 					yyerror("Error : Invalid assignment of \'%s\' to \'%s\' ",$1->node_type.c_str(),$4->node_type.c_str());
@@ -1370,15 +1275,15 @@ init_declarator
                     $1->place.first=$1->node_key;
 					$1->place.second=lookup($1->node_key);
 		            int k=assign_3ac("=", $1->node_type,$1->node_type, $4->node_type, $1->place, $4->place);
-                    $$->place = $1->place;
-					
+                    $$->place = $1->place;					
 					backPatch($1->nextlist, $3); //for ternary op
-                    $$->nextlist = $4->nextlist;
-					
+                    $$->nextlist = $4->nextlist;					
                 }
                 $$->place.first = $1->node_key;
 				$$->place.second = lookup($1->node_key);
-                //-----------------------------------------------//
+            }
+            else{ 
+				yyerror("Error : \'%s\' already declared",($1->node_key).c_str());
             }
         }
 	}
@@ -1393,43 +1298,86 @@ storage_class_specifier
 	;
 
 type_specifier
-	: VOID							{if(type_name==""){string stmp($1); type_name = stmp;}
-                   					else {string stmp($1);type_name = type_name+" "+stmp;}
-									$$ = term_symb($1);}
-	| CHAR							{if(type_name==""){string stmp($1); type_name = stmp;}
-                   					else {string stmp($1);type_name = type_name+" "+stmp;}
-									$$ = term_symb($1);}
-	| SHORT							{if(type_name==""){string stmp($1); type_name = stmp;}
-                   					else {string stmp($1);type_name = type_name+" "+stmp;}
-									$$ = term_symb($1);}
-	| INT							{if(type_name==""){string stmp($1);type_name = stmp;}
-                   					else {string stmp($1);type_name = type_name+" "+stmp;}
-									$$ = term_symb($1);}
-	| LONG							{if(type_name==""){string stmp($1); type_name = stmp;}
-                   					else {string stmp($1);type_name = type_name+" "+stmp;}
-									$$ = term_symb($1);}
-	| FLOAT							{if(type_name==""){string stmp($1); type_name = stmp;}
-                   					else {string stmp($1);type_name = type_name+" "+stmp;}
-									$$ = term_symb($1);}
-	| DOUBLE						{if(type_name==""){string stmp($1); type_name = stmp;}
-                   					else {string stmp($1);type_name = type_name+" "+stmp;}
-									$$ = term_symb($1);}
-	| SIGNED						{if(type_name==""){string stmp($1); type_name = stmp;}
-                   					else {string stmp($1);type_name = type_name+" "+stmp;}
-									$$ = term_symb($1);}
-	| UNSIGNED						{if(type_name==""){string stmp($1); type_name = stmp;}
-                   					else {string stmp($1);type_name = type_name+" "+stmp;}
-									$$ = term_symb($1);}
-	| struct_or_union_specifier		{if(type_name=="")type_name = $$->node_type;
-                   					else type_name = type_name+" "+$$->node_type;
-									$$ = $1;}
-	| enum_specifier				{$$ = $1; yyerror("Implemention Error : Enum specifier not implemented. Sorry!!");}
+	: VOID							{
+									$$ = term_symb($1);
+									string tmp_str($1);
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append(tmp_str);
+									}
+	| CHAR							{$$ = term_symb($1);
+									string tmp_str($1);
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append(tmp_str);
+									}
+	| SHORT							{$$ = term_symb($1);
+									string tmp_str($1);
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append(tmp_str);
+									}
+	| INT							{$$ = term_symb($1);
+									string tmp_str($1);
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append(tmp_str);
+									}
+	| LONG							{$$ = term_symb($1);
+									string tmp_str($1);
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append(tmp_str);
+									}
+	| FLOAT							{$$ = term_symb($1);
+									string tmp_str($1);
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append(tmp_str);
+									}
+	| DOUBLE						{$$ = term_symb($1);
+									string tmp_str($1);
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append(tmp_str);
+									}
+	| SIGNED						{$$ = term_symb($1);
+									string tmp_str($1);
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append(tmp_str);
+									}
+	| UNSIGNED						{$$ = term_symb($1);
+									string tmp_str($1);
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append(tmp_str);
+									}
+	| struct_or_union_specifier		{$$ = $1;
+									if(type_name.length()){
+										type_name.append(" ");
+									}
+                   					type_name.append($$->node_type);
+									}
+	| enum_specifier				{$$ = $1; 
+									yyerror("Error : Enum specifier not allowed");
+									}
 	| TYPE_NAME						{}
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER E4 '{' struct_declaration_list '}'	{string tmp_str($2); 
+	: struct_or_union IDENTIFIER E4 '{' struct_declaration_list '}'	{
 									$$ = non_term_symb("struct_or_union_specifier", $2, $1, $5);
+									string tmp_str($2); 
 									Parent.insert(pair<symbol_table *, symbol_table *>(struct_table, NULL));
 									struct_size_map.insert({("STRUCT_" + tmp_str), struct_size}); //create structSize variable 
 									string stmp= "STRUCT_"+tmp_str; 
@@ -1438,20 +1386,21 @@ struct_or_union_specifier
 									print_tables(struct_table, tmp_str); 
 									}
 
-	| struct_or_union E4 '{' struct_declaration_list '}'				{//$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $4);
-																			//structCounter++;
-																			//string tmp_str = to_string(structCounter);
-																			//end_struct(tmp_str)
-																			//string stmp= "STRUCT_"+tmp_str; $$->node_type=stmp;
-																			yyerror("Error : Anonymous struct not implemented\n");
+	| struct_or_union E4 '{' struct_declaration_list '}'				{$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $4);
+																			yyerror("Error : Anonymous struct not allowed\n");
 																		}	
 
 	| struct_or_union IDENTIFIER									{$$ = non_term_symb("struct_or_union_specifier", $2, $1, NULL);
 													string tmp_str($2);
-													tmp_str = "STRUCT_" + tmp_str;
-													if(struct_table_map.find(tmp_str) != struct_table_map.end()) $$->node_type = tmp_str;
-													else yyerror("Error : struct \'%s\' is not defined",$2);
+													string tmp_str2("STRUCT_");
+													tmp_str2.append(tmp_str);
+													if(struct_table_map.find(tmp_str2) == struct_table_map.end()){
+														yyerror("Error : struct \'%s\' is not defined",$2);
+													} 
+													else{
+														$$->node_type = tmp_str2;
 													}
+												}
 	;
 
 E4
@@ -1510,7 +1459,7 @@ struct_declarator
 	}
 	| ':' constant_expression {$$ = $2;}
 	| declarator ':' constant_expression {$$ = non_term_symb("struct_declarator", NULL, $1, $3);
-										yyerror("Error :Not implemented Bitfields");
+										yyerror("Error : Bitfields not allowed");
 										}
 	;
 
@@ -1536,36 +1485,28 @@ type_qualifier
 	;
 
 declarator
-	: pointer direct_declarator {$$ = non_term_symb("declarator", NULL, $1, $2);
-								
-								string stmp=$2->node_type+$1->node_type;
-								$$->node_type=stmp;
+	: pointer direct_declarator {$$ = non_term_symb("declarator", NULL, $1, $2);								
+								string tmp_str=$2->node_type;
+								tmp_str.append($1->node_type);
+								$$->node_type=tmp_str;
 								$$->node_key = $2->node_key;
 								$$->expr_type=$2->expr_type;
-								// if($2->expr_type==1){
-								// 	$$->expr_type=1;
-								// } // for normal declaration
-								if($2->expr_type==2){ func_name = $2->node_key; func_type =stmp; } //for functions
-								// char* a = new char();
-								// strcpy(a,($$->node_type).c_str());
+								if($2->expr_type==2){    //for functions
+									func_name = $2->node_key; 
+									func_type = tmp_str;
+								}
 								$$->size = get_size($$->node_type);
-								//------------------3AC---------------------------------//
 								$$->place.first = $$->node_key;
-								// if(lookup($$->node_key)){
-								// 	cout<<"found\n";
-								// }
-								// else cout<<"not fond]n";
-								$$->place.second = NULL; // not inseted yet
-                        		//-------------------------------------------------------//
+								$$->place.second = NULL; // not inserted yet
 								}
 	| direct_declarator {$$ = $1;
-						if($1->expr_type==2){ func_name=$1->node_key; 
-							func_type = $1->node_type;
+						string tmp_str = $1->node_type;
+						if($1->expr_type==2){  // for functions
+							func_name = $1->node_key; 
+							func_type = tmp_str;
 						}
-						//------------------3AC---------------------------------//
 						$$->place.first = $$->node_key;
-						$$->place.second = NULL; // not inseted yet
-                        //-------------------------------------------------------//
+						$$->place.second = NULL; // not inserted yet
 						}
 	;
 
@@ -1866,7 +1807,7 @@ expression_statement
 
 M4
   :  IF '(' expression ')' {
-                        make_trurfalse_lists($3);
+                        make_truefalse_lists($3);
                         $$ = $3;
   }
   ;
@@ -1909,7 +1850,7 @@ selection_statement
 
 M6
   :   expression  {
-						make_trurfalse_lists($1);
+						make_truefalse_lists($1);
                         $$ = $1;
   }
   ;
@@ -1917,7 +1858,7 @@ M6
 
 M7
   :   expression_statement  {
-						make_trurfalse_lists($1);
+						make_truefalse_lists($1);
                         $$ = $1;
   }
   ;
