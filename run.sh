@@ -4,6 +4,7 @@ testcases=`ls ./newtests/*.c`
 for entry in $testcases
 do 
 ./bin/compiler $entry -o ast.dot
+# spim -file "code.asm"
 echo "$entry done"
 done
 

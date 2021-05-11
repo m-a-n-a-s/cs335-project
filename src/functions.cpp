@@ -23,6 +23,12 @@ void set_place(struct node* node0, struct node* node1, string op, struct node* n
   return;
 }
 
+void set_place2(struct node* node0, struct node* node1, string op1, string op2){
+  pair <string, Entry*> newlabel = newlabel_sym(node0->node_type);
+  emit(pair<string, Entry*>(op1, NULL), node1->place, pair<string, Entry*>(op2, NULL), newlabel, -1);
+  node0->place = newlabel;
+}
+
 ul find_id() {
   static ul id = 0;
   return ++id;

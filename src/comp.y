@@ -36,8 +36,8 @@ extern int yylineno;
 string file_name;
 string func_type;
 string func_name;
-string funcArguments;
-string currArguments;
+string args_defined;
+string args_called;
 
 string type_name="";
 int structCounter=0;
@@ -175,22 +175,19 @@ postfix_expression
 
 | postfix_expression '[' expression ']'	{$$ = non_term_symb("[ ]", NULL, $1, $3);
 							
-							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
-							char *s=postfix_type1($1->node_type);// returns type removing the last "*"
+									if($1->init_flag==1 && $3->init_flag==1){
+										$$->init_flag=1;
+									}
+							char* deref_type =postfix_type1($1->node_type);// returns type removing the last "*"
 							
-							if(s&&int_flag($3->node_type)){
-								string tmp_str(s);
+							if(deref_type && int_flag($3->node_type)){
+								string tmp_str(deref_type);
 								$$->node_type=tmp_str;
-
-								//****3AC****
-
 								$$->place = newlabel_sym($$->node_type);
-                                //pair <string, Entry*> opT  = pair<string,Entry*>("[]",NULL);
-                                //int k = emit(opT, $1->place, $3->place, $$->place, -7);
 									
-								if(s[0]=='S'){
+								if(deref_type[0]=='S'){
 									//means $1 is struct type
-									string tmp(s);
+									string tmp(deref_type);
 									$$->place.second->struct_size=struct_size_map[tmp];
 									$$->place.second->is_struct=1;
 									
@@ -199,10 +196,7 @@ postfix_expression
                                 if($3->place.second!=NULL){
 									//means index is not a const number
 									$$->place.second->size = $3->place.second->offset;
-                                	
-									//$$->place.second->off=$1->place.second->off;
-									//$$->place.second->off.push_back($3->place.second->offset);
-									
+                                										
 									if($1->place.second->dim==0){
 										$$->place.second->off=$3->place.second->offset;//loaction of i in a[i][j]
 									}
@@ -218,131 +212,152 @@ postfix_expression
 								else{
 									//means const number
 									$$->place.second->size=stoi($3->place.first);
-									
-									//$$->place.second->off=$1->place.second->off;
-									//$$->place.second->off.push_back(stoi($3->place.first));
-
 									if($1->place.second->dim==0){
 										$$->place.second->off=stoi($3->place.first);// i in a[i][j]
 									}
 									else{
 										$$->place.second->off=$1->place.second->off; // i in a[i][j]
 									}
-
-
 									$$->place.second->col=$1->place.second->col;
 
 									$$->place.second->offset=$1->place.second->offset;
 									$$->place.second->is_array=2;
 								}
 								$$->place.second->dim=$1->place.second->dim+1;
-								//cout<<"off :"<<$$->place.second->off<<endl;
-
                                 $$->place.second->init_flag = 1;
-								
-                                $$->nextlist = {};
-                                //backPatch($3->truelist, k);
-                                //backPatch($3->falselist, k);
 
-								// **** 3AC ****
-
-							}else if(!int_flag($3->node_type)){
+							}
+							else if(!int_flag($3->node_type)){
 								yyerror("Error : array index not a int");
-							}else{
+							}
+							else{
 								yyerror("Error : array indexed with more indices than its dimension");
 							}
 							}																
 															
 | postfix_expression '(' ')'	{$$ = $1;
-							if($1->init_flag) $$->init_flag=1;
-							char* s = postfix_type2($1->node_type);
-							if(s){
-								string tmp_str(s);
-								$$->node_type =tmp_str;
-								//if($1->expr_type==3){
-									string funcArgs = args_map[$1->node_key];// get arguments
-									//----------------------------3AC-------------------------------------------------//
-                         			pair <string, Entry*> t = newlabel_sym($$->node_type);
-									int k=emit(pair<string, Entry*>("return place", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), t, -1);
-									int k1=emit(pair<string, Entry*>("CALL", NULL), $1->place, pair<string, Entry*>("0", NULL), t, -1);
-									$$->nextlist ={};
-									$$->place = t;
-									//-------------------------3AC---------------------------------------//
-
-									if(!(funcArgs=="")){//yyerror("Error : \'%s\' Invalid function call. Usage    \'%s %s\( %s \)\'",($1->node_key).c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
-										yyerror("Error : \'%s\' invalid function call. Too many arguments",($1->node_key).c_str());
-									}
-								//}else yyerror("Error : Invalid Function call");	
-							}else yyerror("Error : Invalid Function call");															
-							currArguments="";
+							if($1->init_flag){
+								$$->init_flag=1;
 							}
-
-| postfix_expression '(' argument_expression_list ')'	{$$ = non_term_symb("postfix_expression", NULL, $1, $3);
-							if($3->init_flag==1&&$1->init_flag) $$->init_flag=1;
-							char* s = postfix_type2($1->node_type);
-							if(s){
-								string tmp_str(s);
-								$$->node_type =tmp_str;
-								if($1->expr_type==3){
-									string funcArgs = args_map[$1->node_key];// get arguments
-									//char* a =new char();
-									string temp1 = currArguments; // current arguments passed by caller
-									string temp2 = funcArgs; // arguments used in func definition
-									string typeA,typeB;
-									string delim = ",";
-									int f1=1;
-									int f2=1;
-									int argNo = 0;
-									while(f1!=-1 && f2!=-1){
-										f1 = temp1.find_first_of(delim);
-										f2 = temp2.find_first_of(delim);
-										argNo++;
-										if(f1==-1) typeA = temp1; else{ typeA = temp1.substr(0,f1); temp1 = temp1.substr(f1+1);}
-										if(f2==-1) typeB = temp2 ; else{ typeB = temp2.substr(0,f2); temp2 = temp2.substr(f2+1); }
-										if(typeB=="...") break;
-										int valid = compatible(typeA,typeB);
-										if(valid == 0) { yyerror("Warning : Passing argument %d of \'%s\' from incompatible pointer type.\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str()); }
-										else if(valid == -1){
-											yyerror("Error : Incompatible argument type %d of \'%s\' .\n Expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",argNo,($1->node_key).c_str(),typeB.c_str(),typeA.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
-										}
-										if((f1!=-1)&&(f2!=-1)){
-											continue;
-										}else if(f2!=-1){
-											if(!(temp2=="...")) yyerror("Error : Too few arguments for the function \'%s\'\n    \'%s %s\( %s \)\'",($1->node_key).c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
-											break;
-										}else if(f1!=-1){
-											yyerror("Error : Too many arguments for the function \'%s\'\n    \'%s %s\( %s \)\'",($1->node_key).c_str(),($$->node_type).c_str(),($1->node_key).c_str(),funcArgs.c_str());
-											break;
-										}else{ break; }
-									}
-									//--------------------------3AC----------------------------------//
-                       				int fT=1;
-                       				int carg=1;
-                  					while(fT!=-1){ // find no. of parameters passed.
-                          				carg++;
-                          				fT = currArguments.find_first_of(delim);
-                          				if(fT==-1) typeA = currArguments; else{ typeA = currArguments.substr(0,fT); currArguments = currArguments.substr(fT+1);}
-                  					}
-									
-                  					pair <string, Entry*> t = newlabel_sym($$->node_type);
-                  					emit(pair<string, Entry*>("return place", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), t, -1);
-                  					int k=emit(pair<string, Entry*>("CALL", NULL), $1->place, pair<string, Entry*>(to_string(carg), NULL), t, -1);
-                  					$$->place = t;
-                  					$$->nextlist ={};
-                  					//----------------------------3AC-----------------------------------------//	
-								}
-
-							}
-							else {
+							char* type_func = postfix_type2($1->node_type);
+							if(type_func ==  NULL){
 								yyerror("Error : Invalid Function call");
 							}
-								currArguments="";
+							else{
+								string tmp_str(type_func);
+								$$->node_type = tmp_str;
+								string get_args = args_map[$1->node_key];// get arguments
+								pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
+								emit(pair<string, Entry*>("return place", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), newlabel, -1);
+								emit(pair<string, Entry*>("CALL", NULL), $1->place, pair<string, Entry*>("0", NULL), newlabel, -1);
+								$$->place = newlabel;
+								if(get_args.length()){
+									yyerror("Error : \'%s\' Invalid function call. Too many arguments",($1->node_key).c_str());
+								}
+							}	
+							args_called="";													
+						}
+
+| postfix_expression '(' argument_expression_list ')'	{$$ = non_term_symb("postfix_expression", NULL, $1, $3);
+							if($3->init_flag==1&&$1->init_flag){
+								$$->init_flag=1;
+							}
+							char* type_func = postfix_type2($1->node_type);
+							if(type_func == NULL){
+								yyerror("Error : Invalid Function call");
+							}
+							else {
+								string tmp_str(type_func);
+								$$->node_type = tmp_str;
+								if($1->expr_type==3){
+									string get_args = args_map[$1->node_key];// get arguments
+									vector<string> vect_called;
+									vector<string> vect_get;
+									string delim = ",";
+									int index_called = 1;
+									int index_get = 1;
+									
+									while(index_called != -1){
+										index_called  =  args_called.find_first_of(delim);
+										string tmp = "";
+										if(index_called  == -1){
+											tmp = args_called;
+										}
+										else{
+											tmp = args_called.substr(0,index_called); 
+											args_called = args_called.substr(index_called+1);
+										}
+										vect_called.push_back(tmp);
+									}
+
+									while(index_get != -1){
+										index_get  = get_args.find_first_of(delim);
+										string tmp = "";
+										if(index_get ==  -1){
+											tmp = get_args;
+										}
+										else{
+											tmp = get_args.substr(0,index_get);	
+											get_args = get_args.substr(index_get +1);
+										}
+										vect_get.push_back(tmp);
+									}
+
+									int size1 = vect_called.size();
+									int size2 = vect_get.size();
+
+									if(vect_get[size2-1] == "..."){
+										if(size2 - size1 > 1){
+											yyerror("Error : Too few arguments for the function \'%s\'\n    \'%s %s\( %s \)\'",($1->node_key).c_str(),($$->node_type).c_str(),($1->node_key).c_str(),get_args.c_str());
+										}
+										else{
+											for(int i=0;i<size2-1;i++){
+												string arg_call = vect_called[i];
+												string arg_get = vect_get[i];
+												int valid = compatible(arg_call,arg_get);
+												if(valid == 0){
+													yyerror("Warning : Passing argument %d of \'%s\' from incompatible pointer type.\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",i+1,($1->node_key).c_str(),arg_get.c_str(),arg_call.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),get_args.c_str());
+												}
+												else if(valid == -1){
+													yyerror("Error : Incompatible argument type %d of \'%s\' .\n Expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",i+1,($1->node_key).c_str(),arg_get.c_str(),arg_call.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),get_args.c_str());
+												}
+											}
+										}
+									}
+
+									else{
+										if(size1 < size2){
+											yyerror("Error : Too few arguments for the function \'%s\'\n    \'%s %s\( %s \)\'",($1->node_key).c_str(),($$->node_type).c_str(),($1->node_key).c_str(),get_args.c_str());
+										}
+										else if(size1 > size2){
+											yyerror("Error : Too many arguments for the function \'%s\'\n    \'%s %s\( %s \)\'",($1->node_key).c_str(),($$->node_type).c_str(),($1->node_key).c_str(),get_args.c_str());
+										}
+										else{
+											for(int i=0;i<size2;i++){
+												string arg_call = vect_called[i];
+												string arg_get = vect_get[i];
+												int valid = compatible(arg_call,arg_get);
+												if(valid == 0){
+													yyerror("Warning : Passing argument %d of \'%s\' from incompatible pointer type.\n Note : expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",i+1,($1->node_key).c_str(),arg_get.c_str(),arg_call.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),get_args.c_str());
+												}
+												else if(valid == -1){
+													yyerror("Error : Incompatible argument type %d of \'%s\' .\n Expected \'%s\' but argument is of type \'%s\'\n     \'%s %s\( %s \)\'",i+1,($1->node_key).c_str(),arg_get.c_str(),arg_call.c_str(),($$->node_type).c_str(),($1->node_key).c_str(),get_args.c_str());
+												}
+											}
+										}
+									}
+									string size1_str = to_string(size1 + 1);
+                  					pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
+                  					emit(pair<string, Entry*>("return place", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), newlabel, -1);
+                  					emit(pair<string, Entry*>("CALL", NULL), $1->place, pair<string, Entry*>(size1_str, NULL), newlabel, -1);
+                  					$$->place = newlabel;
+								}
+							}
+								args_called="";
 							}
 	| postfix_expression '.' IDENTIFIER			{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));
 												if($1->init_flag) $$->init_flag=1;
 												string tmp_str($3);
-												//cout<<$1->node_type<<endl;
-												//cout<<struct_size_map[$1->node_type]<<endl;
 												if(struct_table_map.find($1->node_type) == struct_table_map.end()){
 													yyerror("Error : Invalid operator \'.\' on \'%s\'", $1->node_key.c_str() );
 												}
@@ -417,9 +432,9 @@ postfix_expression
 													$$->integer_value = $1->integer_value +1;
 
 													//------------------3AC------------//
-                  									pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  									int k=  emit(pair<string, Entry*>("S++", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
-                  									$$->place = t1;
+                  									pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
+                  									int k=  emit(pair<string, Entry*>("S++", NULL), $1->place, pair<string, Entry*>("", NULL), newlabel, -1);
+                  									$$->place = newlabel;
                   									$$->nextlist = {};
                   									//-----------------3AC-----------------//
 
@@ -437,9 +452,9 @@ postfix_expression
 												    $$->integer_value = $1->integer_value -1;
 
 													//-----------------3AC-------------//
-                  									pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  									int k=emit(pair<string, Entry*>("S--", NULL), $1->place, pair<string, Entry*>("", NULL), t1, -1);
-                  									$$->place = t1;
+                  									pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
+                  									int k=emit(pair<string, Entry*>("S--", NULL), $1->place, pair<string, Entry*>("", NULL), newlabel, -1);
+                  									$$->place = newlabel;
                   									$$->nextlist={};
                   									//--------------3AC-------------//
 													  
@@ -450,114 +465,98 @@ postfix_expression
 	;
 
 argument_expression_list
-	: assignment_expression									{$$ = $1;if($1->init_flag==1)$$->init_flag = 1; currArguments = $1->node_type;
-															//----------------3AC------------//
+	: assignment_expression									{$$ = $1;
+															if($1->init_flag==1){
+																$$->init_flag = 1;
+															}
+															args_called = $1->node_type;
                 											if($$->place.second == NULL && $$->node_type == "char*"){
 																//constant string
-                											  int k=emit(pair<string, Entry*>("param", NULL), $$->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -4);
+                											  	emit(pair<string, Entry*>("param", NULL), $$->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -4);
                 											}
-                											else int k=emit(pair<string, Entry*>("param", NULL), $$->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -1);
-                											$$->nextlist={};
-                											//---------------3AC------------//
-															}
+                											else emit(pair<string, Entry*>("param", NULL), $$->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -1);
+														}
 	| argument_expression_list ',' assignment_expression	{$$ = non_term_symb($2,NULL,$1, $3);
-								
-								// int arg_type =  argument_type($1->node_type, $3->node_type);
-								// if(arg_type == -1){
-								// 	$$->node_type = "error";
-								// }
-								// else{
-								// 	$$->node_type = "void";
-								// }
-								if($1->init_flag == 1 && $3->init_flag==1) $$->init_flag=1;
-								currArguments = currArguments +","+ $3->node_type;
-								//-------3AC-------------//
+								if($1->init_flag == 1 && $3->init_flag==1){
+									$$->init_flag=1;
+								}
+								args_called.append(",");
+								args_called.append($3->node_type);
              					if($3->place.second == NULL && $3->node_type == "char*"){
-             					     int k=emit(pair<string, Entry*>("param", NULL), $3->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -4);
+             					     emit(pair<string, Entry*>("param", NULL), $3->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -4);
              					}
-             					else int k=emit(pair<string, Entry*>("param", NULL), $3->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -1);
-             					$$->nextlist={};
-             					//------3AC--------------//
+             					else emit(pair<string, Entry*>("param", NULL), $3->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), -1);
 								}
 	;
 
 unary_expression
 	: postfix_expression				{$$ = $1;}
 	| INC_OP unary_expression			{$$ = non_term_symb("++", NULL, NULL, $2);
-							if($2->init_flag == 1 ) $$->init_flag=1;
-							//char* s = postfix_type3($2->node_type);
-							if(int_flag($2->node_type)){
-								//string tmp_str(s);
-								$$->node_type =$2->node_type;//tmp_str;
+							if($2->init_flag == 1 ){
+								$$->init_flag=1;
+							}
+							if(int_flag($2->node_type) == false){
+								yyerror("Error : \'%s\' not defined for this type",$1);
+							}
+							else{
+								string tmp_str($2->node_type);
+								$$->node_type = tmp_str;
 								$$->integer_value = $2->integer_value +1;
-								//===========3AC======================//
-                  				pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  				int k = emit(pair<string, Entry*>("++P", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
-                  				$$->place = t1;
-                  				$$->nextlist = {};
-              					//    $$->code =  $2->code + '\n' +\
-                				//         $$->node_key + string("= ") + "INC_OP" + string(" ") + $2->node_key;
-                  				//====================================//
+								string op = "++P";
+								string op2 = "";
+								set_place2($$,$2,op,op2);
 							}
-							else {
-								yyerror("Error : \'%s\' not defined for this type",$1);
-							}
-							}
+						}
 	| DEC_OP unary_expression			{$$ = non_term_symb("--", NULL, NULL, $2);
-							$$->integer_value =$2->integer_value -1;
-							if($2->init_flag == 1 ) $$->init_flag=1;
-							//char* s = postfix_type3($2->node_type);
-							if(int_flag($2->node_type)){
-								//string tmp_str(s);
-								$$->node_type =$2->node_type;//tmp_str;
-								//===========3AC======================//
-                  				pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  				int k = emit(pair<string, Entry*>("--P", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
-                  				$$->place = t1;
-                  				$$->nextlist={};
-
-                  				//====================================//
+							if($2->init_flag == 1 ){
+								$$->init_flag=1;
 							}
-							else {
+							if(int_flag($2->node_type) == false){
 								yyerror("Error : \'%s\' not defined for this type",$1);
-							}			
+							}
+							else{
+								string tmp_str($2->node_type);
+								$$->node_type = tmp_str;
+								$$->integer_value = $2->integer_value +1;
+                  				string op = "--P";
+								string op2 = "";
+								set_place2($$,$2,op,op2);
+							}		
 							}
 	| unary_operator cast_expression	{$$ = non_term_symb("unary_expression", NULL, $1, $2);
-						$$->integer_value = $2->integer_value;
-						if( $2->init_flag==1) $$->init_flag=1;
-						char* a= unary_type($1->name, $2->node_type);
-						if(a){
-							string tmp_str(a);
-							$$->node_type= tmp_str;
-							//===========3AC======================//
-                  			pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  			int k = emit($1->place, $2->place, pair<string, Entry*>("", NULL), t1, -1);
-                  			$$->place = t1;
-                  			$$->nextlist={};
-
-                  			//====================================//
+						if( $2->init_flag==1){
+							$$->init_flag=1;
 						}
-						else{
+						$$->integer_value = $2->integer_value;
+						char* un_type = unary_type($1->name, $2->node_type);
+						if(un_type == NULL){
 							yyerror("Error : Inconsistent type  with operator %s", $1->name.c_str());
 						}
+						else{
+							string tmp_str(un_type);
+							$$->node_type= tmp_str;
+                  			pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
+                  			emit($1->place, $2->place, pair<string, Entry*>("", NULL), newlabel, -1);
+                  			$$->place = newlabel;
 						}
-	| SIZEOF unary_expression			{$$ = non_term_symb($1, NULL, NULL, $2);$$->node_type = "int";$$->init_flag=1;
-										//===========3AC======================//
-                  						pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  						int k = emit(pair<string, Entry*>("SIZEOF", NULL), $2->place, pair<string, Entry*>("", NULL), t1, -1);
-                  						$$->place = t1;
-                  						$$->nextlist={};
-
-                						//====================================//
+					}
+	| SIZEOF unary_expression			{$$ = non_term_symb($1, NULL, NULL, $2);
+										string tmp_str = "";
+										tmp_str.append("int");
+										$$->node_type = tmp_str;
+										$$->init_flag=1;
+                  						string op = "SIZEOF";
+										string op2 = "";
+										set_place2($$,$2,op,op2);
 										}
-	| SIZEOF '(' type_name ')'			{$$ = non_term_symb($1, NULL, NULL, $3);$$->node_type = "int";$$->init_flag=1;
-										//===========3AC======================//
-                						  pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                						  int k = emit(pair<string, Entry*>("SIZEOF", NULL), $3->place, pair<string, Entry*>("", NULL), t1, -1);
-                						  $$->place = t1;
-                						  $$->nextlist={};
-
-                						//====================================//
+	| SIZEOF '(' type_name ')'			{$$ = non_term_symb($1, NULL, NULL, $3);
+										string tmp_str = "";
+										tmp_str.append("int");
+										$$->node_type = tmp_str;
+										$$->init_flag=1;
+                						string op = "SIZEOF";
+										string op2 = "";
+										set_place2($$,$3,op,op2);
 										}
 	;
 
@@ -598,24 +597,25 @@ cast_expression
 	: unary_expression					{$$ = $1;}
 	| '(' type_name ')' cast_expression	{$$ = non_term_symb("cast_expression", NULL, $2, $4);
 						$$->node_type = $2->node_type;
-        				if($4->init_flag==1) $$->init_flag=1;
-						//=============3AC====================//
-                        pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                        string t = $4->node_type+ "to" + $$->node_type ;
-                        int k = emit(pair<string, Entry*>(t, NULL), $4->place, pair<string, Entry*>(",", NULL), t1, -1);
-                        $$->nextlist={};
-                        $$->place = t1;
-
-                        //====================================//
+        				if($4->init_flag==1){
+							$$->init_flag=1;
 						}
+						string op = $4->node_type;
+						op.append("to");
+						op.append($$->node_type);
+						string op2 = ",";
+						set_place2($$,$4,op,op2);
+					}
 	;
 
 multiplicative_expression
 	: cast_expression								{$$ = $1;}
 
 	| multiplicative_expression '*' cast_expression{
-			if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 			$$ = non_term_symb("*", NULL, $1, $3);
+			if($1->init_flag==1 && $3->init_flag==1){
+				$$->init_flag=1;
+			}
 			int mult_type = multiplicative_type1($1->node_type, $3->node_type);
 			if(mult_type == -1){
 				yyerror("Error : Incompatible type for \'*\'");
@@ -623,43 +623,37 @@ multiplicative_expression
 			else{
 				int k;
 				if(mult_type == 0){
-					//$$=non_term_symb("*int",NULL,$1,$3);
-					$$->node_type = "long long";
-					//---------------3AC----------------//
-                  	pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  	k=emit(pair<string, Entry*>("*int", NULL), $1->place, $3->place, t1, -1);
-                  	$$->place = t1;
-                  	$$->nextlist={};
-                	//--------------3AC--------------------//
+					$$->node_type = "int";
+                  	string op = "*int";
+					set_place($$,$1,op,$3);
 				}
 				else if (mult_type == 1){
-					//$$=non_term_symb("*float",NULL,$1,$3);
-					$$->node_type = "long double";
-					//-------------3AC---------------------//
-                  	pair <string, Entry*> t1 = newlabel_sym($$->node_type);
+					$$->node_type = "float";
+                  	pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
 
                   	if(int_flag($1->node_type)){
-                  	      pair <string, Entry*> t2 = newlabel_sym($$->node_type);
-                  	      emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
-                  	      k=emit(pair<string, Entry*>("*real", NULL), t2, $3->place, t1, -1);
+                  	      pair <string, Entry*> newlabel2 = newlabel_sym($$->node_type);
+                  	      emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),newlabel2,-1);
+                  	      k=emit(pair<string, Entry*>("*real", NULL), newlabel2, $3->place, newlabel, -1);
                   	}
                   	else if(int_flag($3->node_type)){
-                  	      pair <string, Entry*> t2 = newlabel_sym($$->node_type);
-                  	      emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
-                  	      k=emit(pair<string, Entry*>("*real", NULL), $1->place, t2, t1, -1);
+                  	      pair <string, Entry*> newlabel2 = newlabel_sym($$->node_type);
+                  	      emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),newlabel2,-1);
+                  	      k=emit(pair<string, Entry*>("*real", NULL), $1->place, newlabel2, newlabel, -1);
                   	}
                   	else {
-
-                  	      k=emit(pair<string, Entry*>("*real", NULL), $1->place, $3->place, t1, -1);
+                  	      k=emit(pair<string, Entry*>("*real", NULL), $1->place, $3->place, newlabel, -1);
                   	}
-                  	$$->place = t1;
-                  	$$->nextlist={};
-                	//------------3AC-----------------------------//
+					
+                  	$$->place = newlabel;
 				}
 			}
 			
 		}
 	| multiplicative_expression '/' cast_expression	{$$ = non_term_symb("/", NULL, $1, $3);
+														if($1->init_flag==1 && $3->init_flag==1){
+															$$->init_flag=1;
+														}
 														if ($3->integer_value != 0)
 															$$->integer_value = $1->integer_value/ $3->integer_value;
 														int mult_type = multiplicative_type2($1->node_type, $3->node_type);
@@ -669,43 +663,36 @@ multiplicative_expression
 														else{
 															int k;
 															if(mult_type == 0){
-																//$$=non_term_symb("/int",NULL,$1,$3);
-																$$->node_type = "long long";
-																//---------------3AC----------------------//
-                  												pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  												k = emit(pair<string, Entry*>("/int", NULL), $1->place, $3->place, t1, -1);
-                  												$$->place = t1;
-                  												$$->nextlist= {};
-                  												//--------------3AC------------------------//
+																$$->node_type = "int";
+                  												string op = "/int";
+																set_place($$,$1,op,$3);
 															}
 															else if (mult_type == 1){
-																//$$=non_term_symb("/float",NULL,$1,$3);
-																$$->node_type = "long double";
-																//-------------3AC---------------------//
-                  												pair <string, Entry*> t1 = newlabel_sym($$->node_type);
+																$$->node_type = "float";
+                  												pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
 
                   												if(int_flag($1->node_type)){
-                  												      pair <string, Entry*> t2 = newlabel_sym($$->node_type);
-                  												      emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
-                  												      k=emit(pair<string, Entry*>("/real", NULL), t2, $3->place, t1, -1);
+                  												      pair <string, Entry*> newlabel2 = newlabel_sym($$->node_type);
+                  												      emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),newlabel2,-1);
+                  												      k=emit(pair<string, Entry*>("/real", NULL), newlabel2, $3->place, newlabel, -1);
                   												}
                   												else if(int_flag($3->node_type)){
-                  												      pair <string, Entry*> t2 = newlabel_sym($$->node_type);
-                  												      emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
-                  												      k=emit(pair<string, Entry*>("/real", NULL), $1->place, t2, t1, -1);
+                  												      pair <string, Entry*> newlabel2 = newlabel_sym($$->node_type);
+                  												      emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),newlabel2,-1);
+                  												      k=emit(pair<string, Entry*>("/real", NULL), $1->place, newlabel2, newlabel, -1);
                   												}
                   												else {
-                  												      k=emit(pair<string, Entry*>("/real", NULL), $1->place, $3->place, t1, -1);
+                  												      k=emit(pair<string, Entry*>("/real", NULL), $1->place, $3->place, newlabel, -1);
                   												}
-                  												$$->place =t1;
-                  												$$->nextlist={};
-                  												//-------------------------------------------//
+                  												$$->place =newlabel;
 															}
 														}
-														if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 													}
 
 	| multiplicative_expression '%' cast_expression	{$$ = non_term_symb("%", NULL, $1, $3);
+							if($1->init_flag==1 && $3->init_flag==1){
+								$$->init_flag=1;
+							}
 							if($3->integer_value != 0) $$->integer_value = $1->integer_value % $3->integer_value;
 							int mult_type = multiplicative_type3($1->node_type, $3->node_type);
 							if(mult_type == -1){
@@ -714,14 +701,13 @@ multiplicative_expression
 							else{
 								$$->node_type= "long long";
 								//===========3AC======================//
-                  				pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                  				int k =emit(pair<string, Entry*>("%", NULL), $1->place, $3->place, t1, -1);
+                  				pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
+                  				int k =emit(pair<string, Entry*>("%", NULL), $1->place, $3->place, newlabel, -1);
                   				$$->nextlist={};
-                  				$$->place = t1;
+                  				$$->place = newlabel;
 
                   				//====================================//
 							}
-							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 
 							}
 	;
@@ -729,105 +715,104 @@ multiplicative_expression
 additive_expression
 	: multiplicative_expression							{$$ = $1;}
 	| additive_expression '+' multiplicative_expression	{$$ = non_term_symb("+", NULL, $1, $3);
-								if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
+								if($1->init_flag==1 && $3->init_flag==1){
+									$$->init_flag=1;
+								}
 								$$->integer_value = $1->integer_value + $3->integer_value;
 								int add_type = additive_type($1->node_type,$3->node_type);
-								string p;
+								string op_type;
 								if(add_type == -1){
 									yyerror("Error : Incompatible type for \'+\'");
 								}
 								else{
 									if(add_type == 0){
-										$$->node_type="long long";
-										p = "+int";
+										$$->node_type="int";
+										op_type = "+int";
 									}
 									else if(add_type == 1){
-										$$->node_type="long double";
-										p = "+real";
+										$$->node_type="float";
+										op_type = "+real";
 									}
 									else if(add_type == 2){
 										$$->node_type = "char";
-										p = "+int";
+										op_type = "+int";
 									}
 									else if(add_type == 3){
 										//pointer types
 										$$->node_type = $1->node_type;
-										p = "+" + $1->node_type;
+										op_type = "+" + $1->node_type;
 									}
 									else if(add_type == 4){
 										//pointer types
 										$$->node_type = $3->node_type;
-										p = "+" + $3->node_type;
+										op_type = "+" + $3->node_type;
 									}
-									//===========3AC======================//
-                   					pair <string, Entry*> t1 = newlabel_sym($$->node_type);
+                   					pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
                    					if(int_flag($1->node_type) && real_flag($3->node_type)){
-                   					     pair <string, Entry*> t2 = newlabel_sym($$->node_type);
-                   					     emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
-                   					     emit(pair<string, Entry*>(p, NULL), t2, $3->place, t1, -1);
+                   					     pair <string, Entry*> newlabel2 = newlabel_sym($$->node_type);
+                   					     emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),newlabel2,-1);
+                   					     emit(pair<string, Entry*>(op_type, NULL), newlabel2, $3->place, newlabel, -1);
                    					}
                    					else if(int_flag($3->node_type) && real_flag($1->node_type)){
-                   					     pair <string, Entry*> t2 = newlabel_sym($$->node_type);
-                   					     emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
-                   					     emit(pair<string, Entry*>(p, NULL), $1->place, t2, t1, -1);
+                   					     pair <string, Entry*> newlabel2 = newlabel_sym($$->node_type);
+                   					     emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),newlabel2,-1);
+                   					     emit(pair<string, Entry*>(op_type, NULL), $1->place, newlabel2, newlabel, -1);
                    					}
                    					else {
-                   					     emit(pair<string, Entry*>(p, NULL), $1->place, $3->place, t1, -1);
+                   					     emit(pair<string, Entry*>(op_type, NULL), $1->place, $3->place, newlabel, -1);
                    					}
-                   					$$->place = t1;
-                  					$$->nextlist = {};
-                  					//====================================//
+                   					$$->place = newlabel;
 								}
 								
-								}
+							}
 
 	| additive_expression '-' multiplicative_expression	{$$ = non_term_symb("-", NULL, $1, $3);
-								if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
+								if($1->init_flag==1 && $3->init_flag==1){
+									$$->init_flag=1;
+								}
 								$$->integer_value = $1->integer_value - $3->integer_value;
 								int add_type = additive_type($1->node_type,$3->node_type);
-								string p;
+								string op_type;
 								if(add_type == -1){
 									yyerror("Error : Incompatible type for \'-\'");
 								}
 								else{ 
 									if(add_type == 0){
 										$$->node_type="long long";
-										p = "-int";
+										op_type = "-int";
 									}
 									else if(add_type == 1){
 										$$->node_type="long double";
-										p = "-real";
+										op_type = "-real";
 									}
 									else if(add_type == 2){
 										$$->node_type = "char";
-										p = "-int";
+										op_type = "-int";
 									}
 									else if(add_type == 3){
 										$$->node_type = $1->node_type;
-										p = "-" + $1->node_type;
+										op_type = "-" + $1->node_type;
 									}
 									else if(add_type == 4){
 										$$->node_type = $3->node_type;
-										p = "-" + $3->node_type;
+										op_type = "-" + $3->node_type;
 									}
-									//===========3AC======================//
-                   					pair <string, Entry*> t1 = newlabel_sym($$->node_type);
+                   					pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
                    					if(int_flag($1->node_type) && real_flag($3->node_type)){
-                   					     pair <string, Entry*> t2 = newlabel_sym($$->node_type);
-                   					     emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),t2,-1);
-                   					     emit(pair<string, Entry*>(p, NULL), t2, $3->place, t1, -1);
+                   					     pair <string, Entry*> newlabel2 = newlabel_sym($$->node_type);
+                   					     emit(pair<string, Entry*>("inttoreal",NULL),$1->place,pair<string, Entry*>("",NULL),newlabel2,-1);
+                   					     emit(pair<string, Entry*>(op_type, NULL), newlabel2, $3->place, newlabel, -1);
                    					}
                    					else if(int_flag($3->node_type) && real_flag($1->node_type)){
-                   					     pair <string, Entry*> t2 = newlabel_sym($$->node_type);
-                   					     emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),t2,-1);
-                   					     emit(pair<string, Entry*>(p, NULL), $1->place, t2, t1, -1);
+                   					     pair <string, Entry*> newlabel2 = newlabel_sym($$->node_type);
+                   					     emit(pair<string, Entry*>("inttoreal",NULL),$3->place,pair<string, Entry*>("",NULL),newlabel2,-1);
+                   					     emit(pair<string, Entry*>(op_type, NULL), $1->place, newlabel2, newlabel, -1);
                    					}
                    					else {
-                   					     emit(pair<string, Entry*>(p, NULL), $1->place, $3->place, t1, -1);
+                   					     emit(pair<string, Entry*>(op_type, NULL), $1->place, $3->place, newlabel, -1);
+
                    					}
-                   					$$->place = t1;
-                   					$$->nextlist = {};
-                  					//====================================//
+                   					$$->place = newlabel;
 								}
 								
 								}
@@ -836,35 +821,27 @@ additive_expression
 shift_expression
 	: additive_expression							{$$ = $1;}
 	| shift_expression LEFT_OP additive_expression	{$$ = non_term_symb_3($2, $1, NULL, $3);
-							//char* a = shift_type($1->node_type,$3->node_type);                        
+							if($1->init_flag==1 && $3->init_flag==1){
+								$$->init_flag=1;
+							}
 							if(int_flag($1->node_type) && int_flag($3->node_type)){
 								$$->node_type = $1->node_type;
-								//===========3AC======================//
-                          		pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                          		int k = emit(pair<string, Entry*>("<<", NULL), $1->place, $3->place, t1, -1);
-                          		$$->place = t1;
-                          		$$->nextlist={};
-                        		//====================================//
+                          		string op = "<<";
+								set_place($$,$1,op,$3);
 							}
 							else yyerror("Error : Invalid operands to <<");
-							if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
 							}
 
 	| shift_expression RIGHT_OP additive_expression	{$$ = non_term_symb_3($2, $1, NULL, $3);
-														//$$ = non_term_symb_3(">>", $1, NULL, $3);
-														//char* a = shift_type($1->node_type,$3->node_type);
+														if($1->init_flag==1 && $3->init_flag==1){
+															$$->init_flag=1;
+														}
 														if(int_flag($1->node_type) && int_flag($3->node_type)){
 															$$->node_type = $1->node_type;
-															//===========3AC======================//
-                                 							pair <string, Entry*> t1 = newlabel_sym($$->node_type);
-                                 							int k = emit(pair<string, Entry*>(">>", NULL), $1->place, $3->place, t1, -1);
-                                 							$$->place = t1;
-                                 							$$->nextlist={};
-                                							//====================================//	
+                                 							string op = ">>";
+															set_place($$,$1,op,$3);
 														}
-														else{yyerror("Error : Invalid operands to >>");}
-
-														if($1->init_flag==1 && $3->init_flag==1) $$->init_flag=1;
+														else	yyerror("Error : Invalid operands to >>");
 													}
 	;
 
@@ -1563,8 +1540,8 @@ direct_declarator
 								$$->node_key=$1->node_key;
 								$$->expr_type=2; // for function declaration
 								$$->node_type=$1->node_type;
-								args_map.insert({$1->node_key,funcArguments});
-								funcArguments="";								
+								args_map.insert({$1->node_key,args_defined});
+								args_defined="";								
 							}
 							$$->place.first = $$->node_key;
 							$$->place.second = NULL;
@@ -1583,7 +1560,7 @@ direct_declarator
 								$$->node_key=$1->node_key;
 								args_map.insert({$1->node_key,""});
 								$$->expr_type=2;
-								funcArguments = "";
+								args_defined = "";
 							}
 							$$->node_type=$1->node_type;
 							$$->size=get_size($$->node_type);
@@ -1600,7 +1577,7 @@ E3
                            	old_offset = offset_arr[offset_arr_index];
    							create_table("New Func", "");
 							E3_done = true;
-							funcArguments = "";
+							args_defined = "";
 							}
     ;
 pointer
@@ -1630,7 +1607,7 @@ type_qualifier_list
 
 parameter_type_list
 	: parameter_list {$$=$1;}
-	| parameter_list ',' ELLIPSIS {	funcArguments = funcArguments+",...";
+	| parameter_list ',' ELLIPSIS {	args_defined = args_defined+",...";
 					$$=non_term_symb("parameter_type_list",NULL,$1,term_symb("ELLIPSIS"));
 					}
 	;
@@ -1650,8 +1627,8 @@ parameter_declaration
 			else {  
 				yyerror("Error : %s is already declared",$2->node_key.c_str());
 			}
-			if(funcArguments != "") funcArguments= funcArguments+","+($2->node_type);
-			else funcArguments=($2->node_type);
+			if(args_defined != "") args_defined= args_defined+","+($2->node_type);
+			else args_defined=($2->node_type);
 	}
 	| declaration_specifiers abstract_declarator {
 												$$=non_term_symb("parameter_declaration",NULL,$1,$2);
@@ -2060,7 +2037,7 @@ int main(int argc, char * argv[]){
     }
 	
 	func_name ="global_table";
-	currArguments = "";
+	args_called = "";
 	table_initialize();
 	
 	args_map.insert(pair<string, string>(string("print_int"), string("int")));
@@ -2077,7 +2054,6 @@ int main(int argc, char * argv[]){
     fclose(yyin);
     fclose(ast);
 	// if(errorCount!=0){
-	// 	cout<<"HUDUHUHUHUUH\n";
 	// 	return 0;
 	// }
 	file_name = "global_table.csv";
@@ -2086,9 +2062,7 @@ int main(int argc, char * argv[]){
 	show_in_file();
 
 	initialize_reg();
-	//cout<<"1\n";
 	generate_asm();
-	//cout<<"2\n";
 	string asm_name=convert_to_string(argv[1]);
 	print_asm("code.c");
 
