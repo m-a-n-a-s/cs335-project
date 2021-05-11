@@ -8,7 +8,6 @@ struct node{
   char* token;
   unsigned long id; // for ast id
   int init_flag;
-  int expr_type;
   long long size;
   long long int integer_value;
   long double real_value;
@@ -16,6 +15,7 @@ struct node{
   string name;
   string node_key;
   string node_type;
+  string expr_type;
   ///////////////////////////
   pair <string, Entry*> place;
   vector<int> truelist;
@@ -51,7 +51,7 @@ typedef struct{
    long double real_value;
    char *str;
    char char_value;
-   int expr_type;
+   string expr_type;
    node * nPtr;
 } expr_node;
 

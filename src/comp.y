@@ -110,7 +110,7 @@ primary_expression
 								$$->init_flag = tmp_entry->init_flag;
 								$$->node_type = tmp_entry->type;
 								$$->node_key = tmp_id;
-								$$->expr_type = 3;
+								$$->expr_type = "identifier";
 								$$->place.first = tmp_id;
 								$$->place.second = tmp_entry;	
 							}
@@ -122,13 +122,13 @@ primary_expression
 								$$->init_flag=1;
 								$$->node_type=tmp_str;
 								$$->integer_value = $1->integer_value;
-								$$->expr_type=5;
+								$$->expr_type = "constant";
 							}
 							else{
 								string tmp_str = getstr_num_type($1->num_type);
 								$$->init_flag =1;
 								$$->node_type=tmp_str;
-								$$->expr_type=5;
+								$$->expr_type = "constant";
 							}
 							$$->place.first = $1->str;
 							$$->place.second = NULL;
@@ -243,7 +243,7 @@ postfix_expression
 							else {
 								string tmp_str(type_func);
 								$$->node_type = tmp_str;
-								if($1->expr_type==3){
+								if($1->expr_type == "identifier"){
 									string get_args = args_map[$1->node_key];// get arguments
 									vector<string> vect_called;
 									vector<string> vect_get;
@@ -1127,7 +1127,7 @@ assignment_expression
 										$$->place = $1->place;
 										backPatch($3->nextlist, k); //for ternary operator like expression
 									}
-									if($1->expr_type==3){ 
+									if($1->expr_type == "identifier"){ 
 										if($3->init_flag==1){
 											if(lookup($1->node_key) != NULL){
 												Entry* tmp_entry = lookup($1->node_key);
@@ -1195,7 +1195,7 @@ init_declarator_list
 init_declarator
 	: declarator{
 		$$ = $1;
-		if($1->expr_type==1){
+		if($1->expr_type == "declarator"){
         	if((*curr).find($1->node_key) == (*curr).end()){
 				insert_symbol1(*curr,$1->node_key,$1->node_type,$1->size,0);
 				$$->place.first = $1->node_key;
@@ -1209,7 +1209,7 @@ init_declarator
 	}
 	| declarator '=' M initializer	{	
 		$$ = non_term_symb("=", NULL, $1, $4);
-		if($1->expr_type==1||$1->expr_type==15){ 
+		if($1->expr_type == "declarator"||$1->expr_type == "arr_decl"){ 
         	if((*curr).find($1->node_key) == (*curr).end()){
 				insert_symbol1(*curr,$1->node_key,$1->node_type,$1->size,1);
                 int valid = compatible($1->node_type, $4->node_type);
@@ -1437,7 +1437,7 @@ declarator
 								$$->node_type=tmp_str;
 								$$->node_key = $2->node_key;
 								$$->expr_type=$2->expr_type;
-								if($2->expr_type==2){    //for functions
+								if($2->expr_type == "func_decl"){    //for functions
 									func_name = $2->node_key; 
 									func_type = tmp_str;
 								}
@@ -1447,7 +1447,7 @@ declarator
 								}
 	| direct_declarator {$$ = $1;
 						string tmp_str = $1->node_type;
-						if($1->expr_type==2){  // for functions
+						if($1->expr_type == "func_decl"){  // for functions
 							func_name = $1->node_key; 
 							func_type = tmp_str;
 						}
@@ -1458,7 +1458,7 @@ declarator
 
 direct_declarator
 	: IDENTIFIER {$$=term_symb($1);
-				$$->expr_type=1;
+				$$->expr_type="declarator";
 				string tmp_str($1);
 				$$->node_key=tmp_str;
 				if(type_name=="spec_less_func"){ // specifier less function
@@ -1478,13 +1478,13 @@ direct_declarator
 															yyerror("Error : array index not an integer");
 														}
 														else{
-															if($1->expr_type==1){ 
-																	$$->expr_type=1;
+															if($1->expr_type == "declarator"){ 
+																	$$->expr_type = "declarator";
 																	$$->node_key=$1->node_key;
 																	string stmp=$1->node_type+"*";
 																	$$->node_type=stmp;
 															}
-															else if($1->expr_type==15){
+															else if($1->expr_type == "arr_decl"){
 																yyerror("Error :array size missing in \'%s\' ",$1->node_key.c_str());
 															}
 															if($3->integer_value){
@@ -1505,9 +1505,9 @@ direct_declarator
 					}
 
 	| direct_declarator '(' str_mark2 parameter_type_list ')'  {$$ = non_term_symb("direct_declarator", NULL, $1, $4);
-							if($1->expr_type==1){ 
+							if($1->expr_type == "declarator"){ 
 								$$->node_key=$1->node_key;
-								$$->expr_type=2; // for function declaration
+								$$->expr_type = "func_decl"; // for function declaration
 								$$->node_type=$1->node_type;
 								args_map.insert({$1->node_key,args_defined});
 								args_defined="";								
@@ -1525,10 +1525,10 @@ direct_declarator
 							}
 
 	| direct_declarator '(' str_mark2 ')' 			{$$ = non_term_symb("direct_declarator", "( )", $1, NULL);
-							if($1->expr_type==1){
+							if($1->expr_type == "declarator"){
 								$$->node_key=$1->node_key;
 								args_map.insert({$1->node_key,""});
-								$$->expr_type=2;
+								$$->expr_type = "func_decl";
 								args_defined = "";
 							}
 							$$->node_type=$1->node_type;
@@ -1656,7 +1656,7 @@ initializer
 	;
 
 initializer_list
-	: initializer {$$ = $1;$$->expr_type=1;}
+	: initializer {$$ = $1;$$->expr_type = "declarator";}
 	| initializer_list ',' M initializer {
           $$ = non_term_symb("initializer_list", NULL, $1 ,$4);
           $$->node_type = $1->node_type;
@@ -1970,8 +1970,7 @@ str_mark1
     : %empty                 { 			type_name="";
                                          func_symb++;
                                          file_name = func_name;
-                                         if((*Parent[curr]).find(func_name)!=(*Parent[curr]).end()){
-											
+                                         if((*Parent[curr]).find(func_name)!=(*Parent[curr]).end()){											
 											if((*Parent[curr])[func_name]->init_flag) yyerror("Error : function \"%s\" already declared",func_name.c_str());
 										 }
 										 
