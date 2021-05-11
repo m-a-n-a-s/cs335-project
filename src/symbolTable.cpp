@@ -47,6 +47,8 @@ void table_initialize(){
    insert_symbol1(*curr, "print_int", "FUNC_void", 8, 1); 
    insert_symbol1(*curr, "print_char", "FUNC_void", 8, 1); 
    insert_symbol1(*curr, "scan_char", "FUNC_char", 8, 1);
+   insert_symbol1(*curr, "print_float", "FUNC_void", 8, 1); 
+   insert_symbol1(*curr, "scan_float", "FUNC_float", 8, 1); 
 }
 
 void insert_symbol1(symbol_table &table, string key, string type, unsigned long long size, int init_flag){

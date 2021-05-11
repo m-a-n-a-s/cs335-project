@@ -13,7 +13,7 @@ void count();
 void print();
 
 void int_extract();
-void real_extract();
+void real_extract(char *c);
 
 static int col=1;
 char lexeme[2048]; 
@@ -74,9 +74,9 @@ IS			(u|U|l|L)*
 {D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->integer_value);count(); yylval.num->str = strdup(yytext); int_extract();return CONSTANT; }
 L?'(\\.|[^\\'])+'	{ count(); yylval.num->str = strdup(yytext); int_extract();return CONSTANT; }
 
-{D}+{E}{FS}?		{sscanf(yytext,"%Lf",&yylval.num->real_value); count(); yylval.num->str = strdup(yytext); real_extract();return CONSTANT; }
-{D}*"."{D}+({E})?{FS}?	{ sscanf(yytext,"%Lf",&yylval.num->real_value);count(); yylval.num->str = strdup(yytext); real_extract();return CONSTANT; }
-{D}+"."{D}*({E})?{FS}?	{ sscanf(yytext,"%Lf",&yylval.num->real_value);count(); yylval.num->str = strdup(yytext); real_extract();return CONSTANT; }
+{D}+{E}{FS}?		{ /*sscanf(yytext,"%Lf",&yylval.num->real_value);*/ count(); yylval.num->str = strdup(yytext); char *c=strdup(yytext); real_extract(c);return CONSTANT; }
+{D}*"."{D}+({E})?{FS}?	{ /*sscanf(yytext,"%Lf",&yylval.num->real_value);*/count(); yylval.num->str = strdup(yytext);char *c=strdup(yytext); real_extract(c);return CONSTANT; }
+{D}+"."{D}*({E})?{FS}?	{ /*sscanf(yytext,"%Lf",&yylval.num->real_value);*/count(); yylval.num->str = strdup(yytext); char *c=strdup(yytext); real_extract(c);return CONSTANT; }
 
 L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); return STRING_LITERAL; }
 
@@ -154,8 +154,11 @@ void int_extract(){
 
 
 }
-void real_extract(){
+void real_extract(char *c){
    int n=yyleng-1;
+   string str=convert_to_string(c);
+   yylval.num->real_value=stof(str);
+   yylval.num->str=strdup(c);
    yylval.num->is_integer=0;
    //cout<<yylval.num->str<<"\n";
    //cout<<"rael vlaue:"<<yylval.num->real_value<<" "<<yylval.num->str<<"\n";

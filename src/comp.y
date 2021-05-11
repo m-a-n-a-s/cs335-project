@@ -634,7 +634,7 @@ multiplicative_expression
 				}
 				else if (mult_type == 1){
 					//$$=non_term_symb("*float",NULL,$1,$3);
-					$$->node_type = "long double";
+					$$->node_type = "float";
 					//-------------3AC---------------------//
                   	pair <string, Entry*> t1 = newlabel_sym($$->node_type);
 
@@ -680,7 +680,7 @@ multiplicative_expression
 															}
 															else if (mult_type == 1){
 																//$$=non_term_symb("/float",NULL,$1,$3);
-																$$->node_type = "long double";
+																$$->node_type = "float";
 																//-------------3AC---------------------//
                   												pair <string, Entry*> t1 = newlabel_sym($$->node_type);
 
@@ -742,7 +742,7 @@ additive_expression
 										p = "+int";
 									}
 									else if(add_type == 1){
-										$$->node_type="long double";
+										$$->node_type="float";
 										p = "+real";
 									}
 									else if(add_type == 2){
@@ -795,7 +795,7 @@ additive_expression
 										p = "-int";
 									}
 									else if(add_type == 1){
-										$$->node_type="long double";
+										$$->node_type="float";
 										p = "-real";
 									}
 									else if(add_type == 2){
@@ -2121,7 +2121,8 @@ int main(int argc, char * argv[]){
 	func_name ="global_table";
 	currArguments = "";
 	table_initialize();
-	
+	args_map.insert(pair<string, string>(string("scan_float"), string("")));
+	args_map.insert(pair<string, string>(string("print_float"), string("float")));
 	args_map.insert(pair<string, string>(string("print_int"), string("int")));
    	args_map.insert(pair<string, string>(string("print_string"), string("char*")));
    	args_map.insert(pair<string, string>(string("scanf"), string("")));
