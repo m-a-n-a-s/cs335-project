@@ -2379,7 +2379,7 @@ int main(int argc, char * argv[]){
   	// print_func_args();
 	show_in_file();
 
-	resetRegister();
+	initialize_reg();
 	//cout<<"1\n";
 	generate_asm();
 	//cout<<"2\n";

@@ -27,6 +27,6 @@ int main()
         print_int(arr[i]);
         print_string(" ");
     }
-
+    print_string("\n");
     return 0;
 }

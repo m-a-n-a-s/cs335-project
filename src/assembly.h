@@ -14,4 +14,4 @@ using namespace std;
 void generate_asm();
 void print_asm(string asm_name);
 void printCodeFunc(string a);
-void resetRegister();
+void initialize_reg();

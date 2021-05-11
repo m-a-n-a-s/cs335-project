@@ -30,7 +30,7 @@ int main()
         print_string("NOT PALINDROME\n");
     }
     else{
-        print_string("PALINDROME");
+        print_string("PALINDROME\n");
     }
     return 0;
 }
