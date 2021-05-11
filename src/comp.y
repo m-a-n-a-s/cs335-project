@@ -22,9 +22,6 @@ int func_decl_only=0; // to check whether it is just a func declaration
 int yylex(void);
 void yyerror(char *s,...);
 
-//#include "semanticCheck.h"
-//#include "functions.h"
-//#include "symbolTable.h"
 #include "assembly.h"
 
 extern int yylineno;
@@ -36,9 +33,6 @@ string args_called;
 
 string type_name="";
 int structCounter=0;
-
-// int tempodd;
-// int tempeven;
 
 %}
 
