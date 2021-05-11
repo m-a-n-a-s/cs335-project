@@ -1127,13 +1127,7 @@ logical_and_expression
 
 M2
   : logical_or_expression OR_OP {
-                        if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                            $1->truelist.push_back(k);
-                            $1->falselist.push_back(k1);
-
-                        }
+                        make_trurfalse_lists($1);
                         $$ = $1;
   }
   ;
@@ -1164,13 +1158,7 @@ logical_or_expression
 
 M3
   : logical_or_expression '?' {
-                        if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                            $1->truelist.push_back(k);
-                            $1->falselist.push_back(k1);
-
-                        }
+                        make_trurfalse_lists($1);
                         $$ = $1;
   }
   ;
@@ -2085,13 +2073,7 @@ selection_statement
 
 M6
   :   expression  {
-                        if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                            $1->truelist.push_back(k);
-                            $1->falselist.push_back(k1);
-
-                        }
+						make_trurfalse_lists($1);
                         $$ = $1;
   }
   ;
@@ -2099,13 +2081,7 @@ M6
 
 M7
   :   expression_statement  {
-                        if($1->truelist.begin()==$1->truelist.end()){
-                            int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), $1->place, pair<string, Entry*>("", NULL ),0);
-                            int k1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-                            $1->truelist.push_back(k);
-                            $1->falselist.push_back(k1);
-
-                        }
+						make_trurfalse_lists($1);
                         $$ = $1;
   }
   ;
@@ -2113,121 +2089,72 @@ M7
 iteration_statement
 	: WHILE '(' M M6 ')' M statement {
 		$$ = non_term_symb_3("WHILE (expr) stmt", NULL, $4, $7);
-		//-----------3AC------------------//
-		int k=emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$3);
+		int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$3);
         backPatch($4->truelist, $6);
-        // $7->nextlist.push_back(k);
         backPatch($7->continuelist, $3);
         backPatch($7->nextlist, $3);
-        // $$->nextlist = $4->falselist;
-        //$$->nextlist.merge($7->breaklist);
-		// merging($$->nextlist, $7->breaklist);
 		$$->nextlist=merging($4->falselist, $7->breaklist);
-        //--------------------------------//
 	}
 	| DO M statement  WHILE '(' M M6 ')' ';'{
 		$$ = non_term_symb_3("DO stmt WHILE (expr)", NULL, $3, $7);
-		//--------3AC-------------------------//
-
         backPatch($7->truelist, $2);
         backPatch($3->continuelist, $6);
         backPatch($3->nextlist, $6);
-        //$7->falselist.merge($3->breaklist);
-		// merging($7->falselist, $3->breaklist);
-        // $$->nextlist = $7->falselist;
 		$$->nextlist = merging($7->falselist, $3->breaklist);
-        //-----------------------------------//
 	}
 	| FOR '(' expression_statement M M7 ')' M statement {
 		$$ = non_term_symb_3("FOR (expr_stmt expr_stmt) stmt", $3, $5, $8);
-		//-------------3AC-------------------//
-		int k=emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$4);
+		int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$4);
         backPatch($3->nextlist, $4);//for ternary op
         backPatch($5->truelist, $7);
-        //$5->falselist.merge($8->breaklist);
-		// merging($5->falselist, $8->breaklist);
-        // $$->nextlist = $5->falselist;
 		$$->nextlist=merging($5->falselist, $8->breaklist);
-        //$8->nextlist.merge($8->continuelist);
-		// merging($8->nextlist, $8->continuelist);
-        // $8->nextlist.push_back($9);
         backPatch($8->nextlist, $4 );
 		backPatch($8->nextlist,$4);
-        //------------------------------------//
 	}
 	| FOR '(' expression_statement M M7 M expression N1 ')' M statement{
 		$$ = non_term_symb_5("FOR (expr_stmt expr_stmt expr) stmt", NULL, $3, $5, $7, $11);
-		//-------------3AC-------------------//
-		int k=emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$6);
+		int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),$6);
         backPatch($3->nextlist, $4);
         backPatch($5->truelist, $10);
-        //$5->falselist.merge($11->breaklist);
-		// merging($5->falselist, $11->breaklist);
-        // $$->nextlist = $5->falselist;
 		$$->nextlist=merging($5->falselist, $11->breaklist);
-
-        //$11->nextlist.merge($11->continuelist);
-		// merging($11->nextlist, $11->continuelist);
-        // $11->nextlist.push_back($12);
         backPatch($11->nextlist, $6 );
 		backPatch($11->continuelist,$6);
-
         $7->nextlist.push_back($8);
         backPatch($7->nextlist, $4);
-        //------------------------------------//
 	}
 	;
 
 jump_statement
 	: GOTO IDENTIFIER ';' {$$ = non_term_symb("jump_statement", NULL, term_symb("GOTO"), term_symb($2));
-	//-----------3AC---------------------//
-	yyerror("Error : Unconditional Jumps not allowed");
-    // int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
-    // //backpatch_listStorage($2, k);
-	// backpatch_list[$2].push_back(k);
-	//-----------------------------------//
+						yyerror("Error : Unconditional Jumps not allowed");
 	}
 	| CONTINUE ';' {
 		$$ = term_symb("continue");
-		//-----------3AC---------------------//
         int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
         $$->continuelist.push_back(k);
-        //-----------------------------------//
 	}
 	| BREAK ';' {
 		$$ = term_symb("break");
-		//-----------3AC---------------------//
         int k = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
         $$->breaklist.push_back(k);
-        //-----------------------------------//
 	}
 	| RETURN ';' {
 		$$ = term_symb("return");
-		//------------3AC----------------//
 		emit(pair<string, Entry*>("RETURN", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),-1);
-        //------------------------------//
 	}
 	| RETURN expression ';' {
 		$$ = non_term_symb("jump_statement", NULL, term_symb("return"), $2);
-		//------------3AC----------------//
 		emit(pair<string, Entry*>("RETURN", NULL), $2->place, pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),-1);
 		$$->nextlist=$2->nextlist;
-		
-		
-        //------------------------------//
 	}
 	;
 
 translation_unit
 	: external_declaration {$$ = $1;}
 	| translation_unit M external_declaration {
-		$$ = non_term_symb("translation_unit", NULL, $1, $3);
-		//----------3Ac----------------//
-        
+		$$ = non_term_symb("translation_unit", NULL, $1, $3);       
 		backPatch($1->nextlist, $2);
-        $$->nextlist = $3->nextlist;
-		
-        //------------------------------//
+        $$->nextlist = $3->nextlist;	
 	}
 	;
 
@@ -2242,91 +2169,94 @@ function_definition
          {   $$ = non_term_symb_4("function_definition", $1, $2, $4, $5, NULL);   
 			 $$->nextlist=$5->nextlist;
 			 	type_name="";
-                string s($3);
-                string u = s+".csv";
-                print_tables(curr,u);
+                string tmp_str($3);
+				tmp_str.append(".csv");
+                print_tables(curr,tmp_str);
                 symbol_count=0;
-               	update_table(s,!func_decl_only);
+				tmp_str.pop_back();
+				tmp_str.pop_back();
+				tmp_str.pop_back();
+				tmp_str.pop_back();
+               	update_table(tmp_str,!func_decl_only);
 			  	func_decl_only=0;
                 
-				//--------------------3AC--------------------------------//
-                //if($5->real_value != -5){ 
-					string em =  "func end";
-                	emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
-				//}
-                //------------------------------------------------------//
+				string end_emit =  "func end";
+				emit(pair<string , Entry*>(end_emit, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
          }
-	| declaration_specifiers declarator E2 compound_statement  {$$ = non_term_symb_3("function_definition", $1, $2, $4);
-			
-			
-			  $$->nextlist=$4->nextlist;
+	| declaration_specifiers declarator E2 compound_statement  {
+			$$ = non_term_symb_3("function_definition", $1, $2, $4);
+			$$->nextlist=$4->nextlist;
 				
-              type_name="";
-              string s($3);
-			  string u =s+".csv";
-              print_tables(curr,u);
-              symbol_count=0;
-			  
-              update_table(s,!func_decl_only);
-			  func_decl_only=0;
+             	type_name="";
+                string tmp_str($3);
+				tmp_str.append(".csv");
+                print_tables(curr,tmp_str);
+                symbol_count=0;
+				tmp_str.pop_back();
+				tmp_str.pop_back();
+				tmp_str.pop_back();
+				tmp_str.pop_back();
+               	update_table(tmp_str,!func_decl_only);
+			  	func_decl_only=0;
               
-			  //--------------------3AC--------------------------------//
-              //if($4->real_value != -5){
-				  string em =  "func end";
-            	  emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3); 
-				  //}
-              //------------------------------------------------------//
+				string end_emit =  "func end";
+				emit(pair<string , Entry*>(end_emit, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
             
 			}
 	| X1 declarator E2 declaration_list compound_statement { $$ = non_term_symb_3("function_definition",$2,$4,$5);
 															$$->nextlist=$5->nextlist;
 															type_name="";
-															string s($3);string u =s+".csv";
-															print_tables(curr,u);
+															string tmp_str($3);
+															tmp_str.append(".csv");
+															print_tables(curr,tmp_str);
 															symbol_count=0;
-															update_table(s,!func_decl_only);
-			  												func_decl_only=0;
-															//--------------------3AC--------------------------------//
-															//if($5->real_value != -5){ 
-																string em =  "func end";
-																emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
-															//}
-															//------------------------------------------------------//
-															//DOUBTFULL
+															tmp_str.pop_back();
+															tmp_str.pop_back();
+															tmp_str.pop_back();
+															tmp_str.pop_back();
+															update_table(tmp_str,!func_decl_only);
+															func_decl_only=0;
+														
+															string end_emit =  "func end";
+															emit(pair<string , Entry*>(end_emit, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
+
+															
 													}
 	| X1 declarator E2 compound_statement { $$ = non_term_symb_3("function_definition", $2,NULL,$4);
 											$$->nextlist=$4->nextlist;
 											type_name="";
-											string s($3);string u =s+".csv";
-											print_tables(curr,u);
+											string tmp_str($3);
+											tmp_str.append(".csv");
+											print_tables(curr,tmp_str);
 											symbol_count=0;
-											update_table(s,!func_decl_only);
-			  								func_decl_only=0;
-
-											//--------------------3AC--------------------------------//
-											//if($4->real_value != -5){ 
-												string em =  "func end";
-												emit(pair<string , Entry*>(em, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
-											//}
-											//------------------------------------------------------//			
-									        //DOUBTFULL
+											tmp_str.pop_back();
+											tmp_str.pop_back();
+											tmp_str.pop_back();
+											tmp_str.pop_back();
+											update_table(tmp_str,!func_decl_only);
+											func_decl_only=0;
+										
+											string end_emit =  "func end";
+											emit(pair<string , Entry*>(end_emit, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
+											
+						
 									}
 	;
 
 E2
-    : %empty                 { type_name="";scope = S_FUNC;
+    : %empty                 { 			type_name="";
 										func_flag = 1;
                                          func_symb++;
-                                         file_name = func_name;//string("symTableFunc")+to_string(func_symb);
+                                         file_name = func_name;
                                          if((*Parent[curr]).find(func_name)!=(*Parent[curr]).end()){
 											
 											if((*Parent[curr])[func_name]->init_flag) yyerror("Error : function \"%s\" already declared",func_name.c_str());
 										 }
 										 
 										 create_table(file_name,func_type);
-                                         char* y= new char();
-                                         strcpy(y,file_name.c_str());
-                                         $$ = y;
+                                         char* f_name= new char();
+                                         strcpy(f_name,file_name.c_str());
+                                         $$ = f_name;
        }
     ;
 

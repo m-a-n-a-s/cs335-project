@@ -5,6 +5,15 @@ extern FILE *ast;
 
 #define ul unsigned long
 
+void make_trurfalse_lists(struct node* node1){
+  if(node1->truelist.begin()==node1->truelist.end()){
+      int emit_ind1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), node1->place, pair<string, Entry*>("", NULL ),0);
+      int emit_ind2 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
+      node1->truelist.push_back(emit_ind1);
+      node1->falselist.push_back(emit_ind2);
+  }
+}
+
 ul find_id() {
   static ul id = 0;
   return ++id;
