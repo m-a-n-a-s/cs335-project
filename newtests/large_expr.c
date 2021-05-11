@@ -1,8 +1,3 @@
-long long absolute(long long x){
- if(x < 0) return -x; 
- return x;
-}
-
 int main() {
   int _0 = 0;
   int _1 = 1;

@@ -12,14 +12,9 @@ using namespace std;
 
 string nameStruct=""; // for struct name
 
-
 int errorCount=0;
 
 int scope;
-
-int symbol_count = 0;
-int func_symb=0;
-int blockSym=0;
 
 int func_decl_only=0; // to check whether it is just a func declaration
 
@@ -1075,7 +1070,7 @@ conditional_expression
 											if(cond_type==0){
 												yyerror("Warning : Type Mismatch in ternary statement");
 											}
-											$$->node_type = "int";
+											$$->node_type =$3->node_type;
                     						pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
                     						emit(pair<string, Entry*>("=", NULL), $6->place, pair<string, Entry*>("", NULL), newlabel, -1);
                     						backPatch($1->truelist , $2);
@@ -1895,7 +1890,7 @@ function_definition
                 string tmp_str($3);
 				tmp_str.append(".csv");
                 print_tables(curr,tmp_str);
-                symbol_count=0;
+                
 				tmp_str.pop_back();
 				tmp_str.pop_back();
 				tmp_str.pop_back();
@@ -1914,7 +1909,7 @@ function_definition
                 string tmp_str($3);
 				tmp_str.append(".csv");
                 print_tables(curr,tmp_str);
-                symbol_count=0;
+                
 				tmp_str.pop_back();
 				tmp_str.pop_back();
 				tmp_str.pop_back();
@@ -1932,7 +1927,7 @@ function_definition
 															string tmp_str($3);
 															tmp_str.append(".csv");
 															print_tables(curr,tmp_str);
-															symbol_count=0;
+															
 															tmp_str.pop_back();
 															tmp_str.pop_back();
 															tmp_str.pop_back();
@@ -1951,7 +1946,7 @@ function_definition
 											string tmp_str($3);
 											tmp_str.append(".csv");
 											print_tables(curr,tmp_str);
-											symbol_count=0;
+											
 											tmp_str.pop_back();
 											tmp_str.pop_back();
 											tmp_str.pop_back();
@@ -1968,7 +1963,7 @@ function_definition
 
 str_mark1
     : %empty                 { 			type_name="";
-                                         func_symb++;
+                                         
                                          file_name = func_name;
                                          if((*Parent[curr]).find(func_name)!=(*Parent[curr]).end()){											
 											if((*Parent[curr])[func_name]->init_flag) yyerror("Error : function \"%s\" already declared",func_name.c_str());
@@ -1999,8 +1994,8 @@ FILE* ast;
 
 
 int main(int argc, char * argv[]){
-    if (argc < 4){
-        printf("ERROR ::: USAGE: <Parser> <File Name> -o <Output File Name>\n");
+    if (argc < 2){
+        printf("ERROR ::: USAGE: <Compiler> <File Name> \n");
         return -1;
     }
 	
@@ -2015,16 +2010,16 @@ int main(int argc, char * argv[]){
 	args_map.insert(pair<string, string>(string("scan_char"), string("")));
 	args_map.insert(pair<string, string>(string("print_char"), string("char")));
     yyin = fopen(argv[1], "r");
-    ast = fopen(argv[3], "w");
+    ast = fopen("ast.dot", "w");
     fprintf(ast, "digraph G {\n\tordering=out;\n");
 	
     yyparse();
     fprintf(ast, "}\n");
     fclose(yyin);
     fclose(ast);
-	// if(errorCount!=0){
-	// 	return 0;
-	// }
+	if(errorCount!=0){
+		return 0;
+	}
 	file_name = "global_table.csv";
   	print_tables(curr,file_name);
   	// print_func_args();

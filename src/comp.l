@@ -203,7 +203,7 @@ void yyerror(char *s,...){
 	fprintf(stderr,"Line:%d Col:%d:: %s\n",yylineno,col,buffer);
 	
         if(errorCount>=20){
-                fprintf(stderr,"Too many errors.EXITTING BYE\n");
+                fprintf(stderr,"Too many errors. EXITTING BYE\n");
                 exit(1);
         }
         //printf("Line:%d Col:%d %s\n",yylineno,col,s);

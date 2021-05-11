@@ -712,7 +712,7 @@ void func_start_code()
         // insert_asm("sw $s2, 60($sp)");
         // insert_asm("sw $s3, 64($sp)");
         // insert_asm("sw $s4, 68($sp)");
-
+        insert_asm("sw $a0, 8($sp)");
         insert_asm("sw $s0, 12($sp)");
         insert_asm("sw $s1, 16($sp)");
         insert_asm("sw $s2, 20($sp)");
