@@ -236,59 +236,37 @@ void show_in_file()
     {
         switch (-emit_list[i].line_no)
         {
-        case 1:
-        {
-            //if(emit_list[i].op.first=="RETURN"){
-                //IR_file << setw(5) << "[" << i << "]"
-                  //  << ": " << setw(15) << emit_list[i].op.first << " " << setw(15) << emit_list[i].operand_1.first<<"\n";
-            //}
-            //else{
-                IR_file << setw(5) << "[" << i << "]"
-                    << ": " << setw(15) << emit_list[i].op.first << " " << setw(15) << emit_list[i].operand_1.first << " " << setw(15) << emit_list[i].operand_2.first << " " << setw(15) << emit_list[i].ans.first << '\n';
-            //}
-            
+        case 1:{
+            IR_file << "\t" << "Line No." << i << " - " << "\t\t" << emit_list[i].op.first << " " << "\t\t" << emit_list[i].operand_1.first << " " << "\t\t" << emit_list[i].operand_2.first << " " << "\t\t" << emit_list[i].ans.first << '\n';
             break;
         }
-        case 2:
-        {
-            IR_file << endl
-                    << "[" << i << "]"
-                    << ": " << emit_list[i].op.first << endl
-                    << endl;
+        case 2:{
+            IR_file << "Line No." << i << " - " << emit_list[i].op.first << endl;
             break;
         }
-        case 3:
-        {
-            IR_file << endl
-                    << "[" << i << "]"
-                    << ": " << emit_list[i].op.first << endl
-                    << endl;
+        case 3:{
+            IR_file << "Line No." << i << " - " << emit_list[i].op.first << endl;
             break;
         }
-        case 4:
-        {
-            IR_file << setw(5) << "[" << i << "]"
-                    << ": " << setw(15) << emit_list[i].op.first << " " << setw(15) << emit_list[i].operand_1.first << " " << setw(15) << emit_list[i].operand_2.first << " " << setw(15) << emit_list[i].ans.first << '\n';
+        case 4:{
+            IR_file << "\t" << "Line No." << i << " - " << "\t\t" << emit_list[i].op.first << " " << "\t\t" << emit_list[i].operand_1.first << " " << "\t\t" << emit_list[i].operand_2.first << " " << "\t\t" << emit_list[i].ans.first << endl;
             break;
         }
-        case 7:
-        {
-            IR_file << setw(5) << "[" << i << "]"
-                    << ": " << setw(15) << emit_list[i].op.first << " " << setw(15) << emit_list[i].operand_1.first << " " << setw(15) << emit_list[i].operand_2.first << " " << setw(15) << emit_list[i].ans.first << '\n';
+        case 7:{
+            IR_file << "\t"<< "Line No." << i << " - " << "\t\t" << emit_list[i].op.first << " " << "\t\t" << emit_list[i].operand_1.first << " " << "\t\t" << emit_list[i].operand_2.first << " " << "\t\t" << emit_list[i].ans.first << endl;
             break;
         }
-        default:
-        {
-            int k = emit_list[i].line_no;
-            while (emit_list[k].op.first == "GOTO" && emit_list[k].operand_1.first == "")
-            {
-                k = emit_list[k].line_no;
+        default:{
+            int l_num = emit_list[i].line_no;
+            while (emit_list[l_num].op.first == "GOTO" && emit_list[l_num].operand_1.first == ""){
+                l_num = emit_list[l_num].line_no;
             }// to overcome reduntant goto
-            if (label_map.find(k) == label_map.end())
-                label_map.insert(pair<int, string>(k, "Label" + to_string(k)));
-            IR_file << setw(5) << "[" << i << "]"
-                    << ": " << setw(15) << emit_list[i].op.first << " " << setw(15) << emit_list[i].operand_1.first << " " << setw(15) << emit_list[i].operand_2.first << " " << setw(15) <<"["<< k << "]" << '\n';
-            emit_list[i].line_no = k;
+            if(label_map.find(l_num) == label_map.end()) {
+                string tmp_str = to_string(l_num);
+                label_map.insert({l_num, "Label" + tmp_str});
+            }
+            IR_file << "\t" << "Line No." << i << " - " <<"\t\t" << emit_list[i].op.first << " " << "\t\t" << emit_list[i].operand_1.first << " " << "\t\t" << emit_list[i].operand_2.first << " " << "\t\t" <<"Line No."<< l_num << endl;;
+            emit_list[i].line_no = l_num;
             break;
         }
         }

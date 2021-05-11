@@ -8,7 +8,6 @@ struct node{
   char* token;
   unsigned long id; // for ast id
   int init_flag;
-  int expr_type;
   long long size;
   long long int integer_value;
   long double real_value;
@@ -16,6 +15,7 @@ struct node{
   string name;
   string node_key;
   string node_type;
+  string expr_type;
   ///////////////////////////
   pair <string, Entry*> place;
   vector<int> truelist;
@@ -51,12 +51,14 @@ typedef struct{
    long double real_value;
    char *str;
    char char_value;
-   int expr_type;
+   string expr_type;
    node * nPtr;
 } expr_node;
 
 
-void make_trurfalse_lists(struct node* node1);
+void make_truefalse_lists(struct node* node1);
+void set_place(struct node* node0, struct node* node1, string op, struct node* node3);
+void set_place2(struct node* node0, struct node* node1, string op1, string op2);
 vector<int> merging(vector<int> &l1, vector<int> &l2);
 unsigned long find_id();
 struct node *term_symb(char *str);

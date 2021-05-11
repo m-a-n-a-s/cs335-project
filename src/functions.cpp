@@ -5,13 +5,28 @@ extern FILE *ast;
 
 #define ul unsigned long
 
-void make_trurfalse_lists(struct node* node1){
-  if(node1->truelist.begin()==node1->truelist.end()){
+void make_truefalse_lists(struct node* node1){
+  // if already not processed then no truelist/falselist present
+  if(node1->truelist.empty()){
       int emit_ind1 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("IF", NULL), node1->place, pair<string, Entry*>("", NULL ),0);
       int emit_ind2 = emit(pair<string, Entry*>("GOTO", NULL),pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL), pair<string, Entry*>("", NULL ),0);
       node1->truelist.push_back(emit_ind1);
       node1->falselist.push_back(emit_ind2);
   }
+  return;
+}
+
+void set_place(struct node* node0, struct node* node1, string op, struct node* node3){
+  pair <string, Entry*> newlabel = newlabel_sym(node0->node_type);
+  emit(pair<string, Entry*>(op, NULL), node1->place, node3->place, newlabel, -1);
+  node0->place = newlabel;
+  return;
+}
+
+void set_place2(struct node* node0, struct node* node1, string op1, string op2){
+  pair <string, Entry*> newlabel = newlabel_sym(node0->node_type);
+  emit(pair<string, Entry*>(op1, NULL), node1->place, pair<string, Entry*>(op2, NULL), newlabel, -1);
+  node0->place = newlabel;
 }
 
 ul find_id() {
