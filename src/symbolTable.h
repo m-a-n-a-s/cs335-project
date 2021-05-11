@@ -48,7 +48,7 @@ extern long long old_offset;
 extern long long struct_offset;
 extern long long struct_size;
 
-extern bool E3_done;
+extern bool str_mark2_done;
 
 
 extern symbol_table global_table;

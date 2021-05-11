@@ -24,7 +24,7 @@ long long offset_arr[20];
 long long old_offset; // to store the previous value of offset
 long long struct_offset;
 long long struct_size;
-bool E3_done;
+bool str_mark2_done;
 
 symbol_table global_table; // global symbol table
 symbol_table *curr; // current symbol table
@@ -41,7 +41,7 @@ void table_initialize(){
    blk_num = 0;
    Parent.insert(make_pair<symbol_table *, symbol_table *>(&global_table, NULL));
    curr = &global_table;
-   E3_done = false;
+   str_mark2_done = false;
    insert_symbol1(*curr, "scanf", "FUNC_int", 8, 1);
    insert_symbol1(*curr, "print_string", "FUNC_void", 8, 1);
    insert_symbol1(*curr, "print_int", "FUNC_void", 8, 1); 
@@ -99,10 +99,10 @@ void insert_symbol3(symbol_table &table, string key, string type, unsigned long 
 
 void create_table(string name, string func_type){
    string type = convert_to_string("FUNC_") + func_type;
-   if (E3_done){
+   if (str_mark2_done){
       insert_symbol2(*Parent[curr], name, type, 0, 1);
       old_offset = 0;
-      E3_done = false;
+      str_mark2_done = false;
    }
    else{
       symbol_table *new_table = new symbol_table();

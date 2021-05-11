@@ -75,7 +75,7 @@ int structCounter=0;
 %right <str> SUB_ASSIGN LEFT_ASSIGN RIGHT_ASSIGN AND_ASSIGN
 %right <str> XOR_ASSIGN OR_ASSIGN TYPE_NAME
 %token <str> ELLIPSIS
-%type <str> assignment_operator E2 E3 E4 X1
+%type <str> assignment_operator str_mark1 str_mark2 str_mark3 str_mark4
 
 %start translation_unit
 
@@ -99,74 +99,48 @@ int structCounter=0;
 
 primary_expression
 	: IDENTIFIER			{$$ = term_symb($1);
-							//char *c=primary_type($1);
-							//char* c = new char();
 							string tmp_id = convert_to_string($1);
-							Entry* x = lookup(tmp_id);
-							if(x != NULL){
-								// char* c = new char();
-								// strcpy(c, (x->type).c_str());
-								// string tmp_str(c);
-								$$->init_flag = x->init_flag;
-								$$->node_type = x->type;
-								//string key($1);
+							Entry* tmp_entry = lookup(tmp_id);
+							if(tmp_entry == NULL){
+								yyerror("Error : %s not declared",$1);
+								string typ = "";
+								$$->node_type = typ;
+							}
+							else{
+								$$->init_flag = tmp_entry->init_flag;
+								$$->node_type = tmp_entry->type;
 								$$->node_key = tmp_id;
 								$$->expr_type = 3;
-								////////////
 								$$->place.first = tmp_id;
-								$$->place.second = x;
-                                $$->nextlist={};
-								///////////
-							}else{
-								yyerror("Error : %s not declared",$1);
-								string stmp("");
-								$$->node_type=stmp;
+								$$->place.second = tmp_entry;	
 							}
-							}
+						}
 	| CONSTANT				{$$ = term_symb($1->str);
 							
 							if($1->is_integer==1){
-								//long long val = $1->integer_value;
 								string tmp_str = getstr_num_type($1->num_type);
 								$$->init_flag=1;
-								//string tmp_str(a);
 								$$->node_type=tmp_str;
 								$$->integer_value = $1->integer_value;
-								$$->real_value = -5;
 								$$->expr_type=5;
-							}else{
-								//long long val = (int) $1->real_value;
-								
+							}
+							else{
 								string tmp_str = getstr_num_type($1->num_type);
 								$$->init_flag =1;
-								//string tmp_str(a);
 								$$->node_type=tmp_str;
-								$$->integer_value = (int) $1->real_value;
 								$$->expr_type=5;
 							}
-							// ****3AC****
-							
 							$$->place.first = $1->str;
 							$$->place.second = NULL;
-                            $$->nextlist={};
-							
-							// ****3AC****
-
-							//TO ADD SOME THING REMEBBER************************
-							} 
+						} 
 	| STRING_LITERAL		{$$ = term_symb($1);
-							string stmp("char*");
 							$$->init_flag=1;
-							$$->node_type=stmp;
-
-							// ****3AC****
+							string tmp_str = "";
+							tmp_str.append("char*");
+							$$->node_type=tmp_str;
 							$$->place.first = $1;
 							$$->place.second = NULL;
-                            $$->nextlist={};
-
-							// ****3AC****
-
-							}
+						}
 	| '(' expression ')'	{$$ = $2;}
 	;
 
@@ -356,21 +330,20 @@ postfix_expression
 								args_called="";
 							}
 	| postfix_expression '.' IDENTIFIER			{$$ = non_term_symb(" . ", NULL, $1, term_symb($3));
-												if($1->init_flag) $$->init_flag=1;
+												if($1->init_flag){
+													$$->init_flag=1;
+												}
 												string tmp_str($3);
 												if(struct_table_map.find($1->node_type) == struct_table_map.end()){
 													yyerror("Error : Invalid operator \'.\' on \'%s\'", $1->node_key.c_str() );
 												}
-
 												else if((*struct_table_map[$1->node_type]).find(tmp_str) == (*struct_table_map[$1->node_type]).end()){
 													yyerror("Error : \'%s\' does not have member \'%s\'", $1->node_key.c_str() ,$3);
 												}
-
 												else{
 													Entry* struct_entry = (*(struct_table_map[$1->node_type]))[tmp_str];
 													string stmp = struct_entry->type;
 													$$->node_type=stmp;
-													///////////3AC//////////////////////////
 													$$->place = newlabel_sym($$->node_type);
 													$$->place.second->size=struct_entry->offset;
 													$$->place.second->offset=$1->place.second->offset;
@@ -381,87 +354,83 @@ postfix_expression
 														$$->place.second->off=$1->place.second->size; // load the i's val/offset in the expr a[i].val;
 														$$->place.second->struct_size=$1->place.second->struct_size;
 													}
-													////////////////////////////////////////
 												}
 
-												string xtmp = $1->node_key+ "." + tmp_str; 
-												$$->node_key=xtmp;
+												string tmp_key = $1->node_key;
+												tmp_key.append(".");
+												tmp_key.append(tmp_str); 
+												$$->node_key=tmp_key;
 												
 												
-												}
+											}
 
 	| postfix_expression PTR_OP IDENTIFIER		{$$ = non_term_symb("->", NULL, $1, term_symb($3));
 												string tmp_str($3);
-												if($1->init_flag) $$->init_flag=1;
-												//string as1 = ($1->node_type).substr(0,($1->node_type).length()()-1); //removing *
-												char *s=postfix_type1($1->node_type);
-												if(s==NULL) yyerror("Error :Invalid operator  \'%s\' on \'%s\'", $2, $1->node_key.c_str() );
+												if($1->init_flag){
+													$$->init_flag=1;
+												}
+												char *deref_type = postfix_type1($1->node_type);
+												if(deref_type==NULL){
+													yyerror("Error :Invalid operator  \'%s\' on \'%s\'", $2, $1->node_key.c_str() );
+												}
 												else{
-													string as1=convert_to_string(s);
-													
-													if(struct_table_map.find(as1) == struct_table_map.end()){
+													string deref_str=convert_to_string(deref_type);
+													if(struct_table_map.find(deref_str) == struct_table_map.end()){
 														yyerror("Error : Invalid operator \'.\' on \'%s\'", $1->node_key.c_str() );
 													}
 
-													else if((*struct_table_map[as1]).find(tmp_str) == (*struct_table_map[as1]).end()){
+													else if((*struct_table_map[deref_str]).find(tmp_str) == (*struct_table_map[deref_str]).end()){
 														yyerror("Error : \'%s\' does not have member \'%s\'", $1->node_key.c_str() ,$3);
 													}
 
 													else{
-														Entry* struct_entry = (*(struct_table_map[as1]))[tmp_str];
+														Entry* struct_entry = (*(struct_table_map[deref_str]))[tmp_str];
 														string stmp = struct_entry->type;
 														$$->node_type=stmp;
-														///////////3AC//////////////////////////
 														$$->place = newlabel_sym($$->node_type);
 														$$->place.second->size=struct_entry->offset;
 														$$->place.second->offset=$1->place.second->offset;
 														$$->place.second->is_struct=2;
-														////////////////////////////////////////
 													}
 
-													string xtmp = $1->node_key+ "->" + tmp_str; $$->node_key=xtmp;
+													string tmp_key = $1->node_key;
+													tmp_key.append("->");
+													tmp_key.append(tmp_str); 
+													$$->node_key=tmp_key;
 												}
-												}
+											}
 
 	| postfix_expression INC_OP					{$$=  non_term_symb("++", NULL,$1, NULL);
-												if($1->init_flag==1) $$->init_flag=1;
-												//char* s = postfix_type3($1->node_type);
-												if(int_flag($1->node_type)){
-													//string tmp_str(s);
+												if($1->init_flag==1){
+													$$->init_flag=1;
+												}
+												if(int_flag($1->node_type) == false){
+													yyerror("Error : \'%s\' not defined for this type",$2);
+												}
+												else{
 													$$->node_type =$1->node_type;//tmp_str;
 													$$->integer_value = $1->integer_value +1;
-
-													//------------------3AC------------//
-                  									pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
-                  									int k=  emit(pair<string, Entry*>("S++", NULL), $1->place, pair<string, Entry*>("", NULL), newlabel, -1);
-                  									$$->place = newlabel;
-                  									$$->nextlist = {};
-                  									//-----------------3AC-----------------//
-
-												}else {
-													yyerror("Error : \'%s\' not defined for this type",$2);
+                  									string op = "S++";
+													string op2 = "";
+													set_place2($$,$1,op,op2);
 												}
-												}
+											}
 
 	| postfix_expression DEC_OP					{$$=  non_term_symb("--", NULL,$1, NULL);
-												if($1->init_flag==1) $$->init_flag =1;
-												//char* s = postfix_type3($1->node_type);
-												if(int_flag($1->node_type)){
-													//string tmp_str(s);
-													$$->node_type =$1->node_type;//tmp_str;
-												    $$->integer_value = $1->integer_value -1;
-
-													//-----------------3AC-------------//
-                  									pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
-                  									int k=emit(pair<string, Entry*>("S--", NULL), $1->place, pair<string, Entry*>("", NULL), newlabel, -1);
-                  									$$->place = newlabel;
-                  									$$->nextlist={};
-                  									//--------------3AC-------------//
-													  
-												}else {
+												if($1->init_flag==1){
+													$$->init_flag =1;
+												}
+												if(int_flag($1->node_type) == false){
 													yyerror("Error : \'%s\' not defined for this type",$2);
 												}
+												else{
+													$$->node_type =$1->node_type;//tmp_str;
+													$$->integer_value = $1->integer_value - 1;
+                  									string op = "S--";
+													string op2 = "";
+													set_place2($$,$1,op,op2);
 												}
+											}
 	;
 
 argument_expression_list
@@ -1352,7 +1321,7 @@ type_specifier
 	;
 
 struct_or_union_specifier
-	: struct_or_union IDENTIFIER E4 '{' struct_declaration_list '}'	{
+	: struct_or_union IDENTIFIER str_mark3 '{' struct_declaration_list '}'	{
 									$$ = non_term_symb("struct_or_union_specifier", $2, $1, $5);
 									string tmp_str($2); 
 									Parent.insert(pair<symbol_table *, symbol_table *>(struct_table, NULL));
@@ -1363,7 +1332,7 @@ struct_or_union_specifier
 									print_tables(struct_table, tmp_str); 
 									}
 
-	| struct_or_union E4 '{' struct_declaration_list '}'				{$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $4);
+	| struct_or_union str_mark3 '{' struct_declaration_list '}'				{$$ = non_term_symb("struct_or_union_specifier", NULL, $1, $4);
 																			yyerror("Error : Anonymous struct not allowed\n");
 																		}	
 
@@ -1380,7 +1349,7 @@ struct_or_union_specifier
 												}
 	;
 
-E4
+str_mark3
   : %empty {
 	  		string tmp=nameStruct;
 	  	    const char *c=new char();
@@ -1535,7 +1504,7 @@ direct_declarator
 						yyerror("Error : Variable size array not allowed");
 					}
 
-	| direct_declarator '(' E3 parameter_type_list ')'  {$$ = non_term_symb("direct_declarator", NULL, $1, $4);
+	| direct_declarator '(' str_mark2 parameter_type_list ')'  {$$ = non_term_symb("direct_declarator", NULL, $1, $4);
 							if($1->expr_type==1){ 
 								$$->node_key=$1->node_key;
 								$$->expr_type=2; // for function declaration
@@ -1551,11 +1520,11 @@ direct_declarator
 							emit(pair<string , Entry*>(begin_emit, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-2);
 							}
 
-	| direct_declarator '(' E3 identifier_list ')' 	{$$ = non_term_symb("direct_declarator", NULL, $1, $4);
+	| direct_declarator '(' str_mark2 identifier_list ')' 	{$$ = non_term_symb("direct_declarator", NULL, $1, $4);
 							yyerror("Error : type specifier for parameter missing");
 							}
 
-	| direct_declarator '(' E3 ')' 			{$$ = non_term_symb("direct_declarator", "( )", $1, NULL);
+	| direct_declarator '(' str_mark2 ')' 			{$$ = non_term_symb("direct_declarator", "( )", $1, NULL);
 							if($1->expr_type==1){
 								$$->node_key=$1->node_key;
 								args_map.insert({$1->node_key,""});
@@ -1572,11 +1541,11 @@ direct_declarator
                         	emit(pair<string , Entry*>(begin_emit, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-2);
 							}
 	;
-E3
+str_mark2
    :%empty                  { type_name ="";
                            	old_offset = offset_arr[offset_arr_index];
    							create_table("New Func", "");
-							E3_done = true;
+							str_mark2_done = true;
 							args_defined = "";
 							}
     ;
@@ -1919,7 +1888,7 @@ external_declaration
 
 function_definition
 
-	: declaration_specifiers declarator E2 declaration_list compound_statement
+	: declaration_specifiers declarator str_mark1 declaration_list compound_statement
          {   $$ = non_term_symb_4("function_definition", $1, $2, $4, $5, NULL);   
 			 $$->nextlist=$5->nextlist;
 			 	type_name="";
@@ -1937,7 +1906,7 @@ function_definition
 				string end_emit =  "func end";
 				emit(pair<string , Entry*>(end_emit, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
          }
-	| declaration_specifiers declarator E2 compound_statement  {
+	| declaration_specifiers declarator str_mark1 compound_statement  {
 			$$ = non_term_symb_3("function_definition", $1, $2, $4);
 			$$->nextlist=$4->nextlist;
 				
@@ -1957,7 +1926,7 @@ function_definition
 				emit(pair<string , Entry*>(end_emit, NULL), pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),pair<string , Entry*>("", NULL),-3);
             
 			}
-	| X1 declarator E2 declaration_list compound_statement { $$ = non_term_symb_3("function_definition",$2,$4,$5);
+	| str_mark4 declarator str_mark1 declaration_list compound_statement { $$ = non_term_symb_3("function_definition",$2,$4,$5);
 															$$->nextlist=$5->nextlist;
 															type_name="";
 															string tmp_str($3);
@@ -1976,7 +1945,7 @@ function_definition
 
 															
 													}
-	| X1 declarator E2 compound_statement { $$ = non_term_symb_3("function_definition", $2,NULL,$4);
+	| str_mark4 declarator str_mark1 compound_statement { $$ = non_term_symb_3("function_definition", $2,NULL,$4);
 											$$->nextlist=$4->nextlist;
 											type_name="";
 											string tmp_str($3);
@@ -1997,7 +1966,7 @@ function_definition
 									}
 	;
 
-E2
+str_mark1
     : %empty                 { 			type_name="";
                                          func_symb++;
                                          file_name = func_name;
@@ -2013,7 +1982,7 @@ E2
        }
     ;
 
-X1 : %empty {
+str_mark4 : %empty {
 		type_name="spec_less_func";
 	}
 	;
