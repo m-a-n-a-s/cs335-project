@@ -2,6 +2,8 @@
 #include <fstream>
 using namespace std;
 
+#define width setw(15)
+
 long long pos = -1;
 vector<quad> emit_list;
 
@@ -237,7 +239,7 @@ void show_in_file()
         switch (-emit_list[i].line_no)
         {
         case 1:{
-            IR_file << "\t" << "Line No." << i << " - " << "\t\t" << emit_list[i].op.first << " " << "\t\t" << emit_list[i].operand_1.first << " " << "\t\t" << emit_list[i].operand_2.first << " " << "\t\t" << emit_list[i].ans.first << '\n';
+            IR_file << "\t" << "Line No." << i << " - " << width << emit_list[i].op.first << " " << width << emit_list[i].operand_1.first << " " << width << emit_list[i].operand_2.first << " " << width << emit_list[i].ans.first << '\n';
             break;
         }
         case 2:{
@@ -249,11 +251,11 @@ void show_in_file()
             break;
         }
         case 4:{
-            IR_file << "\t" << "Line No." << i << " - " << "\t\t" << emit_list[i].op.first << " " << "\t\t" << emit_list[i].operand_1.first << " " << "\t\t" << emit_list[i].operand_2.first << " " << "\t\t" << emit_list[i].ans.first << endl;
+            IR_file << "\t" << "Line No." << i << " - " << width << emit_list[i].op.first << " " << width << emit_list[i].operand_1.first << " " << width << emit_list[i].operand_2.first << " " << width << emit_list[i].ans.first << endl;
             break;
         }
         case 7:{
-            IR_file << "\t"<< "Line No." << i << " - " << "\t\t" << emit_list[i].op.first << " " << "\t\t" << emit_list[i].operand_1.first << " " << "\t\t" << emit_list[i].operand_2.first << " " << "\t\t" << emit_list[i].ans.first << endl;
+            IR_file << "\t"<< "Line No." << i << " - " << width << emit_list[i].op.first << " " << width << emit_list[i].operand_1.first << " " << width << emit_list[i].operand_2.first << " " << width << emit_list[i].ans.first << endl;
             break;
         }
         default:{
@@ -265,7 +267,7 @@ void show_in_file()
                 string tmp_str = to_string(l_num);
                 label_map.insert({l_num, "Label" + tmp_str});
             }
-            IR_file << "\t" << "Line No." << i << " - " <<"\t\t" << emit_list[i].op.first << " " << "\t\t" << emit_list[i].operand_1.first << " " << "\t\t" << emit_list[i].operand_2.first << " " << "\t\t" <<"Line No."<< l_num << endl;;
+            IR_file << "\t" << "Line No." << i << " - " <<width << emit_list[i].op.first << " " << width << emit_list[i].operand_1.first << " " << width << emit_list[i].operand_2.first << " " << width <<"Line No."<< l_num << endl;;
             emit_list[i].line_no = l_num;
             break;
         }
