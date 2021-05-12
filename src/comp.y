@@ -2000,7 +2000,7 @@ int main(int argc, char * argv[]){
 	args_map.insert(pair<string, string>(string("print_float"), string("float")));
 	args_map.insert(pair<string, string>(string("print_int"), string("int")));
    	args_map.insert(pair<string, string>(string("print_string"), string("char*")));
-   	args_map.insert(pair<string, string>(string("scanf"), string("")));
+   	args_map.insert(pair<string, string>(string("scan_int"), string("")));
 	args_map.insert(pair<string, string>(string("scan_char"), string("")));
 	args_map.insert(pair<string, string>(string("print_char"), string("char")));
     yyin = fopen(argv[1], "r");

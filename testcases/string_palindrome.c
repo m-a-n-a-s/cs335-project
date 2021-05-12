@@ -1,21 +1,21 @@
 int main()
 {
-    int a[100];
+    char a[10];
     int n;
     int i;
     int t;
     int l;
     int h;
+    //n=3;
     print_string("Enter no. of elements\n");
-    n=scanf();
+    n=scan_int();
     print_string("Enter elements\n");
     for(i=0;i<n;i=i+1){
-        a[i]=scanf();
+        a[i]=scan_char();
     }
     t=1;
     l=0;
     h=n-1;
-    //print_int(h);
     while (h > l)
     {
         if ( a[l] != a[h])

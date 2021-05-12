@@ -17,11 +17,11 @@ int main()
     print_string("enter 5 values:\n");
     for (i = 0; i < 5; i = i + 1)
     {
-        a[i].val = scanf();
+        a[i].val = scan_int();
     }
 
     print_string("enter value to find:\n");
-    x=scanf();
+    x=scan_int();
 
     tmp=&a[0];
     i=0;

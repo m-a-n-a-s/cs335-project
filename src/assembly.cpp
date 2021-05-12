@@ -3392,7 +3392,7 @@ void generate_asm()
                 param_idx = 0;
                 paramOff = 0;
             }
-            else if (emit_list[i].op.first == "CALL" && emit_list[i].operand_1.first == "scanf")
+            else if (emit_list[i].op.first == "CALL" && emit_list[i].operand_1.first == "scan_int")
             {
                 reg1 = getReg(emit_list[i].ans);
                 insert_asm("li $v0, 5");

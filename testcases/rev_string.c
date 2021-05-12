@@ -18,7 +18,7 @@ int main()
     int i;
     //n=3;
     print_string("Enter no. of elements\n");
-    n=scanf();
+    n=scan_int();
     print_string("Enter elements\n");
     for(i=0;i<n;i=i+1){
         a[i]=scan_char();

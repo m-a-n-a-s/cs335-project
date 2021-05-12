@@ -7,7 +7,7 @@ int main()
   int n;
 
   print_string("Enter number:\n");
-  n = scanf();
+  n = scan_int();
   print_string("odd: ");
   print_int(odd(n));
   print_string("\n");

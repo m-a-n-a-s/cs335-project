@@ -6,13 +6,13 @@ int main()
     print_string("Enter 4 elements for matrix a:\n");
     for(i=0;i<2;i=i+1){
         for(j=0;j<2;j=j+1){
-            a[i][j]=scanf();
+            a[i][j]=scan_int();
         }
     }
     print_string("Enter 4 elements for matrix b:\n");
     for(i=0;i<2;i=i+1){
         for(j=0;j<2;j=j+1){
-            b[i][j]=scanf();
+            b[i][j]=scan_int();
         }
     }
     for (i = 0; i < 2; i=i+1) {

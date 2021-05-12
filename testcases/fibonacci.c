@@ -5,7 +5,8 @@ int fib(int n){
 
 int main(){
     int n, a = 1, b = 1, c, d, i;
-    n=scanf();
+    print_string("ENTER THE NUMBER\n");
+    n=scan_int();
     //n=3;
     //d=3;
     d = fib(n);

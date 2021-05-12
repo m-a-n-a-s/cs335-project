@@ -1,17 +1,18 @@
-void swap(float* a, float* b){
-    float t = *a;
+
+void swap(int* a, int* b){
+    int t = *a;
     *a = *b;
     *b = t;
     return;
 }
 
-int partition(float *arr, int start, int end){
-  float pivot = arr[end];
+int partition(int *arr, int start, int end){
+  int pivot = arr[end];
   int i;
   int j = start - 1;
-  float tmp;
+  int tmp;
   int k;
-  float *ptr1, *ptr2;
+  int *ptr1, *ptr2;
   for (i = start; i <= end - 1; i = i + 1)
   {
     if (arr[i] <= pivot)
@@ -30,7 +31,7 @@ int partition(float *arr, int start, int end){
   return k;
 }
 
-void quicksort(float *arr, int start, int end){
+void quicksort(int *arr, int start, int end){
   int p;
   if (start < end){
     p = partition(arr, start, end);
@@ -42,24 +43,23 @@ void quicksort(float *arr, int start, int end){
 
 int main()
 { 
-  float arr[100];
-  float *a;
-  int i,len;
-  float k;
+  int arr[100];
+  int *a;
+  int i,len, k;
   
   print_string("Input the length of the array : ");
-  len = scanf();
+  len = scan_int();
   print_int(len);
   print_string("\n");
   print_string("Input the array elements :\n");
   i=0;
   while(i<len){
-    arr[i] = scan_float();
+    arr[i] = scan_int();
     i = i+1;
   }
   // for (i = 0; i < len; i = i + 1)
   // {
-  //   arr[i]=scanf();
+  //   arr[i]=scan_int();
   // }
   i = 0;
   a = &arr[i];
@@ -68,7 +68,7 @@ int main()
   for (i = 0; i < len; i = i + 1)
   {
     k = arr[i];
-    print_float(k);
+    print_int(k);
     print_string(" ");
   }
   print_string("\n");

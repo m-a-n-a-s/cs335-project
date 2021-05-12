@@ -5,12 +5,12 @@ int main()
     int d_lim, c_lim;
     int temp,j;
     print_string("Length of array : ");
-    len = scanf();
+    len = scan_int();
     print_int(len);
     print_string("\nEnter elements : ");
     i = 0;
     while(i < len){
-        arr[i] = scanf();
+        arr[i] = scan_int();
         i = i+1;
     }
 

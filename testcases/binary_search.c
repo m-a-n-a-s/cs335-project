@@ -10,17 +10,17 @@ int main()
    int res = -1;
  
    print_string("Length of arr :\n");
-   len = scanf();
+   len = scan_int();
  
    print_string("Enter the elements:\n");
    index= 0;
    while(index < len){
-      arr[index] = scanf();
+      arr[index] = scan_int();
       index = index + 1;
    }
 
    print_string("Enter a number:\n");
-   num = scanf();
+   num = scan_int();
  
    start = 0;
    end = len - 1;

@@ -42,7 +42,7 @@ void table_initialize(){
    Parent.insert(make_pair<symbol_table *, symbol_table *>(&global_table, NULL));
    curr = &global_table;
    str_mark2_done = false;
-   insert_symbol1(*curr, "scanf", "FUNC_int", 8, 1);
+   insert_symbol1(*curr, "scan_int", "FUNC_int", 8, 1);
    insert_symbol1(*curr, "print_string", "FUNC_void", 8, 1);
    insert_symbol1(*curr, "print_int", "FUNC_void", 8, 1); 
    insert_symbol1(*curr, "print_char", "FUNC_void", 8, 1); 
