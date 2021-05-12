@@ -1,4 +1,8 @@
 # Group 6 CS335-project
+Source Language - C<br/>
+Implementation Language - C++ <br/>
+Target Language - MIPS <br/>
+
 If bin folder already exists run 
 ```
 $make clean
