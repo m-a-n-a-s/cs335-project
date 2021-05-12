@@ -16,8 +16,6 @@ void int_extract();
 void real_extract(char *c);
 
 static int col=1;
-char lexeme[2048]; 
-char token[2048];
 %}
 %option yylineno
 
@@ -177,14 +175,6 @@ void count(){
 			col++;
     }
 }
-/*
-void print(char *token, char * lexeme, int column_no){
-    //to print the entries of table
-    //first argument is token, 2nd is the lexeme
-
-    printf("%-20s %-20s %-10d %-10d\n", token, lexeme, yylineno, column_no);
-}
-*/
 void yyerror(char *s,...){
 	va_list args;
   	char buffer[1024];

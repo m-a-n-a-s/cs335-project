@@ -46,16 +46,6 @@ typedef struct{
 } number_types;
 
 
-typedef struct{
-   long long int integer_value;
-   long double real_value;
-   char *str;
-   char char_value;
-   string expr_type;
-   node * nPtr;
-} expr_node;
-
-
 void make_truefalse_lists(struct node* node1);
 void set_place(struct node* node0, struct node* node1, string op, struct node* node3);
 void set_place2(struct node* node0, struct node* node1, string op1, string op2);
