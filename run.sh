@@ -1,12 +1,15 @@
 #!/bin/bash
+RED='\033[0;33m'
+GREEN='\033[0;32m'
+NOCOLOR='\033[0m'
 
 tests=`ls ./testcases/*.c`
 for entry in $tests
 do 
 ./bin/compiler $entry -o ast.dot
-echo "${red}entry"
+echo -e "${RED}$entry${NOCOLOR}"
 spim -file "code.asm"
-echo "${green}entry done"
+echo -e "${GREEN}$entry done${NOCOLOR}"
 done
 
 # for i in {1..6}
