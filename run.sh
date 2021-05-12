@@ -1,12 +1,12 @@
 #!/bin/bash
 
-testcases=`ls ./newtests/*.c`
-for entry in $testcases
+tests=`ls ./testcases/*.c`
+for entry in $tests
 do 
 ./bin/compiler $entry -o ast.dot
-echo "$entry"
+echo "${red}entry"
 spim -file "code.asm"
-echo "$entry done"
+echo "${green}entry done"
 done
 
 # for i in {1..6}
