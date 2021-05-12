@@ -210,27 +210,6 @@ void backPatch(vector<int> goto_list, int line_no)
     return;
 }
 
-//finding corresponding goto for backpatches
-char *backPatchGoto()
-{
-    for (auto it = backpatch_list.begin(); it != backpatch_list.end(); ++it)
-    {
-        if (goto_map.find(it->first) == goto_map.end())
-        {
-            char *a;
-            strcpy(a, it->first.c_str());
-            return a;
-        }
-        else
-        {
-            backPatch(backpatch_list[it->first], goto_map[it->first]);
-        }
-    }
-    return NULL;
-}
-
-// --- REMEMBER --- It will be used as it is in main.cpp and  removed from here
-
 void show_in_file()
 {
     IR_file.open("IRcode.txt");
