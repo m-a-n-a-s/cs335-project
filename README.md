@@ -34,11 +34,8 @@ $spim -file "code.asm"
 ## LIBRARY FUNCTIONS<br /> 
 * use **print_int(x)** to print integer x<br /> 
 * use **x=scan_int()** to scan integer into x<br />
-<br/>
-* use **print_string(s)** to print string s  
-<br/>
+* use **print_string(s)** to print string s  <br/>
 * use **print_char(x)** to print char c<br />  
 * use **x=scan_char()** to scan char into c<br /> 
-<br/>
 * use **print_float(x)** to print float x<br />  
 * use **x=scan_float()** to scan float into x<br /> 
