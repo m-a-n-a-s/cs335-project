@@ -74,9 +74,9 @@ IS			(u|U|l|L)*
 {D}+{IS}?		{ sscanf(yytext,"%lld",&yylval.num->integer_value);count(); yylval.num->str = strdup(yytext); int_extract();return CONSTANT; }
 L?'(\\.|[^\\'])+'	{ count(); yylval.num->str = strdup(yytext); int_extract();return CONSTANT; }
 
-{D}+{E}{FS}?		{ /*sscanf(yytext,"%Lf",&yylval.num->real_value);*/ count(); yylval.num->str = strdup(yytext); char *c=strdup(yytext); real_extract(c);return CONSTANT; }
-{D}*"."{D}+({E})?{FS}?	{ /*sscanf(yytext,"%Lf",&yylval.num->real_value);*/count(); yylval.num->str = strdup(yytext);char *c=strdup(yytext); real_extract(c);return CONSTANT; }
-{D}+"."{D}*({E})?{FS}?	{ /*sscanf(yytext,"%Lf",&yylval.num->real_value);*/count(); yylval.num->str = strdup(yytext); char *c=strdup(yytext); real_extract(c);return CONSTANT; }
+{D}+{E}{FS}?		{ count(); yylval.num->str = strdup(yytext); char *c=strdup(yytext); real_extract(c);return CONSTANT; }
+{D}*"."{D}+({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext);char *c=strdup(yytext); real_extract(c);return CONSTANT; }
+{D}+"."{D}*({E})?{FS}?	{ count(); yylval.num->str = strdup(yytext); char *c=strdup(yytext); real_extract(c);return CONSTANT; }
 
 L?\"(\\.|[^\\"])*\"	{ count(); yylval.str = strdup(yytext); return STRING_LITERAL; }
 

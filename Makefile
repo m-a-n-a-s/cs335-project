@@ -42,4 +42,4 @@ $(BUILD)/%.o: $(SOURCE)/%.cpp
 
 clean : 
 	rm -rf $(BIN)  $(BUILD)
-	rm -f *.csv *.asm *.txt *.gv
+	rm -f *.csv *.asm *.txt *.gv *.ps *.dot
