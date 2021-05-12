@@ -24,5 +24,4 @@ string newlabel_var();
 pair<string, Entry*> newlabel_sym(string type);
 int assign_3ac(char *op, string type, string operand_1_type, string operand_2_type, pair <string, Entry*> operand_1_place, pair <string, Entry*> operand_2_place);
 void backPatch(vector<int> goto_list, int line_no);
-char* backPatchGoto();
 void show_in_file();
