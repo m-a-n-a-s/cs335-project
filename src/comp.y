@@ -658,13 +658,13 @@ multiplicative_expression
 							}
 							else{
 								$$->node_type= "long long";
-								//===========3AC======================//
+								
                   				pair <string, Entry*> newlabel = newlabel_sym($$->node_type);
                   				int k =emit(pair<string, Entry*>("%", NULL), $1->place, $3->place, newlabel, -1);
                   				$$->nextlist={};
                   				$$->place = newlabel;
 
-                  				//====================================//
+                  				
 							}
 
 							}
@@ -2016,7 +2016,6 @@ int main(int argc, char * argv[]){
 	}
 	file_name = "global_table.csv";
   	print_tables(curr,file_name);
-  	// print_func_args();
 	show_in_file();
 
 	initialize_reg();
