@@ -6,7 +6,7 @@ NOCOLOR='\033[0m'
 tests=`ls ./testcases/*.c`
 for entry in $tests
 do 
-./bin/compiler $entry -o ast.dot
+./bin/compiler $entry
 echo -e "${RED}$entry${NOCOLOR}"
 spim -file "code.asm"
 echo -e "${GREEN}$entry done${NOCOLOR}"

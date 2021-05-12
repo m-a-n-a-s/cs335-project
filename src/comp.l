@@ -141,7 +141,6 @@ int yywrap(void){
 
 void int_extract(){
    yylval.num->is_integer = 1;
-   //cout<<"int vlaue:"<<yylval.num->integer_value<<yylval.num->str<<"\n";
    yylval.num->num_type = yylval.num->unsigned_flag=1;
    for(int i=yyleng-1;;i--){
        if(yytext[i]=='u'||yytext[i]=='U')
@@ -160,8 +159,6 @@ void real_extract(char *c){
    yylval.num->real_value=stof(str);
    yylval.num->str=strdup(c);
    yylval.num->is_integer=0;
-   //cout<<yylval.num->str<<"\n";
-   //cout<<"rael vlaue:"<<yylval.num->real_value<<" "<<yylval.num->str<<"\n";
     if(yytext[n]=='f'||yytext[n]=='F')
             yylval.num->num_type = N_FLOAT;
     else if (yytext[n]=='l'||yytext[n] == 'L')
@@ -209,18 +206,5 @@ void yyerror(char *s,...){
         //printf("Line:%d Col:%d %s\n",yylineno,col,s);
 	// exit(1);
 }
-// int main(int argc, char *argv[]){
-// 	if(argc!=2){
-//         printf("Please specify an existing filename\n");	
-// 		return 1;
-// 	}
-//     yyin = fopen(argv[1], "r");
-//     printf("%-20s %-20s %-10s %-10s\n", "Token", "Lexeme", "Line#", "Column#");
-// 	int val = 0;
-//     while( (val = yylex()) > 0){
-// 		print(token, lexeme, col-strlen(lexeme));
-//     }
-// 	fclose(yyin);
-// 	return 0;
-// }
+
 
