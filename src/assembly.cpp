@@ -695,23 +695,6 @@ void func_start_code()
         // allocate space for the registers by updating the stack pointer
         //insert_asm("sub $sp, $sp, 72");
         insert_asm("sub $sp, $sp, 32");
-
-        // storing the remaining registers
-        // insert_asm("sw $t0, 12($sp)");
-        // insert_asm("sw $t1, 16($sp)");
-        // insert_asm("sw $t2, 20($sp)");
-        // insert_asm("sw $t3, 24($sp)");
-        // insert_asm("sw $t4, 28($sp)");
-        // insert_asm("sw $t5, 32($sp)");
-        // insert_asm("sw $t6, 36($sp)");
-        // insert_asm("sw $t7, 40($sp)");
-        // insert_asm("sw $t8, 44($sp)");
-        // insert_asm("sw $t9, 48($sp)");
-        // insert_asm("sw $s0, 52($sp)");
-        // insert_asm("sw $s1, 56($sp)");
-        // insert_asm("sw $s2, 60($sp)");
-        // insert_asm("sw $s3, 64($sp)");
-        // insert_asm("sw $s4, 68($sp)");
         insert_asm("sw $a0, 8($sp)");
         insert_asm("sw $s0, 12($sp)");
         insert_asm("sw $s1, 16($sp)");
@@ -2109,10 +2092,6 @@ void generate_asm()
     asm_code[curr_function].push_back("");
     for (int i = 0; i < emit_list.size(); i++)
     {
-        //cout<<"f1\n";
-        //insert_asm("# " + to_string(i + 1) + " : " + emit_list[i].ans.first + " = " + emit_list[i].operand_1.first + " " + emit_list[i].op.first + " " + emit_list[i].operand_2.first);
-        //cout<<"f2\n";
-
         if (label_map.find(i) != label_map.end())
         {
             store_reg_info();
@@ -3450,28 +3429,10 @@ void generate_asm()
             int sizeEnd = lookup(curr_function)->size + 4;
             insert_asm("addi $sp, $sp, " + to_string(sizeEnd));
 
-            // Get environment pointers
+            
             insert_asm("lw $ra, 0($sp)");
             insert_asm("lw $fp, 4($sp)");
             insert_asm("lw $a0, 8($sp)");
-
-            // Restoring all the Registers
-            // insert_asm("lw $t0, 12($sp)");
-            // insert_asm("lw $t1, 16($sp)");
-            // insert_asm("lw $t2, 20($sp)");
-            // insert_asm("lw $t3, 24($sp)");
-            // insert_asm("lw $t4, 28($sp)");
-            // insert_asm("lw $t5, 32($sp)");
-            // insert_asm("lw $t6, 36($sp)");
-            // insert_asm("lw $t7, 40($sp)");
-            // insert_asm("lw $t8, 44($sp)");
-            // insert_asm("lw $t9, 48($sp)");
-            // insert_asm("lw $s0, 52($sp)");
-            // insert_asm("lw $s1, 56($sp)");
-            // insert_asm("lw $s2, 60($sp)");
-            // insert_asm("lw $s3, 64($sp)");
-            // insert_asm("lw $s4, 68($sp)");
-            // insert_asm("addi $sp, $sp, 72");
 
             insert_asm("lw $s0, 12($sp)");
             insert_asm("lw $s1, 16($sp)");
