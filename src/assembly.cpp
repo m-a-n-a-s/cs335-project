@@ -40,7 +40,7 @@ void store_reg_info()
             offset = offset + REG_SPACE;
 
         insert_asm("li $s6, " + to_string(offset));
-        insert_asm("sub $s7, $fp, $s6"); //combine the two components of the address
+        insert_asm("sub $s7, $fp, $s6"); 
 
         insert_asm("sw " + r + ", 0($s7)");
         t.second = NULL;
@@ -61,7 +61,7 @@ void store_reg_info()
             offset = offset + REG_SPACE;
 
         insert_asm("li $s6, " + to_string(offset));
-        insert_asm("sub $s7, $fp, $s6"); //combine the two components of the address
+        insert_asm("sub $s7, $fp, $s6"); 
 
         insert_asm("swc1 " + r + ", 0($s7)");
         t.second = NULL;
@@ -99,7 +99,7 @@ string getReg(pair<string, Entry *> temp_var)
 
         // now we store value to the location in the stack
         insert_asm("li $s6, " + to_string(offset1)); // put the offset in s6
-        insert_asm("sub $s7, $fp, $s6");             //combine the two components of the address
+        insert_asm("sub $s7, $fp, $s6");             
         insert_asm("lw " + r + ", 0($s7)");
         t.second = temp_var.second;
         used_reg.push(t);
@@ -120,7 +120,7 @@ string getReg(pair<string, Entry *> temp_var)
             offset = offset + REG_SPACE;
 
         insert_asm("li $s6, " + to_string(offset));
-        insert_asm("sub $s7, $fp, $s6"); //combine the two components of the address
+        insert_asm("sub $s7, $fp, $s6"); 
 
         insert_asm("sw " + r + ", 0($s7)");
 
@@ -131,7 +131,7 @@ string getReg(pair<string, Entry *> temp_var)
 
         // now we store value to the location in the stack
         insert_asm("li $s6, " + to_string(offset)); // put the offset in s6
-        insert_asm("sub $s7, $fp, $s6");            //combine the two components of the address
+        insert_asm("sub $s7, $fp, $s6");            
 
         insert_asm("lw " + r + ", 0($s7)");
         t.second = temp_var.second;
@@ -170,7 +170,7 @@ string getReg_float(pair<string, Entry *> temp_var)
 
         // now we store value to the location in the stack
         insert_asm("li $s6, " + to_string(offset1)); // put the offset in s6
-        insert_asm("sub $s7, $fp, $s6");             //combine the two components of the address
+        insert_asm("sub $s7, $fp, $s6");             
         insert_asm("lwc1 " + r + ", 0($s7)");
         t.second = temp_var.second;
         used_reg_float.push(t);
@@ -190,7 +190,7 @@ string getReg_float(pair<string, Entry *> temp_var)
             offset = offset + REG_SPACE;
 
         insert_asm("li $s6, " + to_string(offset));
-        insert_asm("sub $s7, $fp, $s6"); //combine the two components of the address
+        insert_asm("sub $s7, $fp, $s6"); 
 
         insert_asm("swc1 " + r + ", 0($s7)");
 
@@ -201,7 +201,7 @@ string getReg_float(pair<string, Entry *> temp_var)
 
         // now we store value to the location in the stack
         insert_asm("li $s6, " + to_string(offset)); // put the offset in s6
-        insert_asm("sub $s7, $fp, $s6");            //combine the two components of the address
+        insert_asm("sub $s7, $fp, $s6");            
 
         insert_asm("lwc1 " + r + ", 0($s7)");
         t.second = temp_var.second;
@@ -241,7 +241,7 @@ void get_arr_element(pair<string, Entry *> temp_var, string reg_name, int arr_ty
             insert_asm("mflo $t7");
             insert_asm("li $s6, " + to_string(temp_var.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t7");
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
         }
 
         else
@@ -265,7 +265,7 @@ void get_arr_element(pair<string, Entry *> temp_var, string reg_name, int arr_ty
             insert_asm("mflo $t7");
             insert_asm("li $s6, " + to_string(temp_var.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t7");
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
         }
     }
     else
@@ -359,7 +359,7 @@ void get_arr_element_float(pair<string, Entry *> temp_var, string reg_name, int 
             insert_asm("mflo $t7");
             insert_asm("li $s6, " + to_string(temp_var.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t7");
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
         }
 
         else
@@ -383,7 +383,7 @@ void get_arr_element_float(pair<string, Entry *> temp_var, string reg_name, int 
             insert_asm("mflo $t7");
             insert_asm("li $s6, " + to_string(temp_var.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t7");
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
         }
     }
     else
@@ -477,7 +477,7 @@ void get_struct_element(pair<string, Entry *> temp_var, string reg_name, int str
                 insert_asm("mflo $s7");
                 insert_asm("add $s6, $s6, $s7"); // a+2*struct_size
             }
-            insert_asm("sub $s6, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s6, $fp, $s6"); 
             insert_asm("add $s7, $s6, $t8");
         }
         else
@@ -490,7 +490,7 @@ void get_struct_element(pair<string, Entry *> temp_var, string reg_name, int str
             insert_asm("sub $s6, $fp, $s6");
             insert_asm("lw $s6, 0($s6)");
             insert_asm("add $s7, $s6, $t8");
-            // combine the two components of the
+            
         }
     }
     else
@@ -522,7 +522,7 @@ void get_struct_element(pair<string, Entry *> temp_var, string reg_name, int str
                 insert_asm("add $s6, $s6, $s7"); // a+2*struct_size
             }
             insert_asm("addi $s6, " + to_string(REG_SPACE));
-            insert_asm("sub $s6, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s6, $fp, $s6"); 
             insert_asm("add $s7, $s6, $t8");
         }
         else
@@ -536,7 +536,7 @@ void get_struct_element(pair<string, Entry *> temp_var, string reg_name, int str
             insert_asm("sub $s6, $fp, $s6");
             insert_asm("lw $s6, 0($s6)");
             insert_asm("add $s7, $s6, $t8");
-            // combine the two components of the
+            
         }
     }
     insert_asm("lw " + reg_name + ", 0($s7)");
@@ -571,7 +571,7 @@ void get_struct_element_float(pair<string, Entry *> temp_var, string reg_name, i
                 insert_asm("mflo $s7");
                 insert_asm("add $s6, $s6, $s7"); // a+2*struct_size
             }
-            insert_asm("sub $s6, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s6, $fp, $s6"); 
             insert_asm("add $s7, $s6, $t8");
         }
         else
@@ -584,7 +584,7 @@ void get_struct_element_float(pair<string, Entry *> temp_var, string reg_name, i
             insert_asm("sub $s6, $fp, $s6");
             insert_asm("lw $s6, 0($s6)");
             insert_asm("add $s7, $s6, $t8");
-            // combine the two components of the
+            
         }
     }
     else
@@ -616,7 +616,7 @@ void get_struct_element_float(pair<string, Entry *> temp_var, string reg_name, i
                 insert_asm("add $s6, $s6, $s7"); // a+2*struct_size
             }
             insert_asm("addi $s6, " + to_string(REG_SPACE));
-            insert_asm("sub $s6, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s6, $fp, $s6"); 
             insert_asm("add $s7, $s6, $t8");
         }
         else
@@ -630,7 +630,7 @@ void get_struct_element_float(pair<string, Entry *> temp_var, string reg_name, i
             insert_asm("sub $s6, $fp, $s6");
             insert_asm("lw $s6, 0($s6)");
             insert_asm("add $s7, $s6, $t8");
-            // combine the two components of the
+            
         }
     }
     insert_asm("lwc1 " + reg_name + ", 0($s7)");
@@ -844,7 +844,7 @@ void param_code(int i)
                 insert_asm("add $s6, $s6, $t9");
                 if (curr_function != "main")
                     insert_asm("addi $s6, " + to_string(REG_SPACE));
-                insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+                insert_asm("sub $s7, $fp, $s6"); 
                                                  // address
                 insert_asm("lw $t6, 0($s7)");
             }
@@ -874,7 +874,7 @@ void param_code(int i)
                 insert_asm("add $s6, $s6, $t9");
                 if (curr_function != "main")
                     insert_asm("addi $s6, " + to_string(REG_SPACE));
-                insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+                insert_asm("sub $s7, $fp, $s6"); 
                                                  // address
                 insert_asm("lw $t6, 0($s7)");
             }
@@ -908,7 +908,7 @@ void param_code(int i)
                 }
                 if (curr_function != "main")
                     insert_asm("addi $s6, " + to_string(REG_SPACE));
-                insert_asm("sub $s6, $fp, $s6"); // combine the two components of the
+                insert_asm("sub $s6, $fp, $s6"); 
                 insert_asm("add $s7, $s6, $t8");
                 insert_asm("lw $t6, 0($s7)");
             }
@@ -1033,7 +1033,7 @@ void param_code_float(int i)
                 insert_asm("add $s6, $s6, $t9");
                 if (curr_function != "main")
                     insert_asm("addi $s6, " + to_string(REG_SPACE));
-                insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+                insert_asm("sub $s7, $fp, $s6"); 
                                                  // address
                 insert_asm("lwc1 $f6, 0($s7)");
             }
@@ -1063,7 +1063,7 @@ void param_code_float(int i)
                 insert_asm("add $s6, $s6, $t9");
                 if (curr_function != "main")
                     insert_asm("addi $s6, " + to_string(REG_SPACE));
-                insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+                insert_asm("sub $s7, $fp, $s6"); 
                                                  // address
                 insert_asm("lwc1 $f6, 0($s7)");
             }
@@ -1097,7 +1097,7 @@ void param_code_float(int i)
                 }
                 if (curr_function != "main")
                     insert_asm("addi $s6, " + to_string(REG_SPACE));
-                insert_asm("sub $s6, $fp, $s6"); // combine the two components of the
+                insert_asm("sub $s6, $fp, $s6"); 
                 insert_asm("add $s7, $s6, $t8");
                 insert_asm("lwc1 $f6, 0($s7)");
             }
@@ -1261,7 +1261,7 @@ void assign_op_code(int i)
             insert_asm("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t9");
             insert_asm(
-                "sub $s7, $fp, $s6"); // combine the two components of the address
+                "sub $s7, $fp, $s6"); 
         }
         else
         {
@@ -1321,7 +1321,7 @@ void assign_op_code(int i)
             insert_asm("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t9");
             insert_asm(
-                "sub $s7, $fp, $s6"); // combine the two components of the address
+                "sub $s7, $fp, $s6"); 
         }
         else
         {
@@ -1411,7 +1411,7 @@ void assign_op_code(int i)
                 insert_asm("add $s6, $s6, $s7"); // a+2*struct_size
             }
             insert_asm("addi $s6, " + to_string(REG_SPACE));
-            insert_asm("sub $s6, $fp, $s6"); // combine the two components of the address
+            insert_asm("sub $s6, $fp, $s6"); 
             insert_asm("add $s7, $s6, $t8");
             insert_asm("sw $t7, 0($s7)");
         }
@@ -1434,7 +1434,7 @@ void assign_op_code(int i)
             //insert_asm("lw $s6, 10");
             insert_asm("add $s6, $s6, $t8");
             //insert_asm(
-            //    "sub $s7, $fp, $s6"); // combine the two components of the address
+            //    "sub $s7, $fp, $s6"); 
             insert_asm("sw $t7, 0($s6)");
         }
         else
@@ -1451,7 +1451,7 @@ void assign_op_code(int i)
             //insert_asm("lw $s6, 10");
             insert_asm("add $s6, $s6, $t8");
             //insert_asm(
-            //    "sub $s7, $fp, $s6"); // combine the two components of the address
+            //    "sub $s7, $fp, $s6"); 
             insert_asm("sw $t7, 0($s6)");
         }
 
@@ -1527,7 +1527,7 @@ void assign_float(int i)
             insert_asm("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t9");
             insert_asm(
-                "sub $s7, $fp, $s6"); // combine the two components of the address
+                "sub $s7, $fp, $s6"); 
         }
         else
         {
@@ -1587,7 +1587,7 @@ void assign_float(int i)
             insert_asm("li $s6, " + to_string(emit_list[i].ans.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t9");
             insert_asm(
-                "sub $s7, $fp, $s6"); // combine the two components of the address
+                "sub $s7, $fp, $s6"); 
         }
         else
         {
@@ -1677,7 +1677,7 @@ void assign_float(int i)
                 insert_asm("add $s6, $s6, $s7"); // a+2*struct_size
             }
             insert_asm("addi $s6, " + to_string(REG_SPACE));
-            insert_asm("sub $s6, $fp, $s6"); // combine the two components of the address
+            insert_asm("sub $s6, $fp, $s6"); 
             insert_asm("add $s7, $s6, $t8");
             insert_asm("swc1 $f7, 0($s7)");
         }
@@ -1700,7 +1700,7 @@ void assign_float(int i)
             //insert_asm("lw $s6, 10");
             insert_asm("add $s6, $s6, $t8");
             //insert_asm(
-            //    "sub $s7, $fp, $s6"); // combine the two components of the address
+            //    "sub $s7, $fp, $s6"); 
             insert_asm("swc1 $f7, 0($s6)");
         }
         else
@@ -1717,7 +1717,7 @@ void assign_float(int i)
             //insert_asm("lw $s6, 10");
             insert_asm("add $s6, $s6, $t8");
             //insert_asm(
-            //    "sub $s7, $fp, $s6"); // combine the two components of the address
+            //    "sub $s7, $fp, $s6"); 
             insert_asm("swc1 $f7, 0($s6)");
         }
 
@@ -1951,7 +1951,7 @@ void unary_star_code(int i)
             insert_asm("mflo $t9");
             insert_asm("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t9");
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
                                              // address
             insert_asm("lw $t6, 0($s7)");
         }
@@ -1976,7 +1976,7 @@ void unary_star_code(int i)
             insert_asm("mflo $t9");
             insert_asm("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t9");
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
                                              // address
             insert_asm("lw $t6, 0($s7)");
         }
@@ -1986,7 +1986,7 @@ void unary_star_code(int i)
 
             insert_asm("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
 
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
                                              // address
             insert_asm("add $s7, $t9, $s7");
             insert_asm("lw $t6, 0($s7)");
@@ -1997,7 +1997,7 @@ void unary_star_code(int i)
 
             insert_asm("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
 
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
                                              // address
             insert_asm("lw $s7, 0($s7)");
             insert_asm("add $s7, $t9, $s7");
@@ -2042,7 +2042,7 @@ void unary_star_code_float(int i)
             insert_asm("mflo $t9");
             insert_asm("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t9");
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
                                              // address
             insert_asm("lw $t6, 0($s7)");
         }
@@ -2067,7 +2067,7 @@ void unary_star_code_float(int i)
             insert_asm("mflo $t9");
             insert_asm("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
             insert_asm("add $s6, $s6, $t9");
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
                                              // address
             insert_asm("lw $t6, 0($s7)");
         }
@@ -2077,7 +2077,7 @@ void unary_star_code_float(int i)
 
             insert_asm("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
 
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
                                              // address
             insert_asm("add $s7, $t9, $s7");
             insert_asm("lw $t6, 0($s7)");
@@ -2088,7 +2088,7 @@ void unary_star_code_float(int i)
 
             insert_asm("li $s6, " + to_string(emit_list[i].operand_1.second->offset)); // put the offset in s6
 
-            insert_asm("sub $s7, $fp, $s6"); // combine the two components of the
+            insert_asm("sub $s7, $fp, $s6"); 
                                              // address
             insert_asm("lw $s7, 0($s7)");
             insert_asm("add $s7, $t9, $s7");
